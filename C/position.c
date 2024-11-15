@@ -112,6 +112,12 @@ Position_t fen_to_board(char fen[])
 }
 
 
+bool not_on_edge(uint8_t square)
+{
+    return square % 8 != 0 && square % 8 != 7 && square / 8 != 0 && square / 8 != 7;
+}
+
+
 void print_board(char board[])
 {
     for (size_t i = 0; i < 64; i++)
@@ -233,6 +239,92 @@ void knight_moves(bool is_piece_white, size_t square, char* board, Move_t* moves
     }   
 }
 
+
+void diagonal_moves(bool is_piece_white, size_t square, char* board, Move_t* move, size_t* move_counter, char piece)
+{
+    int row = square / 8;
+    int col = square % 8;
+
+    int possible_directions[4];
+    size_t num_directions;
+
+    if (row == 0 && col == 0) {
+        possible_directions[0] = 9;
+        num_directions = 1;
+    } else if (row == 0 && col == 7) {
+        possible_directions[0] = 7;
+        num_directions = 1;
+    } else if (row == 7 && col == 0) {
+        possible_directions[0] = -7;
+        num_directions = 1;
+    } else if (row == 7 && col == 7) {
+        possible_directions[0] = -9;
+        num_directions = 1;
+    } else if (row == 0) {
+        possible_directions[0] = 7;
+        possible_directions[1] = 9;
+        num_directions = 2;
+    } else if (row == 7) {
+        possible_directions[0] = -7;
+        possible_directions[1] = -9;
+        num_directions = 2;
+    } else if (col == 0) {
+        possible_directions[0] = -7;
+        possible_directions[1] = 9;
+        num_directions = 2;
+    } else if (col == 7) {
+        possible_directions[0] = -9;
+        possible_directions[1] = 7;
+        num_directions = 2;
+    } else {
+        possible_directions[0] = -9;
+        possible_directions[1] = -7;
+        possible_directions[2] = 7;
+        possible_directions[3] = 9;
+        num_directions = 4;
+    }
+
+    for (size_t i = 0; i < num_directions; i++)
+    {
+        int direction = possible_directions[i];
+        uint8_t current_square = square ;
+        while (true)
+        {                
+            current_square += direction;
+            if (board[current_square] == ' ')
+            {
+                move[*move_counter].piece = piece;
+                move[*move_counter].location = square;
+                move[*move_counter].destination = current_square;
+                (*move_counter)++;
+                if (!not_on_edge(current_square))
+                {
+                    break;
+                }
+            } else if (is_piece_white && islower(board[current_square]))
+            {
+                move[*move_counter].piece = piece;
+                move[*move_counter].location = square;
+                move[*move_counter].destination = current_square;
+                (*move_counter)++;
+                break;
+            } else if (!is_piece_white && isupper(board[current_square]))
+            {
+                move[*move_counter].piece = piece;
+                move[*move_counter].location = square;
+                move[*move_counter].destination = current_square;
+                (*move_counter)++;
+                break;
+            } else
+            {
+                break;
+            }
+        }
+    }
+        
+}
+
+
 void determine_possible_moves(Position_t* position)
 {
     char* board = position->board;
@@ -245,26 +337,26 @@ void determine_possible_moves(Position_t* position)
     {
         char piece = board[square];
         bool is_piece_white = isupper(piece);
-        piece = tolower(piece);
+        char lowered_piece = tolower(piece);
         
         if (is_piece_white == is_white_turn)
         {
-            if (piece == 'p')
+            if (lowered_piece == 'p')
             {
                 pawn_moves(is_piece_white, square, board, moves, &move_counter);
-            } else if (piece == 'n')
+            } else if (lowered_piece == 'n')
             {
                 knight_moves(is_piece_white, square, board, moves, &move_counter);
-            } else if (piece == 'b')
+            } else if (lowered_piece == 'b')
             {
-                // bishop_moves(is_piece_white, square, board, moves, &move_counter);
-            } else if (piece == 'r')
+                diagonal_moves(is_piece_white, square, board, moves, &move_counter, piece);
+            } else if (lowered_piece == 'r')
             {
                 // rook_moves(is_piece_white, square, board, moves, &move_counter);
-            } else if (piece == 'q')
+            } else if (lowered_piece == 'q')
             {
                 // queen_moves(is_piece_white, square, board, moves, &move_counter);
-            } else if (piece == 'k')
+            } else if (lowered_piece == 'k')
             {
                 // king_moves(is_piece_white, square, board, moves, &move_counter);
             }
