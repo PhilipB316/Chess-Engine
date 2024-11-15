@@ -9,5 +9,5 @@ int main(void)
     print_board(position.board);
 
     determine_possible_moves(&position);
-    print_moves(position.moves, position.num_possible_moves);
+    print_moves(&position);
 }

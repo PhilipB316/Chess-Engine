@@ -43,6 +43,6 @@ void print_board(char* board);
 
 
 void determine_possible_moves(Position_t* position);
-void print_moves(Move_t* moves, size_t num_possible_moves);
+void print_moves(Position_t* position);
 
 #endif
