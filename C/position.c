@@ -143,8 +143,63 @@ void print_moves(Position_t* position)
 }
 
 
+void determine_possible_directional_moves(
+    bool is_piece_white, 
+    size_t square, 
+    char* board, 
+    Move_t* moves, 
+    size_t* move_counter, 
+    char piece, 
+    int* possible_directions, 
+    size_t num_directions)
+{
+    for (size_t i = 0; i < num_directions; i++)
+    {
+        int direction = possible_directions[i];
+        uint8_t current_square = square;
+        while (true)
+        {
+            current_square += direction;
+            if (board[current_square] == ' ')
+            {
+                moves[*move_counter].piece = piece;
+                moves[*move_counter].location = square;
+                moves[*move_counter].destination = current_square;
+                (*move_counter)++;
+                if (!not_on_edge(current_square))
+                {
+                    break;
+                }
+            } else if (is_piece_white && islower(board[current_square]))
+            {
+                moves[*move_counter].piece = piece;
+                moves[*move_counter].location = square;
+                moves[*move_counter].destination = current_square;
+                (*move_counter)++;
+                break;
+            } else if (!is_piece_white && isupper(board[current_square]))
+            {
+                moves[*move_counter].piece = piece;
+                moves[*move_counter].location = square;
+                moves[*move_counter].destination = current_square;
+                (*move_counter)++;
+                break;
+            } else
+            {
+                break;
+            }
+        }
+    }
+}
 
-void pawn_moves(bool is_piece_white, size_t square, char* board, Move_t* moves, size_t* move_counter)
+
+
+void pawn_moves(
+    bool is_piece_white, 
+    size_t square, 
+    char* board, 
+    Move_t* moves, 
+    size_t* move_counter)
 {
     int direction = is_piece_white ? -1 : 1;
     int start_row = is_piece_white ? 6 : 1;
@@ -207,7 +262,12 @@ void pawn_moves(bool is_piece_white, size_t square, char* board, Move_t* moves, 
 }
 
 
-void knight_moves(bool is_piece_white, size_t square, char* board, Move_t* moves, size_t* move_counter)
+void knight_moves(
+    bool is_piece_white, 
+    size_t square, 
+    char* board, 
+    Move_t* moves, 
+    size_t* move_counter)
 {
     char piece = is_piece_white ? 'N' : 'n';
     uint8_t* possible_moves = possible_knight_move_table[square];
@@ -240,7 +300,12 @@ void knight_moves(bool is_piece_white, size_t square, char* board, Move_t* moves
 }
 
 
-void diagonal_moves(bool is_piece_white, size_t square, char* board, Move_t* move, size_t* move_counter, char piece)
+void diagonal_moves(
+    bool is_piece_white, 
+    size_t square, char* board, 
+    Move_t* move, 
+    size_t* move_counter, 
+    char piece)
 {
     int row = square / 8;
     int col = square % 8;
@@ -284,45 +349,85 @@ void diagonal_moves(bool is_piece_white, size_t square, char* board, Move_t* mov
         num_directions = 4;
     }
 
-    for (size_t i = 0; i < num_directions; i++)
-    {
-        int direction = possible_directions[i];
-        uint8_t current_square = square ;
-        while (true)
-        {                
-            current_square += direction;
-            if (board[current_square] == ' ')
-            {
-                move[*move_counter].piece = piece;
-                move[*move_counter].location = square;
-                move[*move_counter].destination = current_square;
-                (*move_counter)++;
-                if (!not_on_edge(current_square))
-                {
-                    break;
-                }
-            } else if (is_piece_white && islower(board[current_square]))
-            {
-                move[*move_counter].piece = piece;
-                move[*move_counter].location = square;
-                move[*move_counter].destination = current_square;
-                (*move_counter)++;
-                break;
-            } else if (!is_piece_white && isupper(board[current_square]))
-            {
-                move[*move_counter].piece = piece;
-                move[*move_counter].location = square;
-                move[*move_counter].destination = current_square;
-                (*move_counter)++;
-                break;
-            } else
-            {
-                break;
-            }
-        }
-    }
+    determine_possible_directional_moves(is_piece_white, square, board, move, move_counter, piece, possible_directions, num_directions);
         
 }
+
+
+void straight_moves(
+    bool is_piece_white, 
+    size_t square, 
+    char* board, 
+    Move_t* move, 
+    size_t* move_counter, 
+    char piece)
+{
+    int row = square / 8;
+    int col = square % 8;
+    int possible_directions[4];
+    size_t num_directions;
+
+    if (row == 0)
+    {
+        if (col == 0)
+        {
+            possible_directions[0] = 1;
+            possible_directions[1] = 8;
+            num_directions = 2;
+        } else if (col == 7)
+        {
+            possible_directions[0] = -1;
+            possible_directions[1] = 8;
+            num_directions = 2;
+        } else
+        {
+            possible_directions[0] = -1;
+            possible_directions[1] = 1;
+            possible_directions[2] = 8;
+            num_directions = 3;
+        }
+    } else if (row == 7) 
+    {
+        if (col == 0)
+        {
+            possible_directions[0] = 1;
+            possible_directions[1] = -8;
+            num_directions = 2;
+        } else if (col == 7)
+        {
+            possible_directions[0] = -1;
+            possible_directions[1] = -8;
+            num_directions = 2;
+        } else
+        {
+            possible_directions[0] = -1;
+            possible_directions[1] = 1;
+            possible_directions[2] = -8;
+            num_directions = 3;
+        }
+    } else if (col == 0)
+    {
+        possible_directions[0] = 1;
+        possible_directions[1] = -8;
+        possible_directions[2] = 8;
+        num_directions = 3;
+    } else if (col == 7)
+    {
+        possible_directions[0] = -1;
+        possible_directions[1] = -8;
+        possible_directions[2] = 8;
+        num_directions = 3;
+    } else
+    {
+        possible_directions[0] = -1;
+        possible_directions[1] = 1;
+        possible_directions[2] = -8;
+        possible_directions[3] = 8;
+        num_directions = 4;
+    }
+    determine_possible_directional_moves(is_piece_white, square, board, move, move_counter, piece, possible_directions, num_directions);
+}
+
 
 
 void determine_possible_moves(Position_t* position)
@@ -352,10 +457,11 @@ void determine_possible_moves(Position_t* position)
                 diagonal_moves(is_piece_white, square, board, moves, &move_counter, piece);
             } else if (lowered_piece == 'r')
             {
-                // rook_moves(is_piece_white, square, board, moves, &move_counter);
+                straight_moves(is_piece_white, square, board, moves, &move_counter, piece);
             } else if (lowered_piece == 'q')
             {
-                // queen_moves(is_piece_white, square, board, moves, &move_counter);
+                diagonal_moves(is_piece_white, square, board, moves, &move_counter, piece);
+                straight_moves(is_piece_white, square, board, moves, &move_counter, piece);
             } else if (lowered_piece == 'k')
             {
                 // king_moves(is_piece_white, square, board, moves, &move_counter);
