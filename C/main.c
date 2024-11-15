@@ -8,6 +8,6 @@ int main(void)
     position.is_white_turn = true;
     print_board(position.board);
 
-    determine_possible_moves(position);
+    determine_possible_moves(&position);
     print_moves(position.moves, position.num_possible_moves);
 }

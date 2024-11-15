@@ -122,11 +122,11 @@ void pawn_moves(bool is_white, size_t square, char* board, Move_t* moves, size_t
 }
 
 
-void determine_possible_moves(Position_t position)
+void determine_possible_moves(Position_t* position)
 {
-    char* board = position.board;
-    Move_t* moves = position.moves;
-    size_t* num_possible_moves = &position.num_possible_moves;
+    char* board = position->board;
+    Move_t* moves = position->moves;
+    size_t* num_possible_moves = &position->num_possible_moves;
     size_t move_counter = 0;
 
     for (size_t square = 0; square < 64; square++)
