@@ -23,7 +23,7 @@ typedef struct {
     ULL white_pieces;
 
     ULL all_pieces;
-} Position_t;
+} Position_t;  
 
 
 /**
