@@ -29,7 +29,7 @@ void print_bitboard(uint64_t bitboard)
     // pretty printing for the files:
     printf("\n\n    a b c d e f g h\n");
 }
-  
+
 
 
 Position_t fen_to_board(char* fen)

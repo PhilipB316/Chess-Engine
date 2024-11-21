@@ -27,7 +27,7 @@ typedef struct {
 
 
 /**
- * Converts a FEN (Forsyth-Edwards Notation) string to a position,
+ * @brief Converts a FEN (Forsyth-Edwards Notation) string to a position,
  * represented as bitboards.
  *
  * @param fen The FEN string representing the position.
@@ -37,10 +37,23 @@ typedef struct {
 
 
 /**
- * Prints the bitboard.
+ * @brief Prints the bitboard.
  *
  * @param bitboard The bitboard to be printed.
  */
 void print_bitboard(uint64_t bitboard);
+
+
+/**
+ * @brief Generates lookup tables for pawn and knight attacks.
+ *
+ * @param pawn_attack_lookup_table A 2D array to be filled with bitboards indicating
+ *        the attack positions for pawns.
+ * @param knight_attack_lookup_table An array to be filled with bitboards indicating
+ *        the attack positions for knights.
+ */
+void generate_lookup_tables(
+    ULL pawn_attack_lookup_table[2][64], 
+    ULL knight_attack_lookup_table[64]);
 
 #endif

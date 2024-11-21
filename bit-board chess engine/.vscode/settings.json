@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
         "bitboards"
-    ]
+    ],
+    "files.associations": {
+        "string.h": "c"
+    }
 }
