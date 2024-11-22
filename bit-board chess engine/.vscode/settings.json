@@ -3,6 +3,9 @@
         "bitboards"
     ],
     "files.associations": {
-        "string.h": "c"
+        "string.h": "c",
+        "time.h": "c",
+        "lookuptables.h": "c",
+        "stdint.h": "c"
     }
 }

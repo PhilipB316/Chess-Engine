@@ -16,8 +16,17 @@
 #define RANK_7 0x00FF000000000000
 #define RANK_8 0xFF00000000000000
 
-static ULL pawn_attack_lookup_table[2][64] = {0};
-static ULL knight_attack_lookup_table[64] = {0};
+static ULL pawn_attack_lookup_table[2][64];
+static ULL knight_attack_lookup_table[64];
+static ULL king_attack_lookup_table[64];
+
+typedef struct {
+    ULL pawn_attack_bitboard[2][64];
+    ULL knight_attack_bitboard[64];
+    ULL king_attack_bitboard[64];
+} AttackLookupTables_t;
+
+
 
 /**
  * @brief Generates a lookup table for pawn attacks.
@@ -44,8 +53,34 @@ void pawn_attack_generator(ULL pawn_attack_lookup_table[2][64]);
  */
 void knight_attack_generator(ULL knight_attack_lookup_table[64]);
 
-void generate_lookup_tables(
-    ULL pawn_attack_lookup_table[2][64], 
-    ULL knight_attack_lookup_table[64]);
+
+
+
+/**
+ * @brief Generates lookup tables for king attacks.
+ * 
+ * This function populates a lookup table that provides precomputed attack
+ * bitboards for kings. The table is indexed by the square index (0-63) representing
+ * the position of the king on the board.
+ * 
+ * @param king_attack_lookup_table An array to be filled with bitboards indicating
+ *       the attack positions for kings.
+ */
+void king_attack_generator(ULL king_attack_lookup_table[64]);
+
+
+/**
+ * @brief Generates lookup tables for piece attacks.
+ *
+ * This function initializes the provided lookup tables with precomputed
+ * attack patterns - the lookup tables are used to quickly determine 
+ * the possible moves for these pieces from any given position.
+ *
+ * @param lookup_tables The lookup tables to be filled with precomputed
+ *  attack patterns.
+ **/
+void generate_lookup_tables(AttackLookupTables_t *lookup_tables);
+
+
 
 #endif

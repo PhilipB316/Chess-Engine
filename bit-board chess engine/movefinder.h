@@ -23,7 +23,7 @@ typedef struct {
     ULL white_pieces;
 
     ULL all_pieces;
-} Position_t;  
+} Position_t;
 
 
 /**
@@ -44,16 +44,6 @@ typedef struct {
 void print_bitboard(uint64_t bitboard);
 
 
-/**
- * @brief Generates lookup tables for pawn and knight attacks.
- *
- * @param pawn_attack_lookup_table A 2D array to be filled with bitboards indicating
- *        the attack positions for pawns.
- * @param knight_attack_lookup_table An array to be filled with bitboards indicating
- *        the attack positions for knights.
- */
-void generate_lookup_tables(
-    ULL pawn_attack_lookup_table[2][64], 
-    ULL knight_attack_lookup_table[64]);
+void debug_bitboards(void);
 
 #endif

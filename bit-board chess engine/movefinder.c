@@ -6,6 +6,8 @@
 #include <ctype.h>
 
 #include "movefinder.h"
+#include "lookuptables.h"
+
 
 void print_bitboard(uint64_t bitboard)
 {
@@ -29,7 +31,6 @@ void print_bitboard(uint64_t bitboard)
     // pretty printing for the files:
     printf("\n\n    a b c d e f g h\n");
 }
-
 
 
 Position_t fen_to_board(char* fen)
@@ -82,5 +83,14 @@ Position_t fen_to_board(char* fen)
         } 
         character = fen[i++];
     }
-        return fen_position;
+    return fen_position;
+}
+
+
+void debug_bitboards(void)
+{
+    AttackLookupTables_t lookup_tables;
+    generate_lookup_tables(&lookup_tables);
+    print_bitboard(lookup_tables.king_attack_bitboard[18]);
+
 }
