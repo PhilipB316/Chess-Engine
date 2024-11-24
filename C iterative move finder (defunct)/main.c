@@ -17,5 +17,5 @@ int main(void)
         }
     }
     determine_possible_moves(&position);
-    print_moves(&position);
+    print_moves(&position); 
 }
