@@ -29,7 +29,7 @@ void print_bitboard(uint64_t bitboard)
         }
     }
     // pretty printing for the files:
-    printf("\n\n    a b c d e f g h\n");
+    printf("\n\n    a b c d e f g h\n\n");
 }
 
 
