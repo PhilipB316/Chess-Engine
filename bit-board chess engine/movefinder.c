@@ -6,7 +6,8 @@
 #include <ctype.h>
 
 #include "movefinder.h"
-#include "lookuptables.h"
+// #include "lookuptables.h"
+#include "magic_numbers.h"
 
 
 void print_bitboard(uint64_t bitboard)
@@ -89,8 +90,9 @@ Position_t fen_to_board(char* fen)
 
 void debug_bitboards(void)
 {
-    AttackLookupTables_t lookup_tables;
-    generate_lookup_tables(&lookup_tables);
-    print_bitboard(lookup_tables.king_attack_bitboard[18]);
-
+    generate_lookup_tables();
+    print_bitboard(king_attack_lookup_table[18]);
+    printf("Magic number for square 18: %llu\n", actual_rook_magic_numbers[18]);
+    printf("Blocker mask for square 18: %llu\n", rook_blocker_masks[18]);
+    printf("Move mask for square 18: %llu\n", rook_attack_lookup_table[18][0]);
 }

@@ -7,6 +7,7 @@
 #include <ctype.h>
 
 #include "movefinder.h"
+#include "magic_numbers.h"
 
 
 int main(void)
