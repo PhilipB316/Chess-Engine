@@ -1,8 +1,15 @@
 /**
- * @file magic_numbers.h
- * @brief Contains the magic numbers for rooks and bishops
+ * @file move_lookuptables.h
+ * @brief Implementation of bitboards lookuptables for piece attacks.
  * @author Philip Brand
- * @date 2024-11-28
+ * @date 2024-11-29
+ * 
+ * The lookuptables for all pieces are set as extern, so once generated using
+ * the generate_lookup_tables(), the arrays are available to all other files.
+ * 
+ * TODO: Possibly implement magic numbers for a lookup table for two knights:
+ * - instead of determining the possible moves for each knight individually, lookup
+ * both at the same time using a magic index.
  */
 
 #ifndef MAGIC_NUMBERS_H
@@ -57,7 +64,7 @@ static uint8_t offset_BBits[64] = {
     58, 59, 59, 59, 59, 59, 59, 58
 };
 
-// magic numbers for rooks and bishops
+// prefound magic numbers for rooks
 static ULL actual_rook_magic_numbers[64] = 
 {
 756607761056301088ULL,
@@ -126,6 +133,7 @@ static ULL actual_rook_magic_numbers[64] =
 4684308548237328530ULL
 };
 
+// prefound magic numbers for bishops
 static ULL actual_bishop_magic_numbers[64] = 
 {
 306249795545277056ULL,
@@ -196,48 +204,17 @@ static ULL actual_bishop_magic_numbers[64] =
 
 
 /**
- * @brief Generates the blocker masks for rooks/bishops
- */
-void generate_rook_blocker_masks(void);
-void generate_bishop_blocker_masks(void);
-
-/**
- * @brief Generates the possible blockers and magic numbers for rooks/bishops
- * 
- * Typical usage is implemented as in the following example:
- * 
-    for (int j = 0; j < 64; j++)
-    {
-        printf("Square %d\n", j);
-        while (!generate_possible_blockers_and_magic_numbers(j, false))
-        {
-            for (int i = 0; i < 4096; i++)
-            {
-                bishop_attack_lookup_table[j][i] = 0;
-            }
-        }
-    }
- * 
- * 
- * 
- * @return true if the magic numbers are generated successfully, false otherwise
- * @param square The square index of the piece
- * @param rook true if the piece is a rook, false if it is a bishop
- */
-bool generate_possible_blockers_and_magic_numbers(uint8_t square, bool rook);
-
-/**
  * @brief Generates the lookup tables for rook attacks using magic_numbers module
  * @param rook_attack_lookup_table the table to be populated
  */
 void rook_attack_generator(void);
+
 
 /**
  * @brief Generates the lookup tables for bishop attacks using magic_numbers module
  * @param bishop_attack_lookup_table the table to be populated
  */
 void bishop_attack_generator(void);
-
 
 
 /**
@@ -264,8 +241,6 @@ void pawn_attack_generator(void);
 void knight_attack_generator(void);
 
 
-
-
 /**
  * @brief Generates lookup tables for king attacks.
  * 
@@ -290,7 +265,6 @@ void king_attack_generator(void);
  *  attack patterns.
  **/
 void generate_lookup_tables(void);
-
 
 
 #endif

@@ -1,21 +1,22 @@
 /**
- * @file magic_numbers.c
- * @brief This file contains the implementation of the magic bitboard attack generation.
+ * @file move_lookuptables.c
+ * @brief This file contains the implementation lookup-table generation.
  * @author Philip Brand
  * @date 2024-11-28
  * 
- * Implementation of the magic bitboard attack generation for rooks and bishops.
+ * IMPLEMENTATION OF MAGIC NUMBERS.:
  * 
  * The blocker masks are a mask that is applied to all pieces on the board
  * to determine which pieces are blocking the rook or bishop from moving.
  * These pieces are called blockers.
- * 
  * Implementation of the masks is as: relevant_blockers = all_pieces & mask;
- * 
  * The magic numbers create a hash which relates each possible blocker permutation
  * to the possible moves for a piece with that given blocker configuration.
- * 
  * The magic numbers are generate by trial and error
+ * 
+ * IMPLEMENTATION OF NON-SLIDING PIECES.:
+ * 
+ * Generate lookup tables using masking and bit-shifting to determine the possible moves
  */
 
 
@@ -24,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "magic_numbers.h"
+#include "move_lookuptables.h"
 
 
 // masks to determine relevant blockers for rooks and bishops
@@ -42,6 +43,15 @@ ULL king_attack_lookup_table[64];
 static ULL array_for_rook_magic_numbers[64];
 static ULL array_for_bishop_random_numbers[64];
 
+
+void generate_lookup_tables()
+{
+    pawn_attack_generator();
+    knight_attack_generator();
+    king_attack_generator();
+    rook_attack_generator();
+    bishop_attack_generator();
+}
 
 void pawn_attack_generator(void)
 {
@@ -69,7 +79,6 @@ void pawn_attack_generator(void)
         pawn_attack_lookup_table[2][i] = pawn_attack;
     }
 }
-
 
 void knight_attack_generator(void)
 {
@@ -103,7 +112,6 @@ void knight_attack_generator(void)
     }
 }
 
-
 void king_attack_generator(void)
 {
     for (int i = 0; i < 64; i++)
@@ -132,6 +140,36 @@ void king_attack_generator(void)
                     | right_down;
 
         king_attack_lookup_table[i] = king_attack;
+    }
+}
+
+void rook_attack_generator(void)
+{
+    generate_rook_blocker_masks();
+    for (int square = 0; square < 64; square++)
+    {
+        while (!generate_possible_blockers_and_magic_numbers(square, true))
+        {
+            for (int i = 0; i < 4096; i++)
+            {
+                rook_attack_lookup_table[square][i] = 0;
+            }
+        }
+    }
+}
+
+void bishop_attack_generator(void)
+{
+    generate_bishop_blocker_masks();
+    for (int square = 0; square < 64; square++)
+    {
+        while (!generate_possible_blockers_and_magic_numbers(square, false))
+        {
+            for (int i = 0; i < 4096; i++)
+            {
+                bishop_attack_lookup_table[square][i] = 0;
+            }
+        }
     }
 }
 
@@ -168,7 +206,7 @@ ULL random_ULL_fewbits(void)
 
 
 /**
- * @brief Generates the blocker masks for rooks for all squares on the board.
+ * @brief Generates the blocker masks for piece for all squares on the board.
  * Iterates through each direction until it reaches the edge of the board - although:
  * the actual edge of the board is not necessary as a piece on the very edge has the
  * same effect as the edge of the board.
@@ -205,7 +243,6 @@ void generate_rook_blocker_masks(void)
         rook_blocker_masks[square] = mask;   
     }
 }
-
 void generate_bishop_blocker_masks(void)
 {
     for (int square = 0; square < 64; square++)
@@ -239,13 +276,14 @@ void generate_bishop_blocker_masks(void)
     }
 }
 
+
 /**
- * @brief Determines the possible moves for a rook given a blocker configuration.
+ * @brief Determines the possible moves for a piece given a blocker configuration.
  * Iterates through each direction until it reaches a blocker or the edge of the board.
  * 
- * @param sq The square index of the rook.
+ * @param sq The square index of the piece.
  * @param blocker The blocker configuration.
- * @return The possible moves for the rook.
+ * @return The possible moves for the piece.
  */
 ULL determine_possible_rook_moves(uint8_t sq, ULL blocker)
 {
@@ -281,7 +319,6 @@ ULL determine_possible_rook_moves(uint8_t sq, ULL blocker)
     }
     return mask;
 }
-
 ULL determine_possible_bishop_moves(uint8_t sq, ULL blocker)
 {
     ULL mask = 0ULL;
@@ -323,7 +360,6 @@ ULL determine_possible_bishop_moves(uint8_t sq, ULL blocker)
 }
 
 
-
 /**
  * @brief Generates all possible blockers and their corresponding magic numbers.
  * 
@@ -353,7 +389,22 @@ ULL determine_possible_bishop_moves(uint8_t sq, ULL blocker)
  * - generation of appropriate blocker permutation
  * - testing and assignment of magic number
  * 
+ * Typical usage is implemented as in the following example:
+ * 
+    for (int j = 0; j < 64; j++)
+    {
+        printf("Square %d\n", j);
+        while (!generate_possible_blockers_and_magic_numbers(j, false))
+        {
+            for (int i = 0; i < 4096; i++)
+            {
+                bishop_attack_lookup_table[j][i] = 0;
+            }
+        }
+    }
+ * 
  * @param square The square index of the piece.
+ * @param rook true if the piece is a rook, false if it is a bishop
  * @return true if the magic number was generated successfully, false otherwise.
  */
 bool generate_possible_blockers_and_magic_numbers(uint8_t square, bool rook)
@@ -466,44 +517,4 @@ bool generate_possible_blockers_and_magic_numbers(uint8_t square, bool rook)
         }
     }
     return 1;
-}
-
-
-void rook_attack_generator(void)
-{
-    generate_rook_blocker_masks();
-    for (int square = 0; square < 64; square++)
-    {
-        while (!generate_possible_blockers_and_magic_numbers(square, true))
-        {
-            for (int i = 0; i < 4096; i++)
-            {
-                rook_attack_lookup_table[square][i] = 0;
-            }
-        }
-    }
-}
-
-void bishop_attack_generator(void)
-{
-    generate_bishop_blocker_masks();
-    for (int square = 0; square < 64; square++)
-    {
-        while (!generate_possible_blockers_and_magic_numbers(square, false))
-        {
-            for (int i = 0; i < 4096; i++)
-            {
-                bishop_attack_lookup_table[square][i] = 0;
-            }
-        }
-    }
-}
-
-void generate_lookup_tables()
-{
-    pawn_attack_generator();
-    knight_attack_generator();
-    king_attack_generator();
-    rook_attack_generator();
-    bishop_attack_generator();
 }

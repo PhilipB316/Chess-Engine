@@ -6,8 +6,7 @@
 #include <ctype.h>
 
 #include "movefinder.h"
-// #include "lookuptables.h"
-#include "magic_numbers.h"
+#include "move_lookuptables.h"
 
 
 void print_bitboard(uint64_t bitboard)
