@@ -6,25 +6,57 @@
 #define ULL unsigned long long
 
 typedef struct {
-    ULL black_king;
-    ULL black_queen;
-    ULL black_rooks;
-    ULL black_bishops;
-    ULL black_knights;
-    ULL black_pawns;
-    ULL black_pieces;
-
-    ULL white_king;
-    ULL white_queen;
-    ULL white_rooks;
-    ULL white_bishops;
-    ULL white_knights;
-    ULL white_pawns;
-    ULL white_pieces;
-
+    ULL pawns;
+    ULL knights;
+    ULL bishops;
+    ULL rooks;
+    ULL queens;
+    ULL kings;
     ULL all_pieces;
+    bool castle_kingside;
+    bool castle_queenside;
+} PiecesOneColour_t;
+
+typedef struct {
+    PiecesOneColour_t white_pieces;
+    PiecesOneColour_t black_pieces;
+    ULL all_pieces;
+    bool white_to_move;
 } Position_t;
 
+typedef enum {
+    NONE = 0,
+    PAWN,
+    KNIGHT,
+    BISHOP,
+    ROOK,
+    QUEEN,
+    KING
+} Piece_t;
+
+/**
+ * to move piece do XOR with bitboard corresponding to moved piece
+ */
+typedef struct {
+    bool is_white;
+    Piece_t captured;
+    Piece_t moved;
+    uint8_t from_square;
+    uint8_t to_square;
+} Move_t;
+
+
+static char* pretty_print_moves[64] = 
+{
+    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"
+};
 
 /**
  * @brief Converts a FEN (Forsyth-Edwards Notation) string to a position,
@@ -43,7 +75,11 @@ typedef struct {
  */
 void print_bitboard(uint64_t bitboard);
 
+void queen_move_finder(Move_t* move_list, 
+                       size_t* num_moves, 
+                       Position_t* const position);
 
-void debug_bitboards(void);
+void print_moves(Move_t* move_list, size_t* num_moves);
+
 
 #endif

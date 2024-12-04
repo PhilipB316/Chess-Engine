@@ -9,6 +9,7 @@
         "stdint.h": "c",
         "stdbool.h": "c",
         "magic_numbers.h": "c",
-        "movefinder.h": "c"
+        "movefinder.h": "c",
+        "move_lookuptables.h": "c"
     }
 }

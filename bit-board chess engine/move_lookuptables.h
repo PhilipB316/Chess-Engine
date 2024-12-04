@@ -267,4 +267,6 @@ void king_attack_generator(void);
 void generate_lookup_tables(void);
 
 
+
+
 #endif
