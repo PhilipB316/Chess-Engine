@@ -1,3 +1,12 @@
+/**
+ * @file movefinder.h
+ * @brief movefinding, bitboard printing and move printing functions
+ * @author Philip Brand
+ * @date 2024-12-06
+ * 
+ * NOTE: bitboard and fen conversion functions not to be implemented here later.
+ */
+
 #ifndef MOVEFINDER_H
 #define MOVEFINDER_H
 
@@ -75,11 +84,24 @@ static char* pretty_print_moves[64] =
  */
 void print_bitboard(uint64_t bitboard);
 
+
+
+/**
+ * @brief Prints the moves in the move list.
+ * 
+ * Includes captures, currently does not include checks or checkmates.
+ *
+ * @param move_list The list of moves to be printed.
+ * @param num_moves The number of moves in the list.
+ */
+void print_moves(Move_t* move_list, size_t* num_moves);
+
+
 void queen_move_finder(Move_t* move_list, 
                        size_t* num_moves, 
                        Position_t* const position);
 
-void print_moves(Move_t* move_list, size_t* num_moves);
+
 
 
 #endif

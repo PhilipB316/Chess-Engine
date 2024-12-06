@@ -274,6 +274,7 @@ ULL determine_possible_bishop_moves(uint8_t sq, ULL blocker)
         printf("Square %d\n", j);
         while (!generate_possible_blockers_and_magic_numbers(j, false))
         {
+            // clear the lookup table at that square if there is a collision //
             for (int i = 0; i < 4096; i++)
             {
                 bishop_attack_lookup_table[j][i] = 0;
