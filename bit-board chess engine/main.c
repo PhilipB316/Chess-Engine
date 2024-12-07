@@ -23,12 +23,24 @@ int main(void)
     printf("White to move: %d\n", position.white_to_move);
 
     generate_lookup_tables();
-    for (int i = 0; i < 100000000; i++)
+    clock_t start_time = clock();
+    for (int i = 0; i < 10000000; i++)
     {
+        PiecesOneColour_t active_pieces, opponent_pieces;
+        if (position.white_to_move) {
+            active_pieces = position.white_pieces;
+            opponent_pieces = position.black_pieces;
+        } else {
+            active_pieces = position.black_pieces;
+            opponent_pieces = position.white_pieces;
+        }
         num_moves = 0;
-        queen_move_finder(move_list, &num_moves, &position);
+        move_finder(move_list, &num_moves, &position, &active_pieces, &opponent_pieces);
         // printf("Number of times queen_move_finder was called: %d\n", i);
     }
+    clock_t end_time = clock();
+    
     // queen_move_finder(move_list, &num_moves, &position);
-    print_moves(move_list, &num_moves);
+    print_moves(move_list, num_moves);
+    printf("Time taken: %f\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
 }

@@ -94,14 +94,12 @@ void print_bitboard(uint64_t bitboard);
  * @param move_list The list of moves to be printed.
  * @param num_moves The number of moves in the list.
  */
-void print_moves(Move_t* move_list, size_t* num_moves);
+void print_moves(Move_t* move_list, size_t num_moves);
 
 
-void queen_move_finder(Move_t* move_list, 
+void move_finder(Move_t* move_list, 
                        size_t* num_moves, 
-                       Position_t* const position);
-
-
-
-
+                       Position_t* const position,
+                       PiecesOneColour_t* active_pieces,
+                       PiecesOneColour_t* opponent_pieces);
 #endif
