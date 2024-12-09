@@ -50,6 +50,7 @@ typedef struct {
     bool is_white;
     Piece_t captured;
     Piece_t moved;
+    bool promotion;
     uint8_t from_square;
     uint8_t to_square;
 } Move_t;

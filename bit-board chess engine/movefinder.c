@@ -6,9 +6,6 @@
  * 
  */
 
-
-
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -55,22 +52,23 @@ void print_moves(Move_t* move_list, size_t num_moves)
     {
         switch (move_list[i].moved)
         {
-        case 1:
-            /* code */
+        case NONE:
             break;
-        case 2:
+        case PAWN:
+            break;
+        case KNIGHT:
             printf("N");
             break;
-        case 3:
+        case BISHOP:
             printf("B");
             break;
-        case 4:
+        case ROOK:
             printf("R");
             break;
-        case 5:
+        case QUEEN:
             printf("Q");
             break;
-        case 6:
+        case KING:
             printf("K");
             break;
         }
@@ -153,7 +151,8 @@ Position_t fen_to_board(char* fen)
  */
 void generate_moves_from_bitboard(Piece_t piece,
                                   uint8_t from_square,
-                                  ULL possible_moves)
+                                  ULL possible_moves,
+                                  bool promotion)
 {
     while (possible_moves) {
         uint8_t to_square = __builtin_ctzll(possible_moves);
@@ -161,6 +160,7 @@ void generate_moves_from_bitboard(Piece_t piece,
         MOVE_LIST[*NUM_MOVES].moved = piece;
         MOVE_LIST[*NUM_MOVES].from_square = from_square;
         MOVE_LIST[*NUM_MOVES].to_square = to_square;
+        MOVE_LIST[*NUM_MOVES].promotion = promotion;
         ULL square = 1ULL << to_square;
         // capture handling
         if (OPPONENT_PIECES->all_pieces & square) {  // global check for captures
@@ -199,10 +199,14 @@ void move_finder(Move_t* move_list,
     ULL possible_moves = 0;
     uint16_t index;
     ULL not_active_pieces = ~active_pieces->all_pieces;
+
     WHITE_TO_MOVE = position->white_to_move;
     MOVE_LIST = move_list;
     NUM_MOVES = num_moves;
     OPPONENT_PIECES = opponent_pieces;
+
+    uint8_t start_rank = WHITE_TO_MOVE ? 6 : 1;
+    uint8_t seventh_rank = WHITE_TO_MOVE ? 1 : 6;
 
     // ========================= QUEENS =========================
     ULL queen_bitboard = active_pieces->queens;
@@ -215,7 +219,7 @@ void move_finder(Move_t* move_list,
         index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
         possible_moves |= bishop_attack_lookup_table[from_square][index];
         possible_moves &= not_active_pieces;    
-        generate_moves_from_bitboard(QUEEN, from_square, possible_moves);
+        generate_moves_from_bitboard(QUEEN, from_square, possible_moves, false);
         queen_bitboard &= ~(1ULL << (from_square));
     }
 
@@ -228,7 +232,7 @@ void move_finder(Move_t* move_list,
         index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
         possible_moves |= rook_attack_lookup_table[from_square][index];
         possible_moves &= not_active_pieces;    
-        generate_moves_from_bitboard(ROOK, from_square, possible_moves);
+        generate_moves_from_bitboard(ROOK, from_square, possible_moves, false);
         rook_bitboard &= ~(1ULL << (from_square));
     }
 
@@ -241,7 +245,44 @@ void move_finder(Move_t* move_list,
         index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
         possible_moves |= bishop_attack_lookup_table[from_square][index];
         possible_moves &= not_active_pieces;
-        generate_moves_from_bitboard(BISHOP, from_square, possible_moves);
+        generate_moves_from_bitboard(BISHOP, from_square, possible_moves, false);
         bishop_bitboard &= ~(1ULL << (from_square));
     }
+
+    // ========================== KNIGHTS =========================
+    ULL knight_bitboard = active_pieces->knights;
+    while (knight_bitboard) {
+        from_square = __builtin_ctzll(knight_bitboard);
+        possible_moves = knight_attack_lookup_table[from_square];
+        possible_moves &= not_active_pieces;
+        generate_moves_from_bitboard(KNIGHT, from_square, possible_moves, false);
+        knight_bitboard &= ~(1ULL << from_square);
+    }
+
+    // ========================== PAWNS =========================
+    ULL pawn_bitboard = active_pieces->pawns;
+    ULL possible_promotions, capture_squares;
+    int direction = WHITE_TO_MOVE ? -1 : 1;
+    while (pawn_bitboard) {
+        from_square = __builtin_ctzll(pawn_bitboard);
+        uint8_t rank = from_square / 8;
+        possible_moves = pawn_attack_lookup_table[WHITE_TO_MOVE][from_square] & opponent_pieces->all_pieces;
+        ULL single_push_square = 1ULL << (from_square + direction * 8);
+        if (single_push_square & ~all_pieces) {
+            possible_moves |= single_push_square;
+            ULL double_push_square = 1ULL << (from_square + direction * 16);
+            if ((rank == start_rank) && (double_push_square & ~all_pieces)) {
+                possible_moves |= double_push_square;
+            }
+        }
+        // Handle promotions separately
+        if (rank != seventh_rank) {
+            generate_moves_from_bitboard(PAWN, from_square, possible_moves, false);
+        } else {
+            // Handle normal moves and captures
+            generate_moves_from_bitboard(PAWN, from_square, possible_moves, true);
+        }
+        pawn_bitboard &= ~(1ULL << from_square);
+    }
 }
+

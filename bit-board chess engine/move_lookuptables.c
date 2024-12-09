@@ -26,6 +26,7 @@
 #include <stdbool.h>
 
 #include "move_lookuptables.h"
+#include "movefinder.h"
 
 
 // masks to determine relevant blockers for rooks and bishops
@@ -35,6 +36,8 @@ ULL bishop_blocker_masks[64];
 // lookup tables for rook and bishop attacks
 ULL rook_attack_lookup_table[64][4096];
 ULL bishop_attack_lookup_table[64][4096];
+ULL magic_knight_attack_lookup_table[4096];
+
 ULL pawn_attack_lookup_table[2][64];
 ULL knight_attack_lookup_table[64];
 ULL king_attack_lookup_table[64];
@@ -42,6 +45,7 @@ ULL king_attack_lookup_table[64];
 // arrays for storing magic numbers for rooks and bishops if looking for them
 static ULL array_for_rook_magic_numbers[64];
 static ULL array_for_bishop_random_numbers[64];
+static ULL array_for_knight_random_numbers[64];
 
 void generate_lookup_tables()
 {
@@ -236,6 +240,18 @@ ULL determine_possible_bishop_moves(uint8_t sq, ULL blocker)
 
     return mask;
 }
+ULL determine_possible_knight_moves(ULL bitboard)
+{
+    ULL possible_moves = 0;
+    for (int i = 0; i < 64; i++)
+    {
+        if (bitboard & (1ULL << i))
+        {
+            possible_moves |= knight_attack_lookup_table[i];
+        }
+    }
+    return possible_moves;
+}
 
 
 /**
@@ -399,6 +415,48 @@ bool generate_possible_blockers_and_magic_numbers(uint8_t square, bool rook)
 }
 
 
+/**not successfully generating magic numbers :-( */
+bool generate_magic_numbers_for_knights(void)
+{
+    ULL possible_permutation;
+    ULL magic_number = random_ULL_fewbits();
+    printf("Magic number: %llu\n", magic_number);
+    for (uint8_t i = 0; i < 64; i++)
+    {
+        // printf("Square %d\n", i);
+        for (uint8_t j = 0; j < 64; j++)
+        {
+            possible_permutation = 1ULL << i;
+            possible_permutation |= 1ULL << j;
+            // print_bitboard(possible_permutation);
+            ULL possible_moves = determine_possible_knight_moves(possible_permutation);
+            // print_bitboard(possible_moves);
+            // printf("i, j: %d, %d\n", i, j); 
+            ULL index = (possible_moves * magic_number) >> 52;
+            // printf("Permutation: %llu\n", possible_permutation);
+            // print_bitboard(possible_permutation);
+            // printf("Moves: %llu\n", possible_moves);
+            // print_bitboard(possible_moves);
+            printf("Index: %llu\n", index);
+
+            if (magic_knight_attack_lookup_table[index] == 0 || magic_knight_attack_lookup_table[index] == possible_moves)
+            {
+                magic_knight_attack_lookup_table[index] = possible_moves;
+            }
+            else
+            {
+                for (int i = 0; i < 4096; i++)
+                {
+                    magic_knight_attack_lookup_table[i] = 0;
+                }
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
 void rook_attack_generator(void)
 {
     generate_rook_blocker_masks();
@@ -452,7 +510,7 @@ void pawn_attack_generator(void)
         ULL left_attack = (pawn & ~FILE_A) << 7;
         ULL right_attack = (pawn & ~FILE_H) << 9;
         pawn_attack |= left_attack | right_attack;
-        pawn_attack_lookup_table[2][i] = pawn_attack;
+        pawn_attack_lookup_table[0][i] = pawn_attack;
     }
 }
 
@@ -518,4 +576,3 @@ void king_attack_generator(void)
         king_attack_lookup_table[i] = king_attack;
     }
 }
-
