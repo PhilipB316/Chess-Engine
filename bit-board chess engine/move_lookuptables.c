@@ -42,6 +42,8 @@ ULL pawn_attack_lookup_table[2][64];
 ULL knight_attack_lookup_table[64];
 ULL king_attack_lookup_table[64];
 
+ULL castling_blocker_masks[2][3];
+
 // arrays for storing magic numbers for rooks and bishops if looking for them
 static ULL array_for_rook_magic_numbers[64];
 static ULL array_for_bishop_random_numbers[64];
@@ -54,6 +56,11 @@ void generate_lookup_tables()
     king_attack_generator();
     rook_attack_generator();
     bishop_attack_generator();
+
+    castling_blocker_masks[0][CASTLING_KINGSIDE] = 1ULL << 5 | 1ULL << 6;
+    castling_blocker_masks[0][CASTLING_QUEENSIDE] = 1ULL << 1 | 1ULL << 2 | 1ULL << 3;
+    castling_blocker_masks[1][CASTLING_KINGSIDE] = 1ULL << 61 | 1ULL << 62;
+    castling_blocker_masks[1][CASTLING_QUEENSIDE] = 1ULL << 57 | 1ULL << 58 | 1ULL << 59;
 }
 
 /**

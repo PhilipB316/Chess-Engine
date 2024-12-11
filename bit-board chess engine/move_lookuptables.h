@@ -31,12 +31,16 @@
 #define RANK_7 0x00FF000000000000
 #define RANK_8 0xFF00000000000000
 
+
+
 extern ULL pawn_attack_lookup_table[2][64];
 extern ULL knight_attack_lookup_table[64];
 extern ULL king_attack_lookup_table[64];
 extern ULL rook_attack_lookup_table[64][4096];
 extern ULL bishop_attack_lookup_table[64][4096];
 extern ULL magic_knight_attack_lookup_table[4096];
+
+extern ULL castling_blocker_masks[2][3];
 
 extern ULL rook_blocker_masks[64];
 extern ULL bishop_blocker_masks[64];
