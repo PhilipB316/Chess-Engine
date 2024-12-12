@@ -22,6 +22,18 @@ static bool WHITE_TO_MOVE;
 static PiecesOneColour_t* OPPONENT_PIECES;
 static Position_t* POSITION;
 
+char* pretty_print_moves[64] = 
+{
+    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"
+};
+
 
 void print_bitboard(uint64_t bitboard)
 {
@@ -95,7 +107,11 @@ void print_moves(Move_t* move_list, size_t num_moves)
         {
             case NORMAL_MOVE:
                 // print nothing if pawn move (if first letter is '0')  
-                first_letter == '0' ? : printf("%c", first_letter);
+                if (first_letter != '0')
+                {
+                    printf("%s", pretty_print_moves[move_list[i].to_square]);
+                    break;
+                }
                 // print x if capture
                 if (move_list[i].captured)
                 {
@@ -140,9 +156,83 @@ void print_moves(Move_t* move_list, size_t num_moves)
         }
 
         printf(", %d\n", move_list[i].special_flags);
+        // printf("Captured: %d\n", move_list[i].captured);
     }
+
 }
 
+
+void print_position(Position_t const position)
+{
+    char mailboxes[64] = {0};
+    for (uint8_t i = 0; i < 64; i++)
+    {
+        if (position.white_pieces.pawns & (1ULL << i))
+        {
+            mailboxes[i] = 'P';
+        }
+        else if (position.white_pieces.knights & (1ULL << i))
+        {
+            mailboxes[i] = 'N';
+        }
+        else if (position.white_pieces.bishops & (1ULL << i))
+        {
+            mailboxes[i] = 'B';
+        }
+        else if (position.white_pieces.rooks & (1ULL << i))
+        {
+            mailboxes[i] = 'R';
+        }
+        else if (position.white_pieces.queens & (1ULL << i))
+        {
+            mailboxes[i] = 'Q';
+        }
+        else if (position.white_pieces.kings & (1ULL << i))
+        {
+            mailboxes[i] = 'K';
+        }
+        else if (position.black_pieces.pawns & (1ULL << i))
+        {
+            mailboxes[i] = 'p';
+        }
+        else if (position.black_pieces.knights & (1ULL << i))
+        {
+            mailboxes[i] = 'n';
+        }
+        else if (position.black_pieces.bishops & (1ULL << i))
+        {
+            mailboxes[i] = 'b';
+        }
+        else if (position.black_pieces.rooks & (1ULL << i))
+        {
+            mailboxes[i] = 'r';
+        }
+        else if (position.black_pieces.queens & (1ULL << i))
+        {
+            mailboxes[i] = 'q';
+        }
+        else if (position.black_pieces.kings & (1ULL << i))
+        {
+            mailboxes[i] = 'k';
+        }
+        else
+        {
+            mailboxes[i] = '.';
+        }
+    }
+
+    for (uint8_t i = 0; i < 64; i++)
+    {
+        if (i % 8 == 0)
+        {
+            printf("\n%d   ", 8 - i / 8);
+        }
+        printf("%c ", mailboxes[i]);
+    }
+    printf("\n\n    a b c d e f g h\n");
+
+    printf("\n");
+}
 
 
 Position_t fen_to_board(char* fen)
@@ -212,7 +302,6 @@ Position_t fen_to_board(char* fen)
     // skip space
 
     character = fen[i++];
-    printf("Character: %c\n", character);
     if (character != '-') {
         uint8_t file = character - 'a';
         uint8_t rank = 8 - (fen[i++] - '0');
@@ -239,6 +328,50 @@ Position_t fen_to_board(char* fen)
  *                 break;
 
  */
+// void generate_moves_from_bitboard(Piece_t piece,
+//                                   uint8_t from_square,
+//                                   ULL possible_moves,
+//                                   uint16_t special_flags)
+// {
+//     while (possible_moves) {
+//         if (special_flags == 1) {
+//             // generate_moves_from_bitboard(KNIGHT, from_square, possible_moves, 0);
+//             // generate_moves_from_bitboard(BISHOP, from_square, possible_moves, 0);
+//             // generate_moves_from_bitboard(ROOK, from_square, possible_moves, 0);
+//             // generate_moves_from_bitboard(QUEEN, from_square, possible_moves, 0);
+//         } else {
+//             uint8_t to_square = __builtin_ctzll(possible_moves);
+//             MOVE_LIST[*NUM_MOVES].moved = piece;
+//             MOVE_LIST[*NUM_MOVES].from_square = from_square;
+//             MOVE_LIST[*NUM_MOVES].to_square = to_square;
+//             MOVE_LIST[*NUM_MOVES].special_flags = special_flags;
+//             ULL square = 1ULL << to_square;
+//             // capture handling
+//             if (OPPONENT_PIECES->all_pieces & square) {  // global check for captures
+//                 // then specifics for each piece
+//                 if (OPPONENT_PIECES->pawns & square) {
+//                     MOVE_LIST[*NUM_MOVES].captured = PAWN;
+//                 } else if (OPPONENT_PIECES->knights & square) {
+//                     MOVE_LIST[*NUM_MOVES].captured = KNIGHT;
+//                 } else if (OPPONENT_PIECES->bishops & square) {
+//                     MOVE_LIST[*NUM_MOVES].captured = BISHOP;
+//                 } else if (OPPONENT_PIECES->rooks & square) {
+//                     MOVE_LIST[*NUM_MOVES].captured = ROOK;
+//                 } else if (OPPONENT_PIECES->queens & square) {
+//                     MOVE_LIST[*NUM_MOVES].captured = QUEEN;
+//                 } else if (OPPONENT_PIECES->kings & square) {
+//                     MOVE_LIST[*NUM_MOVES].captured = KING;
+//                 }
+//             } else {
+//                 MOVE_LIST[*NUM_MOVES].captured = NONE;
+//             }
+//             (*NUM_MOVES)++;
+//             possible_moves &= ~square;
+//         }
+//     }
+// }
+
+
 void generate_moves_from_bitboard(Piece_t piece,
                                   uint8_t from_square,
                                   ULL possible_moves,
@@ -461,3 +594,127 @@ void move_finder(Move_t* move_list,
     }
 }
 
+
+
+
+void move_maker(Position_t* const old_position, Position_t* new_position, Move_t* move)
+{
+    memcpy(new_position, old_position, sizeof(Position_t));
+    ULL bitboard_move = 1ULL << move->from_square | 1ULL << move->to_square;
+    ULL bitboard_from_square = 1ULL << move->from_square;
+    ULL bitboard_to_square = 1ULL << move->to_square;
+
+    PiecesOneColour_t* active_pieces;
+    PiecesOneColour_t* opponent_pieces;
+    if (move->is_white) {
+        active_pieces = &new_position->white_pieces;
+        opponent_pieces = &new_position->black_pieces;
+    } else {
+        active_pieces = &new_position->black_pieces;
+        opponent_pieces = &new_position->white_pieces;
+    }
+
+    new_position->all_pieces ^= bitboard_move;
+
+    switch (move->captured)
+    {
+        case NONE:
+            break;
+        case PAWN:
+            opponent_pieces->pawns &= ~bitboard_to_square;
+            opponent_pieces->all_pieces &= ~bitboard_to_square;
+            break;
+        case KNIGHT:
+            opponent_pieces->knights &= ~bitboard_to_square;
+            opponent_pieces->all_pieces &= ~bitboard_to_square;
+            break;
+        case BISHOP:
+            opponent_pieces->bishops &= ~bitboard_to_square;
+            opponent_pieces->all_pieces &= ~bitboard_to_square;
+            break;
+        case ROOK:
+            opponent_pieces->rooks &= ~bitboard_to_square;
+            opponent_pieces->all_pieces &= ~bitboard_to_square;
+            break;
+        case QUEEN:
+            opponent_pieces->queens &= ~bitboard_to_square;
+            opponent_pieces->all_pieces &= ~bitboard_to_square;
+            break;
+    }
+
+
+    switch (move->special_flags)
+    {
+        ULL rook_move;
+
+        case NORMAL_MOVE:
+            switch (move->moved)
+                {
+                    case PAWN:
+                        active_pieces->pawns ^= bitboard_move;
+                        break;
+                    case KNIGHT:
+                        active_pieces->knights ^= bitboard_move;
+                        break;
+                    case BISHOP:
+                        active_pieces->bishops ^= bitboard_move;
+                        break;
+                    case ROOK:
+                        active_pieces->rooks ^= bitboard_move;
+                        break;
+                    case QUEEN:
+                        active_pieces->queens ^= bitboard_move;
+                        break;
+                    case KING:
+                        active_pieces->kings ^= bitboard_move;
+                        break;
+                }
+                active_pieces->all_pieces ^= bitboard_move;
+            break;
+
+        case PROMOTION:
+            active_pieces->pawns &= ~bitboard_from_square;
+            switch (move->moved)
+            {
+                case KNIGHT:
+                    active_pieces->knights |= bitboard_to_square;
+                    break;
+                case BISHOP:
+                    active_pieces->bishops |= bitboard_to_square;
+                    break;
+                case ROOK:
+                    active_pieces->rooks |= bitboard_to_square;
+                    break;
+                case QUEEN:
+                    active_pieces->queens |= bitboard_to_square;
+                    break;
+            }
+            break;
+        
+        case CASTLING_KINGSIDE:
+            rook_move = 1ULL << (move->to_square - 1) | 1ULL << (move->to_square + 1);
+            active_pieces->kings ^= bitboard_move;
+            active_pieces->rooks ^= rook_move;
+            active_pieces->all_pieces ^= (bitboard_move | rook_move);
+            break;
+        
+        case CASTLING_QUEENSIDE:
+            rook_move = 1ULL << (move->to_square + 1) | 1ULL << (move->to_square - 2);
+            active_pieces->kings ^= bitboard_move;
+            active_pieces->rooks ^= rook_move;
+            active_pieces->all_pieces ^= (bitboard_move | rook_move);
+            break;
+
+        default:
+            if (move->special_flags > 100) {
+                ULL capture_square = ~(1ULL << (move->special_flags - 100));
+                active_pieces->pawns ^= bitboard_move;
+                opponent_pieces->pawns &= capture_square;
+                opponent_pieces->all_pieces &= capture_square;
+                new_position->all_pieces &= capture_square;
+            } else {
+                active_pieces->pawns ^= bitboard_move;
+            }
+            active_pieces->all_pieces ^= bitboard_move;
+    }
+}

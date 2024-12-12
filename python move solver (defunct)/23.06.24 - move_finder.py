@@ -5,8 +5,8 @@ Philip Brand
 26-06-2024
 """
 
-import chess
-from chessboard import display          # type: ignore
+# import chess
+# from chessboard import display          # type: ignore
 import timeit
 import numpy as np
 
@@ -19,7 +19,7 @@ for i in range(1, 9):
 LEGITIMATE_SQUARES = np.array(LEGITIMATE_SQUARES)
 
 fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1"
-board = chess.Board()
+# board = chess.Board()
 
 # game_board = display.start()
 
@@ -446,16 +446,18 @@ def collate_possible_moves(position, threatened_squares_of_opposite_colour, impo
     return moves_list, threatened_squares
 
 
-fen = "r1bk3r/p2pBpNp/n4n2/1p1NP2P/6P1/3P4/P1P1K3/q5b1"
+fen = "r2qkb1r/p1pp1p1p/bpn2n1B/3Pp1p1/8/2N1PNPB/PPPQ1P1P/R3K2R"
 
 
 position = Position(fen)
 position.fen_to_board()
 position.board_to_fen()
 
-for i in range(0, 10):
+for i in range(0, 10000):
     important_pieces_moved = 'fft'
     moves_list, threatened_squares = collate_possible_moves(position, [], important_pieces_moved, False)
-    print(moves_list)
+    # print(moves_list)
     moves_list, threatened_squares = collate_possible_moves(position, threatened_squares, important_pieces_moved, True)
-    print(moves_list)
+    # print(moves_list)
+
+print(moves_list)
