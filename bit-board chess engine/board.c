@@ -113,6 +113,7 @@ void print_position(Position_t const position)
     printf("\n");
 }
 
+
 Position_t fen_to_board(char *fen)
 {
     Position_t fen_position = {0};

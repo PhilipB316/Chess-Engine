@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "move_lookuptables.h"
+#include "lookuptables.h"
 #include "movefinder.h"
 
 ULL rook_blocker_masks[64];

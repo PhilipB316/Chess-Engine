@@ -3,8 +3,6 @@
  * @brief movefinding, bitboard printing and move printing functions
  * @author Philip Brand
  * @date 2024-12-06
- *
- * NOTE: bitboard and fen conversion functions not to be implemented here later.
  */
 
 #ifndef MOVEFINDER_H
@@ -38,32 +36,12 @@ typedef struct
     uint16_t en_passant;
 } Position_t;
 
-typedef enum
-{
-    NONE = 0,
-    PAWN,
-    KNIGHT,
-    BISHOP,
-    ROOK,
-    QUEEN,
-    KING
-} Piece_t;
 
-typedef enum
-{
-    NORMAL = 0,
-    PROMOTION,
-    CASTLE_KINGSIDE,
-    CASTLE_QUEENSIDE,
-    DOUBLE_PAWN_PUSH,
-    EN_PASSANT_CAPTURE
-} MoveType_t;
+void move_finder_init(void);
 
 
 void move_finder(Position_t *position_list,
                  size_t *num_positions,
-                 Position_t *const position,
-                 PiecesOneColour_t *active_pieces,
-                 PiecesOneColour_t *opponent_pieces);
+                 Position_t *const position);
 
 #endif

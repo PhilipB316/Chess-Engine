@@ -6,8 +6,8 @@
  * @date 2025-04-01
  */
 
-#ifndef BOARD_FORMATTER_H
-#define BOARD_FORMATTER_H
+#ifndef BOARD
+#define BOARD
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -20,6 +20,20 @@
 
 extern char *pretty_print_moves[64];
 
+/**
+ * @brief Prints the bitboard.
+ *
+ * @param bitboard The bitboard to be printed.
+ */
+void print_bitboard(uint64_t bitboard);
+
+/**
+ * @brief Prints the board position in ascii format.
+ * 
+ * Includes ranks and files labels for better readability.
+ * 
+ * @param position The position to be printed.
+ */
 void print_position(Position_t const position);
 
 /**
@@ -31,12 +45,5 @@ void print_position(Position_t const position);
  * @return The board position represented as a Position_t structure.
  */
 Position_t fen_to_board(char fen[]);
-
-/**
- * @brief Prints the bitboard.
- *
- * @param bitboard The bitboard to be printed.
- */
-void print_bitboard(uint64_t bitboard);
 
 #endif // BOARD_FORMATTER_H

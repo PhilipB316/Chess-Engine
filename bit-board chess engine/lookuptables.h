@@ -12,8 +12,8 @@
  * both at the same time using a magic index.
  */
 
-#ifndef MAGIC_NUMBERS_H
-#define MAGIC_NUMBERS_H
+#ifndef LOOKUPTABLES_H
+#define LOOKUPTABLES_H
 
 #include <stdint.h>
 
