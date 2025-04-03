@@ -1,12 +1,12 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/executable.dir/board.c.o"
-  "CMakeFiles/executable.dir/board.c.o.d"
-  "CMakeFiles/executable.dir/lookuptables.c.o"
-  "CMakeFiles/executable.dir/lookuptables.c.o.d"
   "CMakeFiles/executable.dir/main.c.o"
   "CMakeFiles/executable.dir/main.c.o.d"
-  "CMakeFiles/executable.dir/movefinder.c.o"
-  "CMakeFiles/executable.dir/movefinder.c.o.d"
+  "CMakeFiles/executable.dir/src/movefinding/board.c.o"
+  "CMakeFiles/executable.dir/src/movefinding/board.c.o.d"
+  "CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o"
+  "CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o.d"
+  "CMakeFiles/executable.dir/src/movefinding/movefinder.c.o"
+  "CMakeFiles/executable.dir/src/movefinding/movefinder.c.o.d"
   "executable"
   "executable.pdb"
 )

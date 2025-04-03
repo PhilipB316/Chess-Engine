@@ -1,5 +1,5 @@
 CMakeFiles/executable.dir/main.c.o: \
- /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/main.c \
+ /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/main.c \
  /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -59,6 +59,7 @@ CMakeFiles/executable.dir/main.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
  /usr/include/ctype.h \
- /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/movefinder.h \
+ /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/./src/movefinding/movefinder.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
- /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/board.h
+ /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/./src/movefinding/board.h \
+ /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/./src/movefinding/movefinder.h

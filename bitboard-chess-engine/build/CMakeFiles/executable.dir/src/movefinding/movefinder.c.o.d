@@ -1,5 +1,5 @@
-CMakeFiles/executable.dir/movefinder.c.o: \
- /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/movefinder.c \
+CMakeFiles/executable.dir/src/movefinding/movefinder.c.o: \
+ /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/movefinder.c \
  /usr/include/stdc-predef.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
@@ -17,11 +17,8 @@ CMakeFiles/executable.dir/movefinder.c.o: \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h /usr/include/string.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h /usr/include/stdlib.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
- /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
- /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
- /usr/include/strings.h /usr/include/stdlib.h \
  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
  /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
@@ -56,7 +53,11 @@ CMakeFiles/executable.dir/movefinder.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
- /usr/include/x86_64-linux-gnu/bits/stdio_lim.h /usr/include/ctype.h \
- /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/movefinder.h \
- /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/lookuptables.h \
- /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/board.h
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+ /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/movefinder.h \
+ /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/lookuptables.h \
+ /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/board.h \
+ /usr/include/string.h \
+ /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
+ /usr/include/strings.h /usr/include/ctype.h

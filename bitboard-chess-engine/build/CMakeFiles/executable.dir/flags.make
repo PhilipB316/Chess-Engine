@@ -4,7 +4,7 @@
 # compile C with /usr/bin/cc
 C_DEFINES = 
 
-C_INCLUDES = -I"/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/HEADER_FILES"
+C_INCLUDES = -I/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/HEADER_FILES
 
 C_FLAGS =  -pthread -lm
 

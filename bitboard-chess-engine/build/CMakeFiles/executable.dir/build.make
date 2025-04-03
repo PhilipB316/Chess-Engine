@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine"
+CMAKE_SOURCE_DIR = /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build"
+CMAKE_BINARY_DIR = /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/executable.dir/depend.make
@@ -69,79 +69,79 @@ include CMakeFiles/executable.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/executable.dir/flags.make
 
-CMakeFiles/executable.dir/board.c.o: CMakeFiles/executable.dir/flags.make
-CMakeFiles/executable.dir/board.c.o: /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/board.c
-CMakeFiles/executable.dir/board.c.o: CMakeFiles/executable.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/executable.dir/board.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/executable.dir/board.c.o -MF CMakeFiles/executable.dir/board.c.o.d -o CMakeFiles/executable.dir/board.c.o -c "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/board.c"
+CMakeFiles/executable.dir/src/movefinding/board.c.o: CMakeFiles/executable.dir/flags.make
+CMakeFiles/executable.dir/src/movefinding/board.c.o: /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/board.c
+CMakeFiles/executable.dir/src/movefinding/board.c.o: CMakeFiles/executable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/executable.dir/src/movefinding/board.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/executable.dir/src/movefinding/board.c.o -MF CMakeFiles/executable.dir/src/movefinding/board.c.o.d -o CMakeFiles/executable.dir/src/movefinding/board.c.o -c /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/board.c
 
-CMakeFiles/executable.dir/board.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/executable.dir/board.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/board.c" > CMakeFiles/executable.dir/board.c.i
+CMakeFiles/executable.dir/src/movefinding/board.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/executable.dir/src/movefinding/board.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/board.c > CMakeFiles/executable.dir/src/movefinding/board.c.i
 
-CMakeFiles/executable.dir/board.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/executable.dir/board.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/board.c" -o CMakeFiles/executable.dir/board.c.s
+CMakeFiles/executable.dir/src/movefinding/board.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/executable.dir/src/movefinding/board.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/board.c -o CMakeFiles/executable.dir/src/movefinding/board.c.s
 
-CMakeFiles/executable.dir/lookuptables.c.o: CMakeFiles/executable.dir/flags.make
-CMakeFiles/executable.dir/lookuptables.c.o: /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/lookuptables.c
-CMakeFiles/executable.dir/lookuptables.c.o: CMakeFiles/executable.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/executable.dir/lookuptables.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/executable.dir/lookuptables.c.o -MF CMakeFiles/executable.dir/lookuptables.c.o.d -o CMakeFiles/executable.dir/lookuptables.c.o -c "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/lookuptables.c"
+CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o: CMakeFiles/executable.dir/flags.make
+CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o: /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/lookuptables.c
+CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o: CMakeFiles/executable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o -MF CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o.d -o CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o -c /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/lookuptables.c
 
-CMakeFiles/executable.dir/lookuptables.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/executable.dir/lookuptables.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/lookuptables.c" > CMakeFiles/executable.dir/lookuptables.c.i
+CMakeFiles/executable.dir/src/movefinding/lookuptables.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/executable.dir/src/movefinding/lookuptables.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/lookuptables.c > CMakeFiles/executable.dir/src/movefinding/lookuptables.c.i
 
-CMakeFiles/executable.dir/lookuptables.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/executable.dir/lookuptables.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/lookuptables.c" -o CMakeFiles/executable.dir/lookuptables.c.s
+CMakeFiles/executable.dir/src/movefinding/lookuptables.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/executable.dir/src/movefinding/lookuptables.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/lookuptables.c -o CMakeFiles/executable.dir/src/movefinding/lookuptables.c.s
+
+CMakeFiles/executable.dir/src/movefinding/movefinder.c.o: CMakeFiles/executable.dir/flags.make
+CMakeFiles/executable.dir/src/movefinding/movefinder.c.o: /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/movefinder.c
+CMakeFiles/executable.dir/src/movefinding/movefinder.c.o: CMakeFiles/executable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/executable.dir/src/movefinding/movefinder.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/executable.dir/src/movefinding/movefinder.c.o -MF CMakeFiles/executable.dir/src/movefinding/movefinder.c.o.d -o CMakeFiles/executable.dir/src/movefinding/movefinder.c.o -c /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/movefinder.c
+
+CMakeFiles/executable.dir/src/movefinding/movefinder.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/executable.dir/src/movefinding/movefinder.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/movefinder.c > CMakeFiles/executable.dir/src/movefinding/movefinder.c.i
+
+CMakeFiles/executable.dir/src/movefinding/movefinder.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/executable.dir/src/movefinding/movefinder.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/src/movefinding/movefinder.c -o CMakeFiles/executable.dir/src/movefinding/movefinder.c.s
 
 CMakeFiles/executable.dir/main.c.o: CMakeFiles/executable.dir/flags.make
-CMakeFiles/executable.dir/main.c.o: /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/main.c
+CMakeFiles/executable.dir/main.c.o: /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/main.c
 CMakeFiles/executable.dir/main.c.o: CMakeFiles/executable.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/executable.dir/main.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/executable.dir/main.c.o -MF CMakeFiles/executable.dir/main.c.o.d -o CMakeFiles/executable.dir/main.c.o -c "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/main.c"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/executable.dir/main.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/executable.dir/main.c.o -MF CMakeFiles/executable.dir/main.c.o.d -o CMakeFiles/executable.dir/main.c.o -c /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/main.c
 
 CMakeFiles/executable.dir/main.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/executable.dir/main.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/main.c" > CMakeFiles/executable.dir/main.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/main.c > CMakeFiles/executable.dir/main.c.i
 
 CMakeFiles/executable.dir/main.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/executable.dir/main.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/main.c" -o CMakeFiles/executable.dir/main.c.s
-
-CMakeFiles/executable.dir/movefinder.c.o: CMakeFiles/executable.dir/flags.make
-CMakeFiles/executable.dir/movefinder.c.o: /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board\ chess\ engine/movefinder.c
-CMakeFiles/executable.dir/movefinder.c.o: CMakeFiles/executable.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/executable.dir/movefinder.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/executable.dir/movefinder.c.o -MF CMakeFiles/executable.dir/movefinder.c.o.d -o CMakeFiles/executable.dir/movefinder.c.o -c "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/movefinder.c"
-
-CMakeFiles/executable.dir/movefinder.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/executable.dir/movefinder.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/movefinder.c" > CMakeFiles/executable.dir/movefinder.c.i
-
-CMakeFiles/executable.dir/movefinder.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/executable.dir/movefinder.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/movefinder.c" -o CMakeFiles/executable.dir/movefinder.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/main.c -o CMakeFiles/executable.dir/main.c.s
 
 # Object files for target executable
 executable_OBJECTS = \
-"CMakeFiles/executable.dir/board.c.o" \
-"CMakeFiles/executable.dir/lookuptables.c.o" \
-"CMakeFiles/executable.dir/main.c.o" \
-"CMakeFiles/executable.dir/movefinder.c.o"
+"CMakeFiles/executable.dir/src/movefinding/board.c.o" \
+"CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o" \
+"CMakeFiles/executable.dir/src/movefinding/movefinder.c.o" \
+"CMakeFiles/executable.dir/main.c.o"
 
 # External object files for target executable
 executable_EXTERNAL_OBJECTS =
 
-executable: CMakeFiles/executable.dir/board.c.o
-executable: CMakeFiles/executable.dir/lookuptables.c.o
+executable: CMakeFiles/executable.dir/src/movefinding/board.c.o
+executable: CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o
+executable: CMakeFiles/executable.dir/src/movefinding/movefinder.c.o
 executable: CMakeFiles/executable.dir/main.c.o
-executable: CMakeFiles/executable.dir/movefinder.c.o
 executable: CMakeFiles/executable.dir/build.make
 executable: CMakeFiles/executable.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Linking C executable executable"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking C executable executable"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/executable.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -153,6 +153,6 @@ CMakeFiles/executable.dir/clean:
 .PHONY : CMakeFiles/executable.dir/clean
 
 CMakeFiles/executable.dir/depend:
-	cd "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine" "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine" "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build" "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build" "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build/CMakeFiles/executable.dir/DependInfo.cmake" "--color=$(COLOR)"
+	cd /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles/executable.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/executable.dir/depend
 

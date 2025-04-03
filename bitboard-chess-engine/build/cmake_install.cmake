@@ -1,4 +1,4 @@
-# Install script for directory: /home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine
+# Install script for directory: /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

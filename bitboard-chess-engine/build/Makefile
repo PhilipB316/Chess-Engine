@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine"
+CMAKE_SOURCE_DIR = /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build"
+CMAKE_BINARY_DIR = /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build/CMakeFiles" "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build//CMakeFiles/progress.marks"
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/philip-brand/Projects/chess-engine/Chess-Engine/bit-board chess engine/build/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -129,54 +129,6 @@ executable/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/build
 .PHONY : executable/fast
 
-board.o: board.c.o
-.PHONY : board.o
-
-# target to build an object file
-board.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/board.c.o
-.PHONY : board.c.o
-
-board.i: board.c.i
-.PHONY : board.i
-
-# target to preprocess a source file
-board.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/board.c.i
-.PHONY : board.c.i
-
-board.s: board.c.s
-.PHONY : board.s
-
-# target to generate assembly for a file
-board.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/board.c.s
-.PHONY : board.c.s
-
-lookuptables.o: lookuptables.c.o
-.PHONY : lookuptables.o
-
-# target to build an object file
-lookuptables.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/lookuptables.c.o
-.PHONY : lookuptables.c.o
-
-lookuptables.i: lookuptables.c.i
-.PHONY : lookuptables.i
-
-# target to preprocess a source file
-lookuptables.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/lookuptables.c.i
-.PHONY : lookuptables.c.i
-
-lookuptables.s: lookuptables.c.s
-.PHONY : lookuptables.s
-
-# target to generate assembly for a file
-lookuptables.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/lookuptables.c.s
-.PHONY : lookuptables.c.s
-
 main.o: main.c.o
 .PHONY : main.o
 
@@ -201,29 +153,77 @@ main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/main.c.s
 .PHONY : main.c.s
 
-movefinder.o: movefinder.c.o
-.PHONY : movefinder.o
+src/movefinding/board.o: src/movefinding/board.c.o
+.PHONY : src/movefinding/board.o
 
 # target to build an object file
-movefinder.c.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/movefinder.c.o
-.PHONY : movefinder.c.o
+src/movefinding/board.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/src/movefinding/board.c.o
+.PHONY : src/movefinding/board.c.o
 
-movefinder.i: movefinder.c.i
-.PHONY : movefinder.i
+src/movefinding/board.i: src/movefinding/board.c.i
+.PHONY : src/movefinding/board.i
 
 # target to preprocess a source file
-movefinder.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/movefinder.c.i
-.PHONY : movefinder.c.i
+src/movefinding/board.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/src/movefinding/board.c.i
+.PHONY : src/movefinding/board.c.i
 
-movefinder.s: movefinder.c.s
-.PHONY : movefinder.s
+src/movefinding/board.s: src/movefinding/board.c.s
+.PHONY : src/movefinding/board.s
 
 # target to generate assembly for a file
-movefinder.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/movefinder.c.s
-.PHONY : movefinder.c.s
+src/movefinding/board.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/src/movefinding/board.c.s
+.PHONY : src/movefinding/board.c.s
+
+src/movefinding/lookuptables.o: src/movefinding/lookuptables.c.o
+.PHONY : src/movefinding/lookuptables.o
+
+# target to build an object file
+src/movefinding/lookuptables.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/src/movefinding/lookuptables.c.o
+.PHONY : src/movefinding/lookuptables.c.o
+
+src/movefinding/lookuptables.i: src/movefinding/lookuptables.c.i
+.PHONY : src/movefinding/lookuptables.i
+
+# target to preprocess a source file
+src/movefinding/lookuptables.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/src/movefinding/lookuptables.c.i
+.PHONY : src/movefinding/lookuptables.c.i
+
+src/movefinding/lookuptables.s: src/movefinding/lookuptables.c.s
+.PHONY : src/movefinding/lookuptables.s
+
+# target to generate assembly for a file
+src/movefinding/lookuptables.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/src/movefinding/lookuptables.c.s
+.PHONY : src/movefinding/lookuptables.c.s
+
+src/movefinding/movefinder.o: src/movefinding/movefinder.c.o
+.PHONY : src/movefinding/movefinder.o
+
+# target to build an object file
+src/movefinding/movefinder.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/src/movefinding/movefinder.c.o
+.PHONY : src/movefinding/movefinder.c.o
+
+src/movefinding/movefinder.i: src/movefinding/movefinder.c.i
+.PHONY : src/movefinding/movefinder.i
+
+# target to preprocess a source file
+src/movefinding/movefinder.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/src/movefinding/movefinder.c.i
+.PHONY : src/movefinding/movefinder.c.i
+
+src/movefinding/movefinder.s: src/movefinding/movefinder.c.s
+.PHONY : src/movefinding/movefinder.s
+
+# target to generate assembly for a file
+src/movefinding/movefinder.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/executable.dir/build.make CMakeFiles/executable.dir/src/movefinding/movefinder.c.s
+.PHONY : src/movefinding/movefinder.c.s
 
 # Help Target
 help:
@@ -234,18 +234,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... executable"
-	@echo "... board.o"
-	@echo "... board.i"
-	@echo "... board.s"
-	@echo "... lookuptables.o"
-	@echo "... lookuptables.i"
-	@echo "... lookuptables.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... movefinder.o"
-	@echo "... movefinder.i"
-	@echo "... movefinder.s"
+	@echo "... src/movefinding/board.o"
+	@echo "... src/movefinding/board.i"
+	@echo "... src/movefinding/board.s"
+	@echo "... src/movefinding/lookuptables.o"
+	@echo "... src/movefinding/lookuptables.i"
+	@echo "... src/movefinding/lookuptables.s"
+	@echo "... src/movefinding/movefinder.o"
+	@echo "... src/movefinding/movefinder.i"
+	@echo "... src/movefinding/movefinder.s"
 .PHONY : help
 
 
