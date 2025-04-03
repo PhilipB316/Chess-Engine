@@ -1,0 +1,16 @@
+{
+    "cSpell.words": [
+        "bitboards",
+        "ctzll"
+    ],
+    "files.associations": {
+        "string.h": "c",
+        "time.h": "c",
+        "lookuptables.h": "c",
+        "stdint.h": "c",
+        "stdbool.h": "c",
+        "magic_numbers.h": "c",
+        "movefinder.h": "c",
+        "move_lookuptables.h": "c"
+    }
+}

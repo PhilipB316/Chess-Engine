@@ -1,0 +1,1 @@
+/usr/bin/cc  -pthread -lm CMakeFiles/executable.dir/board.c.o CMakeFiles/executable.dir/lookuptables.c.o CMakeFiles/executable.dir/main.c.o CMakeFiles/executable.dir/movefinder.c.o -o executable 
