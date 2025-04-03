@@ -5,8 +5,8 @@
 #include <time.h>
 #include <ctype.h>
 
-#include "./src/movefinding/movefinder.h"
-#include "./src/movefinding/board.h"
+#include "./movefinding/movefinder.h"
+#include "./movefinding/board.h"
 
 int main(void)
 {

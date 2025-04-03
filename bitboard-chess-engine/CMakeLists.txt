@@ -4,7 +4,7 @@ set(CMAKE_C_CSTANDARD 99)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread -lm")
 include_directories(HEADER_FILES)
 file(GLOB MAIN
-    "main.c"
+    "./src/main.c"
     "./src/movefinding/movefinder.c"
     "./src/movefinding/lookuptables.c"
     "./src/movefinding/board.c"
