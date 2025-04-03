@@ -1,3 +1,0 @@
-/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles/executable.dir
-/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles/edit_cache.dir
-/home/philip-brand/Projects/chess-engine/Chess-Engine/bitboard-chess-engine/build/CMakeFiles/rebuild_cache.dir
