@@ -42,8 +42,8 @@ void print_position(Position_t const position);
  * Includes castling rights, en passant square, and side to move.
  *
  * @param fen The FEN string representing the position.
- * @return The board position represented as a Position_t structure.
+ * @param position The position to be populated.
  */
-Position_t fen_to_board(char fen[]);
+void fen_to_board(char fen[], Position_t *position);
 
 #endif // BOARD_FORMATTER_H

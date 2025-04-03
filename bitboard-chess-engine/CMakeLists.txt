@@ -5,8 +5,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread -lm")
 include_directories(HEADER_FILES)
 file(GLOB MAIN
     "main.c"
-    "movefinder.c"
-    "lookuptables.c"
-    "board.c"
+    "./src/movefinding/movefinder.c"
+    "./src/movefinding/lookuptables.c"
+    "./src/movefinding/board.c"
     )
 add_executable(executable ${MAIN})

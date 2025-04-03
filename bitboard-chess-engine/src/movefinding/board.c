@@ -113,11 +113,10 @@ void print_position(Position_t const position)
     printf("\n");
 }
 
-
-Position_t fen_to_board(char *fen)
+void fen_to_board(char *fen, Position_t *fen_position)
 {
-    Position_t fen_position = {0};
-    size_t i = 0;               // i does not necessarily count up to 64
+    memset(fen_position, 0, sizeof(Position_t));
+    size_t i = 0; // i does not necessarily count up to 64
     uint8_t square_counter = 0; // square_counter counts up to 64
     char character = fen[i++];
 
@@ -129,11 +128,11 @@ Position_t fen_to_board(char *fen)
         {
             if (isupper(character))
             {
-                pieces = &fen_position.white_pieces;
+                pieces = &fen_position->white_pieces;
             }
             else
             {
-                pieces = &fen_position.black_pieces;
+                pieces = &fen_position->black_pieces;
             }
             character = tolower(character);
             if (character == 'k')
@@ -161,7 +160,7 @@ Position_t fen_to_board(char *fen)
                 pieces->pawns |= (1ULL << square_counter);
             }
             pieces->all_pieces |= (1ULL << square_counter);
-            fen_position.all_pieces |= (1ULL << square_counter);
+            fen_position->all_pieces |= (1ULL << square_counter);
             square_counter++;
         }
         else if (isdigit(character))
@@ -174,11 +173,11 @@ Position_t fen_to_board(char *fen)
     // ========================= WHOSE TURN =========================
     if (fen[i++] == 'w')
     {
-        fen_position.white_to_move = true;
+        fen_position->white_to_move = true;
     }
     else
     {
-        fen_position.white_to_move = false;
+        fen_position->white_to_move = false;
     }
 
     // ========================= CASTLING =========================
@@ -188,19 +187,19 @@ Position_t fen_to_board(char *fen)
     {
         if (character == 'K')
         {
-            fen_position.white_pieces.castle_kingside = true;
+            fen_position->white_pieces.castle_kingside = true;
         }
         else if (character == 'Q')
         {
-            fen_position.white_pieces.castle_queenside = true;
+            fen_position->white_pieces.castle_queenside = true;
         }
         else if (character == 'k')
         {
-            fen_position.black_pieces.castle_kingside = true;
+            fen_position->black_pieces.castle_kingside = true;
         }
         else if (character == 'q')
         {
-            fen_position.black_pieces.castle_queenside = true;
+            fen_position->black_pieces.castle_queenside = true;
         }
         character = fen[i++];
     }
@@ -212,12 +211,10 @@ Position_t fen_to_board(char *fen)
     {
         uint8_t file = character - 'a';
         uint8_t rank = 8 - (fen[i++] - '0');
-        fen_position.en_passant = 8 * rank + file;
+        fen_position->en_passant = 8 * rank + file;
     }
     else
     {
-        fen_position.en_passant = 0;
+        fen_position->en_passant = 0;
     }
-
-    return fen_position;
 }

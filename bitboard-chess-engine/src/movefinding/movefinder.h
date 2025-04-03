@@ -10,9 +10,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
 
 #define ULL unsigned long long
+#define MAX_CHILDREN 100
 
 typedef struct
 {
@@ -34,14 +34,13 @@ typedef struct
     ULL all_pieces;
     bool white_to_move;
     uint16_t en_passant;
-    struct Position_t* child_positions[100];
     struct Position_t* parent_position;
+    struct Position_t* child_positions[MAX_CHILDREN];
+    uint8_t num_children;
 } Position_t;
 
 void move_finder_init(void);
 
-void move_finder(Position_t *position_list,
-                 size_t *num_positions,
-                 Position_t *const position);
+void move_finder(Position_t *position);
 
 #endif
