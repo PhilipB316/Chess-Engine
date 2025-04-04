@@ -1,6 +1,6 @@
 /**
  * @file movefinder.h
- * @brief movefinding, bitboard printing and move printing functions
+ * @brief movefinding
  * @author Philip Brand
  * @date 2024-12-06
  */
@@ -27,7 +27,7 @@ typedef struct
     bool castle_queenside;
 } PiecesOneColour_t;
 
-typedef struct
+typedef struct Position_t
 {
     PiecesOneColour_t white_pieces;
     PiecesOneColour_t black_pieces;

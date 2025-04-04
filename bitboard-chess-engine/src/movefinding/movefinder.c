@@ -18,10 +18,16 @@ Position_t *POSITION;
 
 void generate_new_position(void)
 {
-    print_bitboard(POSITION->white_pieces.all_pieces);
+    printf("Number children before: %d\n", POSITION->num_children);
     // generate a new position
-}
+    Position_t *new_position = malloc(sizeof(Position_t));
+    memcpy(new_position, POSITION, sizeof(Position_t));
+    POSITION->child_positions[POSITION->num_children++] = new_position;
 
+    print_bitboard(POSITION->white_pieces.all_pieces);
+    print_bitboard(POSITION->all_pieces);
+    printf("Number children after: %d\n", POSITION->num_children);
+}
 
 void queen_move_finder(ULL queen_bitboard,
                        ULL all_pieces_bitboard,
@@ -255,6 +261,8 @@ void move_finder(Position_t *position)
                      is_white_to_move,
                      active_pieces_set,
                      opponent_pieces_set);
+
+    print_bitboard(POSITION->child_positions[0]->white_pieces.all_pieces);
 }
 
 void move_finder_init(void)
