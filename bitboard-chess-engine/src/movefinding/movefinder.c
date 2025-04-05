@@ -14,19 +14,115 @@
 #include "lookuptables.h"
 #include "board.h"
 
+#define DEBUG 0
+
 Position_t *POSITION;
+bool WHITE_TO_MOVE;
 
-void generate_new_position(void)
+void set_active_pieces(Position_t *position,
+                       PiecesOneColour_t **active_pieces_set,
+                       PiecesOneColour_t **opponent_pieces_set)
 {
-    printf("Number children before: %d\n", POSITION->num_children);
-    // generate a new position
-    Position_t *new_position = malloc(sizeof(Position_t));
-    memcpy(new_position, POSITION, sizeof(Position_t));
-    POSITION->child_positions[POSITION->num_children++] = new_position;
+    if (WHITE_TO_MOVE)
+    {
+        *active_pieces_set = &position->white_pieces;
+        *opponent_pieces_set = &position->black_pieces;
+    }
+    else
+    {
+        *active_pieces_set = &position->black_pieces;
+        *opponent_pieces_set = &position->white_pieces;
+    }
+}
 
-    print_bitboard(POSITION->white_pieces.all_pieces);
-    print_bitboard(POSITION->all_pieces);
-    printf("Number children after: %d\n", POSITION->num_children);
+void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL from_square_bitboard)
+{
+    if (DEBUG)
+    {
+        printf("Number children before: %d\n", POSITION->num_children);
+    }
+
+    while (possible_moves_bitboard)
+    {
+        // --- useful bitboards and squares ---
+        uint8_t to_square = __builtin_ctzll(possible_moves_bitboard);
+        ULL to_square_bitboard = 1ULL << to_square;
+        ULL move_bitboard = from_square_bitboard | to_square_bitboard;
+
+        // --- allocating memory for the new position and updating parent ---
+        Position_t *new_position = malloc(sizeof(Position_t));
+        memcpy(new_position, POSITION, sizeof(Position_t));
+        POSITION->child_positions[POSITION->num_children++] = new_position;
+
+        // --- setting active and opponent pieces --- 
+        PiecesOneColour_t *active_pieces_set, *opponent_pieces_set;
+        set_active_pieces(new_position, &active_pieces_set, &opponent_pieces_set);
+
+        // --- updating the general position ---
+        new_position->all_pieces ^= move_bitboard;
+        new_position->white_to_move = !POSITION->white_to_move;
+        new_position->num_children = 0;
+        active_pieces_set->all_pieces ^= move_bitboard;
+
+        // --- updating the moved piece ---
+        switch (piece)
+        {
+        case PAWN:
+            active_pieces_set->pawns ^=move_bitboard;
+            break;
+        case KNIGHT:
+            active_pieces_set->knights ^=move_bitboard;
+            break;
+        case BISHOP:
+            active_pieces_set->bishops ^=move_bitboard;
+            break;
+        case ROOK:
+            active_pieces_set->rooks ^=move_bitboard;
+            break;
+        case QUEEN:
+            active_pieces_set->queens ^=move_bitboard;
+            break;
+        case KING:
+            active_pieces_set->kings ^=move_bitboard;
+            break;
+        }
+        
+        // --- updating the opponent pieces if captures ---
+        if (opponent_pieces_set->all_pieces & to_square_bitboard)
+        {
+            opponent_pieces_set->all_pieces ^= to_square_bitboard;
+            if (opponent_pieces_set->pawns & to_square_bitboard)
+            {
+                opponent_pieces_set->pawns ^= to_square_bitboard;
+            }
+            else if (opponent_pieces_set->knights & to_square_bitboard)
+            {
+                opponent_pieces_set->knights ^= to_square_bitboard;
+            }
+            else if (opponent_pieces_set->bishops & to_square_bitboard)
+            {
+                opponent_pieces_set->bishops ^= to_square_bitboard;
+            }
+            else if (opponent_pieces_set->rooks & to_square_bitboard)
+            {
+                opponent_pieces_set->rooks ^= to_square_bitboard;
+            }
+            else if (opponent_pieces_set->queens & to_square_bitboard)
+            {
+                opponent_pieces_set->queens ^= to_square_bitboard;
+            }
+            else if (opponent_pieces_set->kings & to_square_bitboard)
+            {
+                opponent_pieces_set->kings ^= to_square_bitboard;
+            }
+        }
+
+        possible_moves_bitboard &= ~to_square_bitboard;
+    }
+    if (DEBUG)
+    {
+        printf("Number children before: %d\n", POSITION->num_children);
+    }
 }
 
 void queen_move_finder(ULL queen_bitboard,
@@ -36,6 +132,7 @@ void queen_move_finder(ULL queen_bitboard,
     while (queen_bitboard)
     {
         uint8_t from_square = __builtin_ctzll(queen_bitboard);
+        ULL from_square_bitboard = 1ULL << from_square;
         ULL rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
         ULL bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
         uint8_t index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
@@ -43,10 +140,8 @@ void queen_move_finder(ULL queen_bitboard,
         index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
         possible_move_squares |= bishop_attack_lookup_table[from_square][index];
         possible_move_squares &= ~active_pieces_bitboard;
-        print_bitboard(possible_move_squares);
-        // do something with the possible move squares
-        generate_new_position();
-        queen_bitboard &= ~(1ULL << (from_square));
+        generate_new_position(QUEEN, possible_move_squares, from_square_bitboard);
+        queen_bitboard &= ~(from_square_bitboard);
     }
 }
 
@@ -57,12 +152,13 @@ void rook_move_finder(ULL rook_bitboard,
     while (rook_bitboard)
     {
         uint8_t from_square = __builtin_ctzll(rook_bitboard);
+        ULL from_square_bitboard = 1ULL << from_square;
         ULL rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
         uint8_t index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
         ULL possible_move_squares = rook_attack_lookup_table[from_square][index];
         possible_move_squares &= ~active_pieces_bitboard;
-        // do something with the possible move squares
-        rook_bitboard &= ~(1ULL << (from_square));
+        generate_new_position(ROOK, possible_move_squares, from_square_bitboard);
+        rook_bitboard &= ~from_square_bitboard;
     }
 }
 
@@ -73,12 +169,13 @@ void bishop_move_finder(ULL bishop_bitboard,
     while (bishop_bitboard)
     {
         uint8_t from_square = __builtin_ctzll(bishop_bitboard);
+        ULL from_square_bitboard = 1ULL << from_square;
         ULL bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
         uint8_t index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
         ULL possible_move_squares = bishop_attack_lookup_table[from_square][index];
         possible_move_squares &= ~active_pieces_bitboard;
-        // do something with the possible move squares
-        bishop_bitboard &= ~(1ULL << (from_square));
+        generate_new_position(BISHOP, possible_move_squares, from_square_bitboard);
+        bishop_bitboard &= ~from_square_bitboard;
     }
 }
 
@@ -89,10 +186,11 @@ void knight_move_finder(ULL knight_bitboard,
     while (knight_bitboard)
     {
         uint8_t from_square = __builtin_ctzll(knight_bitboard);
+        ULL from_square_bitboard = 1ULL << from_square;
         ULL possible_move_squares = knight_attack_lookup_table[from_square];
         possible_move_squares &= ~active_pieces_bitboard;
-        // do something with the possible move squares
-        knight_bitboard &= ~(1ULL << (from_square));
+        generate_new_position(KNIGHT, possible_move_squares, from_square_bitboard);
+        knight_bitboard &= ~from_square_bitboard;
     }
 }
 
@@ -226,17 +324,9 @@ void move_finder(Position_t *position)
     ULL all_pieces_bitboard = position->all_pieces;
     PiecesOneColour_t *active_pieces_set, *opponent_pieces_set;
     bool is_white_to_move = position->white_to_move;
+    WHITE_TO_MOVE = is_white_to_move;
 
-    if (is_white_to_move)
-    {
-        active_pieces_set = &position->white_pieces;
-        opponent_pieces_set = &position->black_pieces;
-    }
-    else
-    {
-        active_pieces_set = &position->black_pieces;
-        opponent_pieces_set = &position->white_pieces;
-    }
+    set_active_pieces(position, &active_pieces_set, &opponent_pieces_set);
 
     queen_move_finder(active_pieces_set->queens,
                       all_pieces_bitboard,
@@ -252,7 +342,7 @@ void move_finder(Position_t *position)
 
     knight_move_finder(active_pieces_set->knights,
                        all_pieces_bitboard,
-                       opponent_pieces_set->all_pieces);
+                       active_pieces_set->all_pieces);
 
     pawn_move_finder(active_pieces_set->pawns,
                      position);
@@ -262,11 +352,43 @@ void move_finder(Position_t *position)
                      active_pieces_set,
                      opponent_pieces_set);
 
-    print_bitboard(POSITION->child_positions[0]->white_pieces.all_pieces);
 }
 
 void move_finder_init(void)
 {
     generate_lookup_tables();
-    printf("---lookup-tables-generated---\n");
+    if (DEBUG)
+    {
+        printf("---lookup-tables-generated---\n");
+    }
+
+}
+
+void free_children_memory(Position_t *position)
+{
+    if (position->num_children > 0)
+    {
+        for (uint16_t i = 0; i < position->num_children; i++)
+        {
+            free_children_memory(position->child_positions[i]);
+        }
+    } else {
+        free(position);
+    }
+}
+
+void free_position_memory(Position_t *position)
+{
+    if (DEBUG)
+    {
+        printf("---freeing-allocated-memory---\n");
+    }
+    for (uint16_t i = 0; i < position->num_children; i++)
+    {
+        free_children_memory(position->child_positions[i]);
+    }
+    if (DEBUG)
+    {
+        printf("---freeing-position---\n");
+    }
 }

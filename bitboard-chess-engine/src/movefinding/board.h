@@ -1,7 +1,13 @@
 /**
  * @file board_formatter.h
- * @brief This file contains functions for printing the board 
- * and converting FEN to bitboards.
+ * @brief Module for printing and handling chess boards.
+ *
+ * Provides functinality for
+ * - printing bitboards
+ * - printing positions
+ * - converting FEN strings to positions
+ * - printing children positions
+ *
  * @author Philip Brand
  * @date 2025-04-01
  */
@@ -45,5 +51,11 @@ void print_position(Position_t const position);
  * @param position The position to be populated.
  */
 void fen_to_board(char fen[], Position_t *position);
+
+/**
+ * @brief Prints the children positions of a given position.
+ * @param position The position whose children are to be printed.
+ */
+void print_children_positions(Position_t *position);
 
 #endif // BOARD_FORMATTER_H

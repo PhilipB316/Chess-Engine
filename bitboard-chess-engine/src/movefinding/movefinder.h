@@ -14,6 +14,16 @@
 #define ULL unsigned long long
 #define MAX_CHILDREN 100
 
+typedef enum 
+{
+    PAWN,
+    KNIGHT,
+    BISHOP,
+    ROOK,
+    QUEEN,
+    KING,
+} PieceType;
+
 typedef struct
 {
     ULL pawns;
@@ -42,5 +52,13 @@ typedef struct Position_t
 void move_finder_init(void);
 
 void move_finder(Position_t *position);
+
+/**
+    * @brief Free all memory alloaced for the childern of the position
+    * 
+    * @param position The position to free the children of
+*/
+void free_position_memory(Position_t *position);
+
 
 #endif
