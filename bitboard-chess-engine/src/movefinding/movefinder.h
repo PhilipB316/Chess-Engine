@@ -22,6 +22,15 @@ typedef enum
     ROOK,
     QUEEN,
     KING,
+    DOUBLE_PUSH,
+    PROMOTE_QUEEN,
+    PROMOTE_ROOK,
+    PROMOTE_BISHOP,
+    PROMOTE_KNIGHT,
+    CASTLE_KINGSIDE,
+    CASTLE_QUEENSIDE,
+    EN_PASSANT_CAPTURE,
+    NONE,
 } PieceType;
 
 typedef struct
@@ -43,7 +52,7 @@ typedef struct Position_t
     PiecesOneColour_t black_pieces;
     ULL all_pieces;
     bool white_to_move;
-    uint16_t en_passant;
+    ULL en_passant_bitboard;
     struct Position_t* parent_position;
     struct Position_t* child_positions[MAX_CHILDREN];
     uint8_t num_children;

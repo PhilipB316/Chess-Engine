@@ -211,11 +211,11 @@ void fen_to_board(char *fen, Position_t *fen_position)
     {
         uint8_t file = character - 'a';
         uint8_t rank = 8 - (fen[i++] - '0');
-        fen_position->en_passant = 8 * rank + file;
+        fen_position->en_passant_bitboard = 1ULL << (8 * rank + file);
     }
     else
     {
-        fen_position->en_passant = 0;
+        fen_position->en_passant_bitboard = 0;
     }
     fen_position->parent_position = NULL;
     fen_position->num_children = 0;
