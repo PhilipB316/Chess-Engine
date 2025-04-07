@@ -19,6 +19,7 @@
 
 #define ULL unsigned long long
 #define KNOWN_MAGIC_NUMBERS 1
+#define QUEENSIDE 1
 
 // files and ranks used to prevent wraparound
 #define FILE_A 0x0101010101010101
@@ -45,12 +46,12 @@ extern ULL bishop_blocker_masks[64];
 extern ULL castling_blocker_masks[2][3];
 
 static ULL rook_castling_array[2][2] = {
-    {1ULL << 0 | 1ULL << 2, 1ULL << 7 | 1ULL << 5},
-    {1ULL << 56 | 1ULL << 58, 1ULL << 63 | 1ULL << 61}};
+    {1ULL << 7 | 1ULL << 5, 1ULL << 0 | 1ULL << 2},
+    {1ULL << 63 | 1ULL << 61, 1ULL << 56 | 1ULL << 58}};
 
 static ULL king_castling_array[2][2] = {
-    {1ULL << 1, 1ULL << 6},
-    {1ULL << 57, 1ULL << 62}};
+    {1ULL << 6, 1ULL << 1},
+    {1ULL << 62, 1ULL << 57}};
 
 // (64 - bits) numbers of bits rook/ bishop blockers can occupy
 extern uint8_t offset_RBits[64];
@@ -117,5 +118,7 @@ void king_attack_generator(void);
  *  attack patterns.
  **/
 void generate_lookup_tables(void);
+
+ULL determine_possible_rook_moves(uint8_t sq, ULL blocker);
 
 #endif
