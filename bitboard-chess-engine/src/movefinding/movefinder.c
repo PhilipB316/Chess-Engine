@@ -41,18 +41,9 @@ void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL fro
         POSITION->child_positions[POSITION->num_children++] = new_position;
 
         // --- setting active and opponent pieces --- 
-        PiecesOneColour_t *active_pieces_set, *opponent_pieces_set;
-
-        if (WHITE_TO_MOVE)
-        {
-            active_pieces_set = &new_position->white_pieces;
-            opponent_pieces_set = &new_position->black_pieces;
-        }
-        else
-        {
-            active_pieces_set = &new_position->black_pieces;
-            opponent_pieces_set = &new_position->white_pieces;
-        }
+        PiecesOneColour_t *active_pieces_set = &new_position->pieces[WHITE_TO_MOVE];
+        PiecesOneColour_t *opponent_pieces_set = &new_position->pieces[!WHITE_TO_MOVE];
+    
 
         // --- updating the general position ---
         new_position->all_pieces ^= move_bitboard;
@@ -165,80 +156,17 @@ void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL fro
     }
 }
 
-void queen_move_finder(ULL queen_bitboard,
-                       ULL all_pieces_bitboard,
-                       ULL active_pieces_bitboard)
+void move_finder(Position_t *position)
 {
-    while (queen_bitboard)
-    {
-        register uint8_t from_square = __builtin_ctzll(queen_bitboard);
-        register ULL from_square_bitboard = 1ULL << from_square;
-        register ULL rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
-        register ULL bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
-        register uint16_t index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
-        register ULL possible_move_squares = rook_attack_lookup_table[from_square][index];
-        index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
-        possible_move_squares |= bishop_attack_lookup_table[from_square][index];
-        possible_move_squares &= ~active_pieces_bitboard;
-        generate_new_position(QUEEN, possible_move_squares, from_square_bitboard, 0);
-        queen_bitboard &= ~(from_square_bitboard);
-    }
-}
-
-void rook_move_finder(ULL rook_bitboard,
-                      ULL all_pieces_bitboard,
-                      ULL active_pieces_bitboard)
-{
-    while (rook_bitboard)
-    {
-        register uint8_t from_square = __builtin_ctzll(rook_bitboard);
-        register ULL from_square_bitboard = 1ULL << from_square;
-        register ULL rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
-        register uint16_t index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
-        register ULL possible_move_squares = rook_attack_lookup_table[from_square][index];
-        possible_move_squares &= ~active_pieces_bitboard;
-        generate_new_position(ROOK, possible_move_squares, from_square_bitboard, 0);
-        rook_bitboard &= ~from_square_bitboard;
-    }
-}
-
-void bishop_move_finder(ULL bishop_bitboard,
-                        ULL all_pieces_bitboard,
-                        ULL active_pieces_bitboard)
-{
-    while (bishop_bitboard)
-    {
-        register uint8_t from_square = __builtin_ctzll(bishop_bitboard);
-        register ULL from_square_bitboard = 1ULL << from_square;
-        register ULL bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
-        register uint16_t index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
-        register ULL possible_move_squares = bishop_attack_lookup_table[from_square][index];
-        possible_move_squares &= ~active_pieces_bitboard;
-        generate_new_position(BISHOP, possible_move_squares, from_square_bitboard, 0);
-        bishop_bitboard &= ~from_square_bitboard;
-    }
-}
-
-void knight_move_finder(ULL knight_bitboard,
-                        ULL active_pieces_bitboard)
-{
-    while (knight_bitboard)
-    {
-        register uint8_t from_square = __builtin_ctzll(knight_bitboard);
-        register ULL from_square_bitboard = 1ULL << from_square;
-        register ULL possible_move_squares = knight_attack_lookup_table[from_square] & ~active_pieces_bitboard;
-        generate_new_position(KNIGHT, possible_move_squares, from_square_bitboard, 0);
-        knight_bitboard &= ~from_square_bitboard;
-    }
-}
-
-void pawn_move_finder(ULL pawn_bitboard,
-                      Position_t *position)
-{
+    POSITION = position;
     ULL all_pieces_bitboard = position->all_pieces;
-    ULL opponent_pieces_bitboard;
+    ULL opponent_pieces_bitboard = position->pieces[!WHITE_TO_MOVE].all_pieces;
+    PiecesOneColour_t *active_pieces_set = &position->pieces[WHITE_TO_MOVE];
+    PiecesOneColour_t *opponent_pieces_set = &position->pieces[!WHITE_TO_MOVE];
+    WHITE_TO_MOVE = position->white_to_move;
     uint8_t start_rank, seventh_rank, en_passant_rank;
     int direction;
+
 
     if (WHITE_TO_MOVE)
     {
@@ -246,7 +174,6 @@ void pawn_move_finder(ULL pawn_bitboard,
         start_rank = 6;
         seventh_rank = 1;
         en_passant_rank = 3;
-        opponent_pieces_bitboard = position->black_pieces.all_pieces;
     }
     else
     {
@@ -254,9 +181,74 @@ void pawn_move_finder(ULL pawn_bitboard,
         start_rank = 1;
         seventh_rank = 6;
         en_passant_rank = 4;
-        opponent_pieces_bitboard = position->white_pieces.all_pieces;
     }
 
+    register ULL active_pieces_bitboard = active_pieces_set->all_pieces;
+    register ULL queen_bitboard = active_pieces_set->queens;
+    register ULL rook_bitboard = active_pieces_set->rooks;
+    register ULL bishop_bitboard = active_pieces_set->bishops;
+    register ULL knight_bitboard = active_pieces_set->knights;
+    register ULL pawn_bitboard = active_pieces_set->pawns;
+    register ULL king_bitboard = active_pieces_set->kings;
+
+    register uint8_t from_square;
+    register ULL from_square_bitboard, to_square_bitboard, possible_move_squares;
+    register ULL rook_blockers, bishop_blockers;
+    register uint16_t index;
+
+    // ------------------------------- QUEEN MOVES -------------------------------
+    while (queen_bitboard)
+    {
+        from_square = __builtin_ctzll(queen_bitboard);
+        from_square_bitboard =1ULL << from_square;
+        rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
+        bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
+        index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
+        possible_move_squares = rook_attack_lookup_table[from_square][index];
+        index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
+        possible_move_squares |= bishop_attack_lookup_table[from_square][index];
+        possible_move_squares &= ~active_pieces_bitboard;
+        generate_new_position(QUEEN, possible_move_squares, from_square_bitboard, 0);
+        queen_bitboard &= ~(from_square_bitboard);
+    }
+
+    // ------------------------------- ROOK MOVES -------------------------------
+    while (rook_bitboard)
+    {
+        from_square = __builtin_ctzll(rook_bitboard);
+        from_square_bitboard =1ULL << from_square;
+        rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
+        index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
+        possible_move_squares = rook_attack_lookup_table[from_square][index];
+        possible_move_squares &= ~active_pieces_bitboard;
+        generate_new_position(ROOK, possible_move_squares, from_square_bitboard, 0);
+        rook_bitboard &= ~from_square_bitboard;
+    }
+
+    // ------------------------------- BISHOP MOVES -------------------------------
+    while (bishop_bitboard)
+    {
+        from_square = __builtin_ctzll(bishop_bitboard);
+        from_square_bitboard =1ULL << from_square;
+        bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
+        index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
+        possible_move_squares = bishop_attack_lookup_table[from_square][index];
+        possible_move_squares &= ~active_pieces_bitboard;
+        generate_new_position(BISHOP, possible_move_squares, from_square_bitboard, 0);
+        bishop_bitboard &= ~from_square_bitboard;
+    }
+
+    // ------------------------------- KNIGHT MOVES -------------------------------
+    while (knight_bitboard)
+    {
+        from_square = __builtin_ctzll(knight_bitboard);
+        from_square_bitboard =1ULL << from_square;
+        possible_move_squares = knight_attack_lookup_table[from_square] & ~active_pieces_bitboard;
+        generate_new_position(KNIGHT, possible_move_squares, from_square_bitboard, 0);
+        knight_bitboard &= ~from_square_bitboard;
+    }
+
+    // ------------------------------- PAWN MOVES -------------------------------
     while (pawn_bitboard)
     {
         uint8_t from_square = __builtin_ctzll(pawn_bitboard);
@@ -289,7 +281,7 @@ void pawn_move_finder(ULL pawn_bitboard,
             // generate other possible moves if not promoting
             while (possible_move_squares)
             {
-                ULL to_square_bitboard = 1ULL << __builtin_ctzll(possible_move_squares);
+                to_square_bitboard = 1ULL << __builtin_ctzll(possible_move_squares);
                 generate_new_position(PROMOTE_QUEEN, to_square_bitboard, from_square_bitboard, 0);
                 generate_new_position(PROMOTE_ROOK, to_square_bitboard, from_square_bitboard, 0);
                 generate_new_position(PROMOTE_BISHOP, to_square_bitboard, from_square_bitboard, 0);
@@ -309,16 +301,9 @@ void pawn_move_finder(ULL pawn_bitboard,
 
         pawn_bitboard &= ~(from_square_bitboard);
     }
-}
 
-void king_move_finder(ULL all_pieces_bitboard,
-                      PiecesOneColour_t *active_pieces_set,
-                      PiecesOneColour_t *opponent_pieces_set)
-{
-    ULL king_bitboard = active_pieces_set->kings;
+    // ------------------------------- KING MOVES -------------------------------
     ULL threatened_squares = 0;
-    uint8_t from_square, index;
-
     ULL opponent_diagonals_bitboard = opponent_pieces_set->queens | opponent_pieces_set->bishops;
     while (opponent_diagonals_bitboard)
     {
@@ -352,7 +337,7 @@ void king_move_finder(ULL all_pieces_bitboard,
         opponent_pawns &= ~(1ULL << from_square);
     }
     threatened_squares |= king_attack_lookup_table[__builtin_ctzll(opponent_pieces_set->kings)];
-    ULL possible_move_squares = king_attack_lookup_table[__builtin_ctzll(king_bitboard)] & ~threatened_squares & ~(active_pieces_set->all_pieces);
+    possible_move_squares = king_attack_lookup_table[__builtin_ctzll(king_bitboard)] & ~threatened_squares & ~(active_pieces_set->all_pieces);
     generate_new_position(KING, possible_move_squares, king_bitboard, 0);
 
     // castling kingside
@@ -374,43 +359,6 @@ void king_move_finder(ULL all_pieces_bitboard,
             generate_new_position(CASTLE_QUEENSIDE, king_castling_array[WHITE_TO_MOVE][QUEENSIDE], king_bitboard, 0);
         }
     }
-}
-
-void move_finder(Position_t *position)
-{
-    POSITION = position;
-    ULL all_pieces_bitboard = position->all_pieces;
-    PiecesOneColour_t *active_pieces_set, *opponent_pieces_set;
-    WHITE_TO_MOVE = position->white_to_move;
-
-    if (WHITE_TO_MOVE)
-    {
-        active_pieces_set = &position->white_pieces;
-        opponent_pieces_set = &position->black_pieces;
-    }
-    else
-    {
-        active_pieces_set = &position->black_pieces;
-        opponent_pieces_set = &position->white_pieces;
-    }
-
-    queen_move_finder(active_pieces_set->queens,
-                        all_pieces_bitboard,
-                        active_pieces_set->all_pieces);
-    rook_move_finder(active_pieces_set->rooks,
-                     all_pieces_bitboard,
-                     active_pieces_set->all_pieces);
-    bishop_move_finder(active_pieces_set->bishops,
-                       all_pieces_bitboard,
-                       active_pieces_set->all_pieces);
-    knight_move_finder(active_pieces_set->knights,
-                       active_pieces_set->all_pieces);
-    pawn_move_finder(active_pieces_set->pawns,
-                     position);
-    king_move_finder(all_pieces_bitboard,
-                     active_pieces_set,
-                     opponent_pieces_set);
-
 }
 
 void move_finder_init(void)

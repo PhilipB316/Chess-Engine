@@ -7,6 +7,8 @@
 
 #include "movefinder.h"
 
+#define WHITE_INDEX 1
+
 char *pretty_print_moves[64] =
     {
         "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
@@ -44,53 +46,57 @@ void print_bitboard(uint64_t bitboard)
 void print_position(Position_t const position)
 {
     char mailboxes[64] = {0};
+    bool white_to_move = position.white_to_move;
+    PiecesOneColour_t white_pieces = position.pieces[white_to_move];
+    PiecesOneColour_t black_pieces = position.pieces[!white_to_move];
+
     for (uint8_t i = 0; i < 64; i++)
     {
-        if (position.white_pieces.pawns & (1ULL << i))
+        if (white_pieces.pawns & (1ULL << i))
         {
             mailboxes[i] = 'P';
         }
-        else if (position.white_pieces.knights & (1ULL << i))
+        else if (white_pieces.knights & (1ULL << i))
         {
             mailboxes[i] = 'N';
         }
-        else if (position.white_pieces.bishops & (1ULL << i))
+        else if (white_pieces.bishops & (1ULL << i))
         {
             mailboxes[i] = 'B';
         }
-        else if (position.white_pieces.rooks & (1ULL << i))
+        else if (white_pieces.rooks & (1ULL << i))
         {
             mailboxes[i] = 'R';
         }
-        else if (position.white_pieces.queens & (1ULL << i))
+        else if (white_pieces.queens & (1ULL << i))
         {
             mailboxes[i] = 'Q';
         }
-        else if (position.white_pieces.kings & (1ULL << i))
+        else if (white_pieces.kings & (1ULL << i))
         {
             mailboxes[i] = 'K';
         }
-        else if (position.black_pieces.pawns & (1ULL << i))
+        else if (black_pieces.pawns & (1ULL << i))
         {
             mailboxes[i] = 'p';
         }
-        else if (position.black_pieces.knights & (1ULL << i))
+        else if (black_pieces.knights & (1ULL << i))
         {
             mailboxes[i] = 'n';
         }
-        else if (position.black_pieces.bishops & (1ULL << i))
+        else if (black_pieces.bishops & (1ULL << i))
         {
             mailboxes[i] = 'b';
         }
-        else if (position.black_pieces.rooks & (1ULL << i))
+        else if (black_pieces.rooks & (1ULL << i))
         {
             mailboxes[i] = 'r';
         }
-        else if (position.black_pieces.queens & (1ULL << i))
+        else if (black_pieces.queens & (1ULL << i))
         {
             mailboxes[i] = 'q';
         }
-        else if (position.black_pieces.kings & (1ULL << i))
+        else if (black_pieces.kings & (1ULL << i))
         {
             mailboxes[i] = 'k';
         }
@@ -128,11 +134,11 @@ void fen_to_board(char *fen, Position_t *fen_position)
         {
             if (isupper(character))
             {
-                pieces = &fen_position->white_pieces;
+                pieces = &fen_position->pieces[WHITE_INDEX];
             }
             else
             {
-                pieces = &fen_position->black_pieces;
+                pieces = &fen_position->pieces[!WHITE_INDEX];
             }
             character = tolower(character);
             if (character == 'k')
@@ -187,19 +193,19 @@ void fen_to_board(char *fen, Position_t *fen_position)
     {
         if (character == 'K')
         {
-            fen_position->white_pieces.castle_kingside = true;
+            fen_position->pieces[WHITE_INDEX].castle_kingside = true;
         }
         else if (character == 'Q')
         {
-            fen_position->white_pieces.castle_queenside = true;
+            fen_position->pieces[WHITE_INDEX].castle_queenside = true;
         }
         else if (character == 'k')
         {
-            fen_position->black_pieces.castle_kingside = true;
+            fen_position->pieces[!WHITE_INDEX].castle_kingside = true;
         }
         else if (character == 'q')
         {
-            fen_position->black_pieces.castle_queenside = true;
+            fen_position->pieces[!WHITE_INDEX].castle_queenside = true;
         }
         character = fen[i++];
     }

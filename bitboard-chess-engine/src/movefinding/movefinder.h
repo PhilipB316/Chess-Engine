@@ -47,8 +47,7 @@ typedef struct
 
 typedef struct Position_t
 {
-    PiecesOneColour_t white_pieces;
-    PiecesOneColour_t black_pieces;
+    PiecesOneColour_t pieces[2];
     ULL all_pieces;
     bool white_to_move;
     ULL en_passant_bitboard;
