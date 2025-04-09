@@ -40,10 +40,9 @@ void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL fro
         memcpy(new_position, POSITION, sizeof(Position_t));
         POSITION->child_positions[POSITION->num_children++] = new_position;
 
-        // --- setting active and opponent pieces --- 
+        // --- setting active and opponent pieces ---
         PiecesOneColour_t *active_pieces_set = &new_position->pieces[WHITE_TO_MOVE];
         PiecesOneColour_t *opponent_pieces_set = &new_position->pieces[!WHITE_TO_MOVE];
-    
 
         // --- updating the general position ---
         new_position->all_pieces ^= move_bitboard;
@@ -251,11 +250,11 @@ void move_finder(Position_t *position)
     // ------------------------------- PAWN MOVES -------------------------------
     while (pawn_bitboard)
     {
-        uint8_t from_square = __builtin_ctzll(pawn_bitboard);
-        ULL from_square_bitboard = 1ULL << from_square;
+        from_square = __builtin_ctzll(pawn_bitboard);
+        from_square_bitboard = 1ULL << from_square;
         uint8_t rank = from_square / 8;
         ULL possible_attacks_bitboard = pawn_attack_lookup_table[WHITE_TO_MOVE][from_square];
-        ULL possible_move_squares = possible_attacks_bitboard & opponent_pieces_bitboard;
+        possible_move_squares = possible_attacks_bitboard & opponent_pieces_bitboard;
 
         // single pushes (normal)
         ULL single_push_bitboard = 1ULL << (from_square + direction * 8);

@@ -9,5 +9,5 @@ file(GLOB MAIN
     "./src/movefinding/lookuptables.c"
     "./src/movefinding/board.c"
     )
-add_compile_options(-Wall -Wextra -Wpedantic)
+add_compile_options(-Wall -Wextra -Wpedantic -O3)
 add_executable(executable ${MAIN})
