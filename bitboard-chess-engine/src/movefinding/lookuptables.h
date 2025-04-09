@@ -45,13 +45,8 @@ extern ULL rook_blocker_masks[64];
 extern ULL bishop_blocker_masks[64];
 extern ULL castling_blocker_masks[2][3];
 
-static ULL rook_castling_array[2][2] = {
-    {1ULL << 7 | 1ULL << 5, 1ULL << 0 | 1ULL << 2},
-    {1ULL << 63 | 1ULL << 61, 1ULL << 56 | 1ULL << 58}};
-
-static ULL king_castling_array[2][2] = {
-    {1ULL << 6, 1ULL << 1},
-    {1ULL << 62, 1ULL << 57}};
+extern ULL rook_castling_array[2][2];
+extern ULL king_castling_array[2][2];
 
 // (64 - bits) numbers of bits rook/ bishop blockers can occupy
 extern uint8_t offset_RBits[64];

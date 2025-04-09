@@ -38,6 +38,9 @@ ULL rook_attack_lookup_table[64][4096];
 ULL bishop_attack_lookup_table[64][4096];
 ULL magic_knight_attack_lookup_table[4096];
 
+ULL rook_castling_array[2][2];
+ULL king_castling_array[2][2];
+
 ULL actual_bishop_magic_numbers[64] = {
     306249795545277056ULL,
     1162212637740662848ULL,
@@ -803,5 +806,18 @@ void king_attack_generator(void)
         king_attack |= left | right | up | down | left_up | right_up | left_down | right_down;
 
         king_attack_lookup_table[i] = king_attack;
+
+        // move tables for rooks and kings castling
+        rook_castling_array[0][0] = 1ULL << 7 | 1ULL << 5;
+        rook_castling_array[0][1] = 1ULL << 0 | 1ULL << 2;
+        rook_castling_array[1][0] = 1ULL << 63 | 1ULL << 61;
+        rook_castling_array[1][1] = 1ULL << 56 | 1ULL << 58;
+
+        king_castling_array[0][0] = 1ULL << 6;
+        king_castling_array[0][1] = 1ULL << 1;
+        king_castling_array[1][0] = 1ULL << 62;
+        king_castling_array[1][1] = 1ULL << 57;
+
+
     }
 }
