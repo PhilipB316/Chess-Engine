@@ -45,7 +45,7 @@ void print_position(Position_t const position);
 /**
  * @brief Converts a FEN string to a position, represented as bitboards.
  *
- * Includes castling rights, en passant square, and side to move.
+ * Includes castling rights, en passant square, piece values, and side to move.
  *
  * @param fen The FEN string representing the position.
  * @param position The position to be populated.
@@ -57,5 +57,12 @@ void fen_to_board(char fen[], Position_t *position);
  * @param position The position whose children are to be printed.
  */
 void print_children_positions(Position_t *position);
+
+
+/**
+ * @brief Calculates the difference in piece values between the two players.
+ * @param position The position to be evaluated.
+ */
+int16_t calculate_piece_value_diff(Position_t *position);
 
 #endif // BOARD_FORMATTER_H

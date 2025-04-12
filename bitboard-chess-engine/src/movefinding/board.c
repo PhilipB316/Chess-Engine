@@ -6,6 +6,7 @@
 #include <ctype.h>
 
 #include "movefinder.h"
+#include "../search/piece.h"
 
 #define WHITE_INDEX 1
 
@@ -19,6 +20,33 @@ char *pretty_print_moves[64] =
         "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
         "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
         "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"};
+
+int16_t calculate_piece_value_diff(Position_t *position)
+{
+    int16_t piece_value_diff = 0;
+    PiecesOneColour_t *white_pieces = &position->pieces[WHITE_INDEX];
+    PiecesOneColour_t *black_pieces = &position->pieces[!WHITE_INDEX];
+
+    piece_value_diff += __builtin_popcountll(white_pieces->pawns) * PAWN_VALUE;
+    piece_value_diff -= __builtin_popcountll(black_pieces->pawns) * PAWN_VALUE;
+
+    piece_value_diff += __builtin_popcountll(white_pieces->knights) * KNIGHT_VALUE;
+    piece_value_diff -= __builtin_popcountll(black_pieces->knights) * KNIGHT_VALUE;
+
+    piece_value_diff += __builtin_popcountll(white_pieces->bishops) * BISHOP_VALUE;
+    piece_value_diff -= __builtin_popcountll(black_pieces->bishops) * BISHOP_VALUE;
+
+    piece_value_diff += __builtin_popcountll(white_pieces->rooks) * ROOK_VALUE;
+    piece_value_diff -= __builtin_popcountll(black_pieces->rooks) * ROOK_VALUE;
+
+    piece_value_diff += __builtin_popcountll(white_pieces->queens) * QUEEN_VALUE;
+    piece_value_diff -= __builtin_popcountll(black_pieces->queens) * QUEEN_VALUE;
+
+    piece_value_diff += __builtin_popcountll(white_pieces->kings) * KING_VALUE;
+    piece_value_diff -= __builtin_popcountll(black_pieces->kings) * KING_VALUE;
+
+    return piece_value_diff;
+}
 
 void print_bitboard(uint64_t bitboard)
 {
@@ -117,6 +145,8 @@ void print_position(Position_t const position)
     printf("\n\n    a b c d e f g h\n");
 
     printf("\n");
+    printf("piece value difference: %d\n", position.piece_value_diff);
+    printf("\n");
 }
 
 void fen_to_board(char *fen, Position_t *fen_position)
@@ -209,9 +239,9 @@ void fen_to_board(char *fen, Position_t *fen_position)
         }
         character = fen[i++];
     }
+
     // ========================= EN PASSANT =========================
     // skip space
-
     character = fen[i++];
     if (character != '-')
     {
@@ -225,6 +255,7 @@ void fen_to_board(char *fen, Position_t *fen_position)
     }
     fen_position->parent_position = NULL;
     fen_position->num_children = 0;
+    fen_position->piece_value_diff = calculate_piece_value_diff(fen_position);
 }
 
 void print_children_positions(Position_t *position)

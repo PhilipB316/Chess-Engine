@@ -1,10 +1,3 @@
-/**
- * @file movefinder.c
- * @brief This file implements move generation
- * @author Philip Brand
- * @date 2024-12-06
- */
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -14,12 +7,15 @@
 #include "lookuptables.h"
 #include "board.h"
 
+#include "../search/piece.h"
+
 #define DEBUG 0
 #define KINGSIDE 0
 #define QUEENSIDE 1
 
 Position_t *POSITION;
 bool WHITE_TO_MOVE;
+int16_t PIECE_COLOUR;
 
 void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL from_square_bitboard, ULL special_flags)
 {
@@ -46,7 +42,7 @@ void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL fro
 
         // --- updating the general position ---
         new_position->all_pieces ^= move_bitboard;
-        new_position->white_to_move = !POSITION->white_to_move;
+        new_position->white_to_move = !WHITE_TO_MOVE;
         new_position->num_children = 0;
         new_position->en_passant_bitboard = 0;
         active_pieces_set->all_pieces ^= move_bitboard;
@@ -124,26 +120,32 @@ void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL fro
             if (opponent_pieces_set->pawns & to_square_bitboard)
             {
                 opponent_pieces_set->pawns ^= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * PAWN_VALUE;
             }
             else if (opponent_pieces_set->knights & to_square_bitboard)
             {
                 opponent_pieces_set->knights ^= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * KNIGHT_VALUE;
             }
             else if (opponent_pieces_set->bishops & to_square_bitboard)
             {
                 opponent_pieces_set->bishops ^= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * BISHOP_VALUE;
             }
             else if (opponent_pieces_set->rooks & to_square_bitboard)
             {
                 opponent_pieces_set->rooks ^= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * ROOK_VALUE;
             }
             else if (opponent_pieces_set->queens & to_square_bitboard)
             {
                 opponent_pieces_set->queens ^= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * QUEEN_VALUE;
             }
             else
             {
                 opponent_pieces_set->kings ^= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * KING_VALUE;
             }
         }
 
@@ -173,6 +175,7 @@ void move_finder(Position_t *position)
         start_rank = 6;
         seventh_rank = 1;
         en_passant_rank = 3;
+        PIECE_COLOUR = WHITE_PIECE_COLOUR;
     }
     else
     {
@@ -180,6 +183,7 @@ void move_finder(Position_t *position)
         start_rank = 1;
         seventh_rank = 6;
         en_passant_rank = 4;
+        PIECE_COLOUR = BLACK_PIECE_COLOUR;
     }
 
     register ULL active_pieces_bitboard = active_pieces_set->all_pieces;

@@ -1,10 +1,5 @@
 /**
- * @file move_lookuptables.c
- * @brief This file contains the implementation lookup-table generation.
- * @author Philip Brand
- * @date 2024-11-28
- *
- * IMPLEMENTATION OF MAGIC NUMBERS.:
+ * IMPLEMENTATION OF MAGIC NUMBERS:
  *
  * The blocker masks are a mask that is applied to all pieces on the board
  * to determine which pieces are blocking the rook or bishop from moving.
@@ -13,8 +8,6 @@
  * The magic numbers create a hash which relates each possible blocker permutation
  * to the possible moves for a piece with that given blocker configuration.
  * The magic numbers are generate by trial and error
- *
- * IMPLEMENTATION OF NON-SLIDING PIECES.:
  *
  * Generate lookup tables using masking and bit-shifting to determine the possible moves
  */
