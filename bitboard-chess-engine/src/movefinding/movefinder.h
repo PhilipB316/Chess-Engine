@@ -69,4 +69,6 @@ void move_finder(Position_t *position);
 void free_position_memory(Position_t *position);
 
 
+void depth_move_finder(Position_t* position, uint8_t depth);
+
 #endif

@@ -71,12 +71,11 @@ void print_bitboard(uint64_t bitboard)
     printf("\n\n    a b c d e f g h\n\n");
 }
 
-void print_position(Position_t const position)
+void print_position(Position_t* position)
 {
     char mailboxes[64] = {0};
-    bool white_to_move = position.white_to_move;
-    PiecesOneColour_t white_pieces = position.pieces[white_to_move];
-    PiecesOneColour_t black_pieces = position.pieces[!white_to_move];
+    PiecesOneColour_t white_pieces = position->pieces[WHITE_INDEX];
+    PiecesOneColour_t black_pieces = position->pieces[!WHITE_INDEX];
 
     for (uint8_t i = 0; i < 64; i++)
     {
@@ -145,7 +144,7 @@ void print_position(Position_t const position)
     printf("\n\n    a b c d e f g h\n");
 
     printf("\n");
-    printf("piece value difference: %d\n", position.piece_value_diff);
+    printf("piece value difference: %d, WTM: %d\n", position->piece_value_diff, position->white_to_move);
     printf("\n");
 }
 
@@ -263,7 +262,7 @@ void print_children_positions(Position_t *position)
     for (uint8_t i = 0; i < position->num_children; i++)
     {
         printf("Child %d:\n", i);
-        print_position(*position->child_positions[i]);
+        print_position(position->child_positions[i]);
     }
 }
 

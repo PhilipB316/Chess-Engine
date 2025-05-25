@@ -15,7 +15,7 @@
 
 Position_t *POSITION;
 bool WHITE_TO_MOVE;
-int16_t PIECE_COLOUR;
+int PIECE_COLOUR;
 
 void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL from_square_bitboard, ULL special_flags)
 {
@@ -94,22 +94,27 @@ void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL fro
             opponent_pieces_set->pawns ^= special_flags;
             opponent_pieces_set->all_pieces ^= special_flags;
             new_position->all_pieces ^= special_flags;
+            new_position->piece_value_diff += PIECE_COLOUR * PAWN_VALUE;
             break;
         case PROMOTE_QUEEN:
             active_pieces_set->pawns &= ~from_square_bitboard;
             active_pieces_set->queens |= to_square_bitboard;
+            new_position->piece_value_diff += PIECE_COLOUR * (QUEEN_VALUE - PAWN_VALUE);
             break;
         case PROMOTE_ROOK:
             active_pieces_set->pawns &= ~from_square_bitboard;
             active_pieces_set->rooks |= to_square_bitboard;
+            new_position->piece_value_diff += PIECE_COLOUR * (ROOK_VALUE - PAWN_VALUE);
             break;
         case PROMOTE_BISHOP:
             active_pieces_set->pawns &= ~from_square_bitboard;
             active_pieces_set->bishops |= to_square_bitboard;
+            new_position->piece_value_diff += PIECE_COLOUR * (BISHOP_VALUE - PAWN_VALUE);
             break;
         case PROMOTE_KNIGHT:
             active_pieces_set->pawns &= ~from_square_bitboard;
             active_pieces_set->knights |= to_square_bitboard;
+            new_position->piece_value_diff += PIECE_COLOUR * (KNIGHT_VALUE - PAWN_VALUE);
             break;
         }
 
@@ -160,11 +165,11 @@ void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL fro
 void move_finder(Position_t *position)
 {
     POSITION = position;
+    WHITE_TO_MOVE = position->white_to_move;
     ULL all_pieces_bitboard = position->all_pieces;
     ULL opponent_pieces_bitboard = position->pieces[!WHITE_TO_MOVE].all_pieces;
     PiecesOneColour_t *active_pieces_set = &position->pieces[WHITE_TO_MOVE];
     PiecesOneColour_t *opponent_pieces_set = &position->pieces[!WHITE_TO_MOVE];
-    WHITE_TO_MOVE = position->white_to_move;
     uint8_t start_rank, seventh_rank, en_passant_rank;
     int direction;
 
@@ -376,15 +381,11 @@ void move_finder_init(void)
 
 void free_children_memory(Position_t *position)
 {
-    if (position->num_children > 0)
+    for (uint16_t i = 0; i < position->num_children; i++)
     {
-        for (uint16_t i = 0; i < position->num_children; i++)
-        {
-            free_children_memory(position->child_positions[i]);
-        }
-    } else {
-        free(position);
+        free_children_memory(position->child_positions[i]);
     }
+    free(position);
 }
 
 void free_position_memory(Position_t *position)
@@ -402,3 +403,17 @@ void free_position_memory(Position_t *position)
         printf("---freeing-position---\n");
     }
 }
+
+void depth_move_finder(Position_t* position, uint8_t depth)
+{
+    if (depth == 0)
+    {
+        return;
+    }
+    move_finder(position);
+    for (uint8_t i = 0; i < position->num_children; i++)
+    {
+        depth_move_finder(position->child_positions[i], depth - 1);
+    }
+}
+

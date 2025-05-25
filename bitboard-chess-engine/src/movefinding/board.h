@@ -40,7 +40,7 @@ void print_bitboard(uint64_t bitboard);
  * 
  * @param position The position to be printed.
  */
-void print_position(Position_t const position);
+void print_position(Position_t* position);
 
 /**
  * @brief Converts a FEN string to a position, represented as bitboards.

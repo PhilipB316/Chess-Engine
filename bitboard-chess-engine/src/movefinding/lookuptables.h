@@ -34,7 +34,7 @@
 
 // lookup tables for piece attacks
 extern ULL pawn_attack_lookup_table[2][64];
-extern ULL knight_attack_lookup_table[64];
+ extern ULL knight_attack_lookup_table[64];
 extern ULL king_attack_lookup_table[64];
 extern ULL rook_attack_lookup_table[64][4096];
 extern ULL bishop_attack_lookup_table[64][4096];
