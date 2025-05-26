@@ -33,9 +33,9 @@ int main(void)
     Position_t position;
     fen_to_board(fen5, &position);
     print_position(&position);
-    depth_move_finder(&position, 5);
+    depth_move_finder(&position, 4);
     int colour = position.white_to_move ? 1 : -1;
-    Position_t* best_move = find_best_move(&position, 3, colour);
+    Position_t* best_move = find_best_move(&position, 1, colour);
     printf("Best move:\n");
     print_position(best_move);
     free_position_memory(&position);
