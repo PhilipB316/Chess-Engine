@@ -37,4 +37,3 @@
 Position_t* find_best_move(Position_t* position, uint8_t depth);
 
 #endif // PIECE_H
-

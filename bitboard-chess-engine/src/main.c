@@ -30,17 +30,9 @@ int main(void)
     Position_t position;
     fen_to_board(fen9, &position);
     print_position(&position);
-    depth_move_finder(&position, 4);
+    depth_move_finder(&position, 6);
     Position_t* best_move = find_best_move(&position, 5);
     printf("Best move:\n");
-    print_position(best_move);
-
-    best_move =find_best_move(&position, 4);
-    printf("Best move, depth 4:\n");
-    print_position(best_move);
-
-    best_move = find_best_move(&position, 3);
-    printf("Best move, depth 3:\n");
     print_position(best_move);
 
     free_position_memory(&position);

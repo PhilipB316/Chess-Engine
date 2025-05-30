@@ -414,5 +414,5 @@ void depth_move_finder(Position_t* position, uint8_t depth)
     {
         depth_move_finder(position->child_positions[i], depth - 1);
     }
-}
+} 
 

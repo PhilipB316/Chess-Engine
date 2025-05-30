@@ -83,7 +83,15 @@ void move_finder_init(void);
 void move_finder(Position_t *position);
 
 /**
-    * @brief Free all memory alloaced for the childern of the position
+ * @brief Free memory from allocated position and children.
+ * DOES FREE THE POSITION ITSELF.
+ *
+ */
+void free_children_memory(Position_t *position);
+
+/**
+    * @brief Free all memory allocated to position children.
+    * DOES NOT FREE THE POSITION ITSELF.
     * 
     * @param position The position to free the children of
 */
