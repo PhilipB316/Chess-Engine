@@ -9,17 +9,17 @@
 
 int PERSPECTIVE;
 
-int16_t negamax(Position_t* position, uint8_t depth)
+int16_t negamax(Position_t* position, uint8_t depth, int colour)
 {
     if (depth == 0 || position->num_children == 0)
     {
-        return position->piece_value_diff;// * PERSPECTIVE;
+        return position->piece_value_diff * colour;// * PERSPECTIVE;
     }
     int16_t best_score = -10000;
     for (uint8_t i = 0; i < position->num_children; i++)
     {
         Position_t* child_position = position->child_positions[i];
-        int16_t score = - negamax(child_position, depth - 1);
+        int16_t score = - negamax(child_position, depth - 1, -colour);
         if (score > best_score)
         {
             best_score = score;
@@ -38,7 +38,7 @@ Position_t* find_best_move(Position_t* position, uint8_t depth, int colour)
     {
         Position_t* child_position = position->child_positions[i];
         // print_position(child_position);
-        int16_t score = - negamax(child_position, depth - 1);
+        int16_t score = - negamax(child_position, depth - 1, -colour);
         printf("Score: %d\n", score);
         if (score > best_score)
         {
