@@ -32,12 +32,22 @@ int main(void)
     char* random_fens[NUM_FENS] = {fen1, fen2, fen3, fen4, fen5, fen6, fen7, fen8};
 
     Position_t position;
-    fen_to_board(fen5, &position);
+    fen_to_board(fen9, &position);
     print_position(&position);
-    depth_move_finder(&position, 5);
+    depth_move_finder(&position, 4);
     int colour = position.white_to_move ? 1 : -1;
-    Position_t* best_move = find_best_move(&position, 5, colour);
+    Position_t* best_move = think(&position, 5);
     printf("Best move:\n");
     print_position(best_move);
+
+    best_move =think(&position, 4);
+    printf("Best move, depth 4:\n");
+    print_position(best_move);
+
+    best_move = think(&position, 3);
+    printf("Best move, depth 3:\n");
+    print_position(best_move);
+
     free_position_memory(&position);
 }
+

@@ -1,5 +1,6 @@
 {
     "files.associations": {
         "move_finder.h": "c"
-    }
+    },
+    "cmake.sourceDirectory": "/home/philip-brand/Projects/Chess-Engine/bitboard-chess-engine"
 }
