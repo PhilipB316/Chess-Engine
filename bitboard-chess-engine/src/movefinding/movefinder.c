@@ -2,11 +2,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "movefinder.h"
 #include "lookuptables.h"
-#include "board.h"
-
 #include "../search/piece.h"
 
 #define DEBUG 0
@@ -17,7 +16,7 @@ Position_t *POSITION;
 bool WHITE_TO_MOVE;
 int PIECE_COLOUR;
 
-void generate_new_position(PieceType piece, ULL possible_moves_bitboard, ULL from_square_bitboard, ULL special_flags)
+void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL from_square_bitboard, ULL special_flags)
 {
     if (DEBUG)
     {

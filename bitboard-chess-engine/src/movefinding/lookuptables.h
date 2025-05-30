@@ -34,7 +34,7 @@
 
 // lookup tables for piece attacks
 extern ULL pawn_attack_lookup_table[2][64];
- extern ULL knight_attack_lookup_table[64];
+extern ULL knight_attack_lookup_table[64];
 extern ULL king_attack_lookup_table[64];
 extern ULL rook_attack_lookup_table[64][4096];
 extern ULL bishop_attack_lookup_table[64][4096];
@@ -113,7 +113,5 @@ void king_attack_generator(void);
  *  attack patterns.
  **/
 void generate_lookup_tables(void);
-
-ULL determine_possible_rook_moves(uint8_t sq, ULL blocker);
 
 #endif

@@ -11,9 +11,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define ULL unsigned long long
 #define MAX_CHILDREN 100
 
+#define ULL unsigned long long
+
+/**
+ * @brief Enum for the different piece types moves.
+ */
 typedef enum 
 {
     PAWN,
@@ -30,8 +34,11 @@ typedef enum
     CASTLE_KINGSIDE,
     CASTLE_QUEENSIDE,
     EN_PASSANT_CAPTURE,
-} PieceType;
+} MoveType_t;
 
+/**
+ * @brief bitboards and boolean representing a set of pieces
+ */
 typedef struct
 {
     ULL pawns;
@@ -45,6 +52,12 @@ typedef struct
     bool castle_queenside;
 } PiecesOneColour_t;
 
+/**
+ * @brief Represents a position in the game of chess.
+ * 
+ * Contains information about the pieces, their positions, whose turn it is,
+ * the piece value difference, en passant square, and child positions.
+ */
 typedef struct Position_t
 {
     PiecesOneColour_t pieces[2];
@@ -57,8 +70,16 @@ typedef struct Position_t
     uint8_t num_children;
 } Position_t;
 
+/**
+ * @brief Initialises lookup tables for move finding.
+ */
 void move_finder_init(void);
 
+/**
+ * @brief Generates all possible moves for the current position.
+ *
+ * @param position The position to generates move for.
+ */
 void move_finder(Position_t *position);
 
 /**
@@ -68,7 +89,12 @@ void move_finder(Position_t *position);
 */
 void free_position_memory(Position_t *position);
 
-
+/**
+ * @brief Finds all possible moves for the current position to the specified depth.
+ *
+ * @param position The position to generate moves for.
+ * @param depth The depth of the search.
+ */
 void depth_move_finder(Position_t* position, uint8_t depth);
 
 #endif

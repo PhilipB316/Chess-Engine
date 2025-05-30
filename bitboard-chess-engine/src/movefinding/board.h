@@ -17,13 +17,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
 
 #include "movefinder.h"
 
+#define ULL unsigned long long
+
+// Square names (a1, b1, ..., h8) for each square
 extern char *pretty_print_moves[64];
 
 /**
@@ -57,7 +56,6 @@ void fen_to_board(char fen[], Position_t *position);
  * @param position The position whose children are to be printed.
  */
 void print_children_positions(Position_t *position);
-
 
 /**
  * @brief Calculates the difference in piece values between the two players.
