@@ -375,7 +375,6 @@ void move_finder_init(void)
     {
         printf("---lookup-tables-generated---\n");
     }
-
 }
 
 void free_children_memory(Position_t *position)
@@ -403,6 +402,19 @@ void free_position_memory(Position_t *position)
     }
 }
 
+void free_depth_memory(Position_t* position, uint8_t depth)
+{
+    if (depth == 0)
+    {
+        return;
+    }
+    for (uint8_t i = 0; i < position->num_children; i++)
+    {
+        free_depth_memory(position->child_positions[i], depth - 1);
+    }
+    free(position);
+}
+
 void depth_move_finder(Position_t* position, uint8_t depth)
 {
     if (depth == 0)
@@ -414,5 +426,5 @@ void depth_move_finder(Position_t* position, uint8_t depth)
     {
         depth_move_finder(position->child_positions[i], depth - 1);
     }
-} 
+}
 

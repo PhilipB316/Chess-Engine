@@ -3,8 +3,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #include "piece.h"
+#include "../movefinding/board.h"
 
 int16_t negamax(Position_t* position, uint8_t depth)
 {
@@ -29,16 +31,22 @@ Position_t* find_best_move(Position_t* position, uint8_t depth)
 {
     Position_t* best_move = NULL;
     int16_t best_eval = -10000;
+    
+    printf("Num nodes: %d\n", position->num_children);
 
     for (uint8_t i = 0; i < position->num_children; i++)
     {
+        printf("Node: %d\n", i);
+        depth_move_finder(position->child_positions[i], depth - 1);
         Position_t* child = position->child_positions[i];
         int16_t eval = -negamax(child, depth - 1);
         if (eval > best_eval)
         {
             best_eval = eval;
             best_move = child;
+            // print_position(best_move); // Print the best move position
         }
+        free_position_memory(child); // Free memory for the child position
     }
     return best_move;
 }

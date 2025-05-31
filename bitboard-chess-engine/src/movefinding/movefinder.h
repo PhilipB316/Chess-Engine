@@ -98,6 +98,15 @@ void free_children_memory(Position_t *position);
 void free_position_memory(Position_t *position);
 
 /**
+ * @brief Free all memory allocated to specific depth.
+ * DOES FREE THE POSITION ITSELF.
+ *
+ * @param position The position to free memory for.
+ * @param depth The depth of the search.
+ */
+void free_depth_memory(Position_t* position, uint8_t depth);
+
+/**
  * @brief Finds all possible moves for the current position to the specified depth.
  *
  * @param position The position to generate moves for.
