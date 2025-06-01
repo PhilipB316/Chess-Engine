@@ -207,7 +207,7 @@ void move_finder(Position_t *position)
     while (queen_bitboard)
     {
         from_square = __builtin_ctzll(queen_bitboard);
-        from_square_bitboard =1ULL << from_square;
+        from_square_bitboard = 1ULL << from_square;
         rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
         bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
         index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
@@ -223,7 +223,7 @@ void move_finder(Position_t *position)
     while (rook_bitboard)
     {
         from_square = __builtin_ctzll(rook_bitboard);
-        from_square_bitboard =1ULL << from_square;
+        from_square_bitboard = 1ULL << from_square;
         rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
         index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
         possible_move_squares = rook_attack_lookup_table[from_square][index];
@@ -236,7 +236,7 @@ void move_finder(Position_t *position)
     while (bishop_bitboard)
     {
         from_square = __builtin_ctzll(bishop_bitboard);
-        from_square_bitboard =1ULL << from_square;
+        from_square_bitboard = 1ULL << from_square;
         bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
         index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
         possible_move_squares = bishop_attack_lookup_table[from_square][index];
@@ -249,7 +249,7 @@ void move_finder(Position_t *position)
     while (knight_bitboard)
     {
         from_square = __builtin_ctzll(knight_bitboard);
-        from_square_bitboard =1ULL << from_square;
+        from_square_bitboard = 1ULL << from_square;
         possible_move_squares = knight_attack_lookup_table[from_square] & ~active_pieces_bitboard;
         generate_new_position(KNIGHT, possible_move_squares, from_square_bitboard, 0);
         knight_bitboard &= ~from_square_bitboard;
@@ -343,6 +343,7 @@ void move_finder(Position_t *position)
         threatened_squares |= pawn_attack_lookup_table[!WHITE_TO_MOVE][from_square];
         opponent_pawns &= ~(1ULL << from_square);
     }
+
     threatened_squares |= king_attack_lookup_table[__builtin_ctzll(opponent_pieces_set->kings)];
     possible_move_squares = king_attack_lookup_table[__builtin_ctzll(king_bitboard)] & ~threatened_squares & ~(active_pieces_set->all_pieces);
     generate_new_position(KING, possible_move_squares, king_bitboard, 0);

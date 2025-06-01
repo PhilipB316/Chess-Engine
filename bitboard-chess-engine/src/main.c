@@ -21,7 +21,7 @@ int main(void)
     char fen6[100] = "1k6/8/2p5/3Pp3/8/8/8/2K5 w - e6 0 2";
     char fen7[100] = "6k1/8/4r3/6r1/6b1/5rr1/8/R3K2R w - - 0 1";
     char fen8[100] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    char fen9[100] = "r2q3r/1p2kp2/4b2p/pB2Q3/4Nn2/2P4P/P1K2P2/R6R w - - 1 24";
+    char fen9[100] = "8/3p4/2n5/1B6/8/4b3/3P4/8 w - - 0 1";
 
     char fen[100] = "r3k2r/ppp1pp1p/2q2np1/bb6/1n1pP3/1Q5B/PPPP1PPP/RNB1K1NR b KQkq e3 0 2";
 
@@ -32,7 +32,7 @@ int main(void)
     fen_to_board(fen2, &position);
     print_position(&position);
     depth_move_finder(&position, 1);
-    Position_t* best_move = find_best_move(&position, 5);
+    Position_t* best_move = find_best_move(&position, 4);
     printf("Best move:\n");
     print_position(best_move);
 
