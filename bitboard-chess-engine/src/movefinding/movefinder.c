@@ -6,9 +6,10 @@
 
 #include "movefinder.h"
 #include "lookuptables.h"
-#include "../search/piece.h"
+#include "../search/evaluate.h"
 
 #define DEBUG 0
+
 #define KINGSIDE 0
 #define QUEENSIDE 1
 

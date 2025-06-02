@@ -11,7 +11,8 @@ file(GLOB MAIN
     "./src/movefinding/movefinder.c"
     "./src/movefinding/lookuptables.c"
     "./src/movefinding/board.c"
-    "./src/search/piece.c"
+    "./src/search/search.c"
+    "./src/search/evaluate.c"
     )
 add_compile_options(-Wall -Wextra -Wpedantic -O3)
 

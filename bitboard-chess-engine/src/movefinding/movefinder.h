@@ -78,6 +78,8 @@ void move_finder_init(void);
 /**
  * @brief Generates all possible moves for the current position.
  *
+ * TODO: Prevent move generation for checkmated positions.
+ *
  * @param position The position to generates move for.
  */
 void move_finder(Position_t *position);
@@ -86,6 +88,7 @@ void move_finder(Position_t *position);
  * @brief Free memory from allocated position and children.
  * DOES FREE THE POSITION ITSELF.
  *
+ * @param position The position to free memory for.
  */
 void free_children_memory(Position_t *position);
 

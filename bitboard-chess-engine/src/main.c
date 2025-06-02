@@ -4,7 +4,7 @@
 
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
-#include "./search/piece.h"
+#include "./search/search.h"
 
 #define NUM_FENS 8
 
@@ -21,7 +21,7 @@ int main(void)
     char fen6[100] = "1k6/8/2p5/3Pp3/8/8/8/2K5 w - e6 0 2";
     char fen7[100] = "6k1/8/4r3/6r1/6b1/5rr1/8/R3K2R w - - 0 1";
     char fen8[100] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    char fen9[100] = "8/3p4/2n5/1B6/8/4b3/3P4/8 w - - 0 1";
+    char fen9[100] = "3k4/8/3K4/R7/8/8/b7/8 w - - 0 1";
 
     char fen[100] = "r3k2r/ppp1pp1p/2q2np1/bb6/1n1pP3/1Q5B/PPPP1PPP/RNB1K1NR b KQkq e3 0 2";
 
@@ -39,6 +39,11 @@ int main(void)
     for (uint8_t i = 0; i < position.num_children; i++)
     {
         free(position.child_positions[i]);
+    }
+
+    for(int i=0;i<=100;++i) 
+    {
+        printf("\r[%3d%%]",i);
     }
 }
 
