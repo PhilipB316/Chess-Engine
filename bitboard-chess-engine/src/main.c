@@ -21,7 +21,7 @@ int main(void)
     char fen6[100] = "1k6/8/2p5/3Pp3/8/8/8/2K5 w - e6 0 2";
     char fen7[100] = "6k1/8/4r3/6r1/6b1/5rr1/8/R3K2R w - - 0 1";
     char fen8[100] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    char fen9[100] = "8/8/6p1/8/8/8/2P5/8 w - - 0 1";
+    char fen9[100] = "r1bn1r2/p4Npk/1p5p/1qp2p1Q/3p4/P2P3P/BPP2PP1/4RRK1 w - - 4 21";
 
     char fen[100] = "r3k2r/ppp1pp1p/2q2np1/bb6/1n1pP3/1Q5B/PPPP1PPP/RNB1K1NR b KQkq e3 0 2";
 
@@ -29,7 +29,7 @@ int main(void)
     char* random_fens[NUM_FENS] = {fen1, fen2, fen3, fen4, fen5, fen6, fen7, fen8};
 
     Position_t position, best_move;
-    fen_to_board(fen2, &position);
+    fen_to_board(fen9, &position);
     print_position(&position);
 
     find_best_move(&position, &best_move, 6);

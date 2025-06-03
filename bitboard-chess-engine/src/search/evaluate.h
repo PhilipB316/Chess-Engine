@@ -16,13 +16,15 @@
 #define WHITE_PIECE_COLOUR 1
 #define BLACK_PIECE_COLOUR -1
 
+#define CHECKMATE_VALUE 1000
+
 // Values of each piece type for evaluation
 #define PAWN_VALUE 1
 #define KNIGHT_VALUE 3
 #define BISHOP_VALUE 3
 #define ROOK_VALUE 5
 #define QUEEN_VALUE 9
-#define KING_VALUE 500
+#define KING_VALUE 1100
 
 /**
  * @brief Evaluates the position 
