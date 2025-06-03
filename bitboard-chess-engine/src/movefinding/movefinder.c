@@ -381,26 +381,9 @@ void move_finder_init(void)
 
 void free_children_memory(Position_t *position)
 {
-    for (uint16_t i = 0; i < position->num_children; i++)
+    for (uint8_t i = 0; i < position->num_children; i++)
     {
-        free_children_memory(position->child_positions[i]);
-    }
-    free(position);
-}
-
-void free_position_memory(Position_t *position)
-{
-    if (DEBUG)
-    {
-        printf("---freeing-allocated-memory---\n");
-    }
-    for (uint16_t i = 0; i < position->num_children; i++)
-    {
-        free_children_memory(position->child_positions[i]);
-    }
-    if (DEBUG)
-    {
-        printf("---freeing-position---\n");
+        free(position->child_positions[i]);
     }
 }
 

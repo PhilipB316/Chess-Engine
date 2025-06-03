@@ -20,9 +20,9 @@
  * Colour is intrinsically determined
  * 
  * @param position The current position to evaluate.
+ * @param best_move The position to store the best move found.
  * @param depth The maximum depth to search.
- * @return The resulting position from the best move
  */
-Position_t* find_best_move(Position_t* position, uint8_t depth);
+void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth);
 
 #endif // SEARCH_H

@@ -28,22 +28,13 @@ int main(void)
 
     char* random_fens[NUM_FENS] = {fen1, fen2, fen3, fen4, fen5, fen6, fen7, fen8};
 
-    Position_t position;
+    Position_t position, best_move;
     fen_to_board(fen2, &position);
     print_position(&position);
-    depth_move_finder(&position, 1);
-    Position_t* best_move = find_best_move(&position, 4);
+
+    find_best_move(&position, &best_move, 4);
     printf("Best move:\n");
-    print_position(best_move);
+    print_position(&best_move);
 
-    for (uint8_t i = 0; i < position.num_children; i++)
-    {
-        free(position.child_positions[i]);
-    }
-
-    for(int i=0;i<=100;++i) 
-    {
-        printf("\r[%3d%%]",i);
-    }
 }
 
