@@ -11,9 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define MAX_CHILDREN 100
-
-#define ULL unsigned long long
+#include "board.h"
 
 /**
  * @brief Enum for the different piece types moves.
@@ -35,40 +33,6 @@ typedef enum
     CASTLE_QUEENSIDE,
     EN_PASSANT_CAPTURE,
 } MoveType_t;
-
-/**
- * @brief bitboards and boolean representing a set of pieces
- */
-typedef struct
-{
-    ULL pawns;
-    ULL knights;
-    ULL bishops;
-    ULL rooks;
-    ULL queens;
-    ULL kings;
-    ULL all_pieces;
-    bool castle_kingside;
-    bool castle_queenside;
-} PiecesOneColour_t;
-
-/**
- * @brief Represents a position in the game of chess.
- * 
- * Contains information about the pieces, their positions, whose turn it is,
- * the piece value difference, en passant square, and child positions.
- */
-typedef struct Position_t
-{
-    PiecesOneColour_t pieces[2];
-    ULL all_pieces;
-    bool white_to_move;
-    int16_t piece_value_diff;
-    ULL en_passant_bitboard;
-    struct Position_t* parent_position;
-    struct Position_t* child_positions[MAX_CHILDREN];
-    uint8_t num_children;
-} Position_t;
 
 /**
  * @brief Initialises lookup tables for move finding.

@@ -32,7 +32,7 @@ int main(void)
     fen_to_board(fen9, &position);
     print_position(&position);
 
-    find_best_move(&position, &best_move, 6);
+    find_best_move(&position, &best_move, 4);
     printf("Best move:\n");
     print_position(&best_move);
 

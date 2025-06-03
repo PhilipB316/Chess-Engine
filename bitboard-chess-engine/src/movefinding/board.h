@@ -18,12 +18,46 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "movefinder.h"
+#define MAX_CHILDREN 100
 
 #define ULL unsigned long long
 
 // Square names (a1, b1, ..., h8) for each square
 extern char *pretty_print_moves[64];
+
+/**
+ * @brief bitboards and boolean representing a set of pieces
+ */
+typedef struct
+{
+    ULL pawns;
+    ULL knights;
+    ULL bishops;
+    ULL rooks;
+    ULL queens;
+    ULL kings;
+    ULL all_pieces;
+    bool castle_kingside;
+    bool castle_queenside;
+} PiecesOneColour_t;
+
+/**
+ * @brief Represents a position in the game of chess.
+ * 
+ * Contains information about the pieces, their positions, whose turn it is,
+ * the piece value difference, en passant square, and child positions.
+ */
+typedef struct Position_t
+{
+    ULL all_pieces;
+    ULL en_passant_bitboard;
+    bool white_to_move;
+    uint8_t num_children;
+    int16_t piece_value_diff;
+    PiecesOneColour_t pieces[2];
+    struct Position_t* parent_position;
+    struct Position_t* child_positions[MAX_CHILDREN];
+} Position_t;
 
 /**
  * @brief Prints the bitboard.
