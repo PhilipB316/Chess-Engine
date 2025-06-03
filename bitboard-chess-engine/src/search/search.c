@@ -1,7 +1,6 @@
 // search.c
 
 #include <stdint.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +8,7 @@
 #include "search.h"
 #include "evaluate.h"
 #include "../movefinding/board.h"
+#include "../movefinding/movefinder.h"
 
 static ULL nodes_analysed = 0;
 

@@ -9,9 +9,8 @@
 #define SEARCH_H
 
 #include <stdint.h>
-#include <stdbool.h>
 
-#include "../movefinding/movefinder.h"
+#include "../movefinding/board.h"
 
 /**
  * @brief Negamax search algorithm for a given position and depth.

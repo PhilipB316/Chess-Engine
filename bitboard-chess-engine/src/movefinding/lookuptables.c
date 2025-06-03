@@ -18,7 +18,6 @@
 #include <stdbool.h>
 
 #include "lookuptables.h"
-#include "movefinder.h"
 
 ULL rook_blocker_masks[64];
 ULL bishop_blocker_masks[64];
@@ -256,7 +255,6 @@ uint8_t offset_BBits[64] = {
 // arrays for storing magic numbers for rooks and bishops if looking for them
 static ULL array_for_rook_magic_numbers[64];
 static ULL array_for_bishop_random_numbers[64];
-// static ULL array_for_knight_random_numbers[64];
 
 void generate_lookup_tables()
 {
@@ -294,6 +292,9 @@ ULL random_ULL(void)
 
 /**
  * @brief Generates a random unsigned long long integer with a few bits set as 1.
+ *
+ * This is necessary as the magic numbers tend to have this number of bits set as 1.
+ *
  * @return A random unsigned long long integer with a few bits set.
  */
 ULL random_ULL_fewbits(void)
@@ -484,16 +485,16 @@ ULL determine_possible_knight_moves(ULL bitboard)
 /**
  * @brief Generates all possible blockers and their corresponding magic numbers.
  *
- * FOR EVERY SQUARE ON THE _BOARD (although the function is called individually for each square):
+ * FOR EVERY SQUARE ON THE BOARD (although the function is called individually for each square):
  *
  * A random magic number is generated.
  *
  * The number of permutations of blockers is found by counting the number of bits
  * in the blocker mask relating to that square.
- * For each permutation, the possible moves for the rook wih that blocker configuration
+ * For each permutation of blockers, the possible moves for the rook with that blocker configuration
  * are determined using the determine_possible_rook_moves function.
  *
- * The hash index for that permutation is then found,
+ * The hash index for each permutation is then found,
  * using the formula: index = (blocker * magic_number) >> (64 - bits)
  *
  * The value at the index in the lookup table is then checked, and if there is no collision,
@@ -810,7 +811,5 @@ void king_attack_generator(void)
         king_castling_array[0][1] = 1ULL << 1;
         king_castling_array[1][0] = 1ULL << 62;
         king_castling_array[1][1] = 1ULL << 57;
-
-
     }
 }
