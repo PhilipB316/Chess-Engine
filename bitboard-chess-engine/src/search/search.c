@@ -41,11 +41,10 @@ void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t 
     depth_move_finder(position, 1);
 
     printf("Num nodes: %d\n", position->num_children);
-    printf("Nodes analysed: \n");
 
     for (uint8_t i = 0; i < position->num_children; i++)
     {
-        printf("%llu\r", nodes_analysed);
+        printf("Nodes analysed: %llu\r", nodes_analysed);
         fflush(stdout);
         Position_t* child = position->child_positions[i];
         int16_t eval = -negamax(child, depth - 1);
@@ -55,8 +54,7 @@ void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t 
             best_move = child;
         }
     }
-    printf("\n\n");
-
+    printf("Nodes analysed: %llu\n", nodes_analysed);
     *return_best_move = *best_move;
     free_children_memory(position);
 }
