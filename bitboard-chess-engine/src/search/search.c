@@ -1,9 +1,7 @@
 // search.c
 
 #include <stdint.h>
-#include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "search.h"
 #include "evaluate.h"
@@ -19,6 +17,7 @@ int16_t negamax(Position_t* position, uint8_t depth)
         nodes_analysed++;
         return evaluate_position(position);
     }
+
     int16_t value = -10000;
     depth_move_finder(position, 1);
     for (uint8_t i = 0; i < position->num_children; i++)
@@ -38,13 +37,13 @@ void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t 
 {
     Position_t* best_move = NULL;
     int16_t best_eval = -10000;
-    depth_move_finder(position, 1);
 
-    printf("Num nodes: %d\n", position->num_children);
+    depth_move_finder(position, 1);
+    printf("Immediate children: %d\n", position->num_children);
 
     for (uint8_t i = 0; i < position->num_children; i++)
     {
-        printf("Nodes analysed: %llu\r", nodes_analysed);
+        printf("Nodes analysed: %llu, %d \r", nodes_analysed, 100 * i / position->num_children);
         fflush(stdout);
         Position_t* child = position->child_positions[i];
         int16_t eval = -negamax(child, depth - 1);
@@ -54,7 +53,8 @@ void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t 
             best_move = child;
         }
     }
-    printf("Nodes analysed: %llu\n", nodes_analysed);
+    printf("Nodes analysed: %llu       \n", nodes_analysed);
+    printf("Best score: %d\n", best_eval);
     *return_best_move = *best_move;
     free_children_memory(position);
 }
