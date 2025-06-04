@@ -15,6 +15,8 @@
 #define KINGSIDE 0
 #define QUEENSIDE 1
 
+static uint64_t num_new_positions = 0;
+
 Position_t *POSITION;
 bool WHITE_TO_MOVE;
 int PIECE_COLOUR;
@@ -36,6 +38,7 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
         // --- allocating memory for the new position and updating parent ---
         Position_t *new_position = malloc(sizeof(Position_t));
         memcpy(new_position, POSITION, sizeof(Position_t));
+        num_new_positions++;
         POSITION->child_positions[POSITION->num_children++] = new_position;
 
         // --- setting active and opponent pieces ---
@@ -377,6 +380,11 @@ void move_finder(Position_t *position)
             generate_new_position(CASTLE_QUEENSIDE, king_castling_array[WHITE_TO_MOVE][QUEENSIDE], king_bitboard, 0);
         }
     }
+}
+
+uint64_t get_num_new_positions(void)
+{
+    return num_new_positions;
 }
 
 void move_finder_init(void)

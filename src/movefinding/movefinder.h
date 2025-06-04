@@ -42,8 +42,6 @@ void move_finder_init(void);
 /**
  * @brief Generates all possible moves for the current position.
  *
- * TODO: Prevent move generation for checkmated positions.
- *
  * @param position The position to generates move for.
  */
 void move_finder(Position_t *position);
@@ -80,5 +78,11 @@ void free_depth_memory(Position_t* position, uint8_t depth);
  * @param depth The depth of the search.
  */
 void depth_move_finder(Position_t* position, uint8_t depth);
+
+/**
+* @brief Gets the number of new positions generated during move finding.
+* @return The number of new positions generated.
+*/
+uint64_t get_num_new_positions(void);
 
 #endif
