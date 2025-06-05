@@ -20,6 +20,9 @@
 
 #define MAX_CHILDREN 100
 
+#define DEBUG 1
+#define SAFE 1 // safe alerts if custom memory pool has been exhausted
+
 #define ULL unsigned long long
 
 // Square names (a1, b1, ..., h8) for each square

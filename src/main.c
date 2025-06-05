@@ -1,8 +1,12 @@
+// main.c
+
 #include <stdio.h>
 #include <stdint.h>
+#include <time.h>
 
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
+#include "./movefinding/memory.h"
 #include "./search/search.h"
 
 /**
@@ -17,6 +21,7 @@ int main(void)
 {
     printf("Hello, World!\n");
     move_finder_init();
+    custom_memory_init();
 
     // char fen1[100] = "r2qkb1r/p1pp1p1p/bpn2n1B/3Pp1p1/8/2N1PNPB/PPPQ1P1P/R3K2R w KQkq e6 0 10";
     // char fen2[100] = "r3kb1r/pp1npppp/2p2n2/q2p2B1/2PP2b1/2N2P2/PPQ1P1PP/R3KBNR w KQkq - 3 7";
@@ -33,7 +38,17 @@ int main(void)
     Position_t position, best_move;
     fen_to_board(fen8, &position);
     print_position(&position);
+
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
+
     find_best_move(&position, &best_move, 6);
+
+    end = clock();
+    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken: %f seconds\n", cpu_time_used);
+
     printf("Number of new positions generated: %lu\n", get_num_new_positions());
     printf("Best move:\n");
     print_position(&best_move);

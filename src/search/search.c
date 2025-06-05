@@ -8,7 +8,10 @@
 #include "../movefinding/board.h"
 #include "../movefinding/movefinder.h"
 
+#define INFINITY 10000
+
 static ULL nodes_analysed = 0;
+
 
 int16_t negamax(Position_t* position, uint8_t depth)
 {
@@ -18,7 +21,7 @@ int16_t negamax(Position_t* position, uint8_t depth)
         return evaluate_position(position);
     }
 
-    int16_t value = -10000;
+    int16_t value = -INFINITY;
     move_finder(position);
     for (uint8_t i = 0; i < position->num_children; i++)
     {
@@ -36,7 +39,7 @@ int16_t negamax(Position_t* position, uint8_t depth)
 void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth)
 {
     Position_t* best_move = NULL;
-    int16_t best_eval = -10000;
+    int16_t best_eval = -INFINITY;
 
     move_finder(position);
     printf("Immediate children: %d\n", position->num_children);

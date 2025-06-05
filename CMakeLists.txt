@@ -11,6 +11,7 @@ file(GLOB MAIN
     "./src/movefinding/movefinder.c"
     "./src/movefinding/lookuptables.c"
     "./src/movefinding/board.c"
+    "./src/movefinding/memory.c"
     "./src/search/search.c"
     "./src/search/evaluate.c"
     )

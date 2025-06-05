@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "movefinder.h"
+#include "board.h"
 #include "../search/evaluate.h"
 
 #define WHITE_INDEX 1

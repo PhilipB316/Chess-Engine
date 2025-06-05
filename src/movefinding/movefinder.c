@@ -2,15 +2,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "movefinder.h"
 #include "lookuptables.h"
+#include "board.h"
+#include "memory.h"
 #include "../search/evaluate.h"
-
-#define DEBUG 0
 
 #define KINGSIDE 0
 #define QUEENSIDE 1
@@ -23,11 +22,6 @@ int PIECE_COLOUR;
 
 void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL from_square_bitboard, ULL special_flags)
 {
-    if (DEBUG)
-    {
-        printf("Number children before: %d\n", POSITION->num_children);
-    }
-
     while (possible_moves_bitboard)
     {
         // --- useful bitboards and squares ---
@@ -36,7 +30,8 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
         register ULL move_bitboard = from_square_bitboard | to_square_bitboard;
 
         // --- allocating memory for the new position and updating parent ---
-        Position_t *new_position = malloc(sizeof(Position_t));
+        // Position_t *new_position = malloc(sizeof(Position_t));
+        Position_t *new_position = custom_alloc();
         memcpy(new_position, POSITION, sizeof(Position_t));
         num_new_positions++;
         POSITION->child_positions[POSITION->num_children++] = new_position;
@@ -160,10 +155,6 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
         }
 
         possible_moves_bitboard &= ~to_square_bitboard;
-    }
-    if (DEBUG)
-    {
-        printf("Number children before: %d\n", POSITION->num_children);
     }
 }
 
@@ -396,11 +387,25 @@ void move_finder_init(void)
     }
 }
 
+void depth_move_finder(Position_t* position, uint8_t depth)
+{
+    if (depth == 0)
+    {
+        return;
+    }
+    move_finder(position);
+    for (uint8_t i = 0; i < position->num_children; i++)
+    {
+        depth_move_finder(position->child_positions[i], depth - 1);
+    }
+}
+
 void free_children_memory(Position_t *position)
 {
     for (uint8_t i = 0; i < position->num_children; i++)
     {
-        free(position->child_positions[i]);
+        // free(position->child_positions[i]);
+        custom_free();
     }
 }
 
@@ -414,19 +419,7 @@ void free_depth_memory(Position_t* position, uint8_t depth)
     {
         free_depth_memory(position->child_positions[i], depth - 1);
     }
-    free(position);
-}
-
-void depth_move_finder(Position_t* position, uint8_t depth)
-{
-    if (depth == 0)
-    {
-        return;
-    }
-    move_finder(position);
-    for (uint8_t i = 0; i < position->num_children; i++)
-    {
-        depth_move_finder(position->child_positions[i], depth - 1);
-    }
+    // free(position);
+    custom_free();
 }
 
