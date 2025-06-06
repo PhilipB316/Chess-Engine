@@ -256,6 +256,27 @@ void fen_to_board(char *fen, Position_t *fen_position)
     fen_position->parent_position = NULL;
     fen_position->num_children = 0;
     fen_position->piece_value_diff = calculate_piece_value_diff(fen_position);
+
+    // ========================== HALF MOVE COUNT =========================
+    i++; // skip space
+    uint8_t half_move_count = 0;
+    while (isdigit(fen[i]))
+    {
+        half_move_count = half_move_count * 10 + (fen[i++] - '0');
+    }
+
+    // ========================= WHOLE MOVES =========================
+    i++; // skip space
+    uint8_t whole_move_count = 0;
+    while (isdigit(fen[i]))
+    {
+        whole_move_count = whole_move_count * 10 + (fen[i++] - '0');
+    }
+    fen_position->half_move_count = whole_move_count * 2;
+    if (!fen_position->white_to_move)
+    {
+        fen_position->half_move_count++;
+    }
 }
 
 void print_children_positions(Position_t *position)

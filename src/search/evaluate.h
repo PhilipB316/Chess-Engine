@@ -26,6 +26,8 @@
 #define QUEEN_VALUE 9
 #define KING_VALUE 1100
 
+#define MID_GAME_MOVE_COUNT 4
+
 /**
  * @brief Evaluates the position 
  * 

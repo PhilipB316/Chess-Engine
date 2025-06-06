@@ -56,6 +56,7 @@ typedef struct Position_t
     ULL en_passant_bitboard;
     bool white_to_move;
     uint8_t num_children;
+    uint8_t half_move_count;
     int16_t piece_value_diff;
     PiecesOneColour_t pieces[2];
     struct Position_t* parent_position;

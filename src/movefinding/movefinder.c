@@ -42,6 +42,7 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
         // --- updating the general position ---
         new_position->all_pieces ^= move_bitboard;
         new_position->white_to_move = !WHITE_TO_MOVE;
+        new_position->half_move_count++;
         new_position->num_children = 0;
         new_position->en_passant_bitboard = 0;
         active_pieces_set->all_pieces ^= move_bitboard;
