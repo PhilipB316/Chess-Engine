@@ -16,6 +16,14 @@ void custom_memory_init(void)
     }
 }
 
+void custom_memory_deinit(void) 
+{
+    for (size_t i = 0; i < POOL_SIZE; i++) {
+        free(memory_pool[i]);
+    }
+    pool_index = 0;
+}
+
 Position_t* custom_alloc(void) 
 {
     if (SAFE) 

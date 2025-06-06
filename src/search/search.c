@@ -11,6 +11,7 @@
 #define INFINITY 10000
 
 static ULL nodes_analysed = 0;
+static uint64_t moves_generated = 0;
 
 
 int16_t negamax(Position_t* position, uint8_t depth)
@@ -23,6 +24,7 @@ int16_t negamax(Position_t* position, uint8_t depth)
 
     int16_t value = -INFINITY;
     move_finder(position);
+    moves_generated++;
     for (uint8_t i = 0; i < position->num_children; i++)
     {
         Position_t* child = position->child_positions[i];
@@ -58,6 +60,7 @@ void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t 
     }
 
     printf("Nodes analysed: %llu       \n", nodes_analysed);
+    printf("Moves generated: %lu\n", moves_generated);
     printf("Best score: %d\n", best_eval);
     if (best_move == NULL)
     {

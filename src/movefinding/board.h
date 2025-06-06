@@ -21,7 +21,7 @@
 #define MAX_CHILDREN 100
 
 #define DEBUG 1
-#define SAFE 1 // safe alerts if custom memory pool has been exhausted
+#define SAFE 0 // safe alerts if custom memory pool has been exhausted
 
 #define ULL unsigned long long
 

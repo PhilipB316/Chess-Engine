@@ -25,8 +25,7 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
     while (possible_moves_bitboard)
     {
         // --- useful bitboards and squares ---
-        register uint8_t to_square = __builtin_ctzll(possible_moves_bitboard);
-        register ULL to_square_bitboard = 1ULL << to_square;
+        register ULL to_square_bitboard = 1ULL << __builtin_ctzll(possible_moves_bitboard);
         register ULL move_bitboard = from_square_bitboard | to_square_bitboard;
 
         // --- allocating memory for the new position and updating parent ---

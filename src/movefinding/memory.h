@@ -4,13 +4,11 @@
 * @author Philip Brand
 * @date 2025-06-05
 *
-* Alternatives to malloc/free for memory allocation in movefinding.
+* Provides alternatives to malloc/free for memory allocation during movefinding.
 */
 
 #ifndef MEMORY_H
 #define MEMORY_H
-
-#include <stdint.h>
 
 #include "board.h"
 
@@ -20,6 +18,11 @@
  * @brief Initializes the custom memory pool.
  */
 void custom_memory_init(void);
+
+/**
+ * @brief De-initialises the custom memory pool, freeing all allocated memory.
+ */
+void custom_memory_deinit(void);
 
 /**
  * @brief Allocates a Position_t from the custom memory pool.
