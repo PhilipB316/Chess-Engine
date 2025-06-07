@@ -8,13 +8,10 @@
 #include "../movefinding/board.h"
 #include "../movefinding/movefinder.h"
 
-#define INFINITY 10000
-
 static ULL nodes_analysed = 0;
 static uint64_t moves_generated = 0;
 
-
-int16_t negamax(Position_t* position, uint8_t depth)
+int64_t negamax(Position_t* position, uint8_t depth)
 {
     if (depth == 0)
     {
@@ -22,13 +19,13 @@ int16_t negamax(Position_t* position, uint8_t depth)
         return evaluate_position(position);
     }
 
-    int16_t value = -INFINITY;
+    int64_t value = -INFINITY;
     move_finder(position);
     moves_generated++;
     for (uint8_t i = 0; i < position->num_children; i++)
     {
         Position_t* child = position->child_positions[i];
-        int16_t score = -negamax(child, depth - 1);
+        int64_t score = -negamax(child, depth - 1);
         if (score > value)
         {
             value = score;
@@ -41,7 +38,8 @@ int16_t negamax(Position_t* position, uint8_t depth)
 void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth)
 {
     Position_t* best_move = NULL;
-    int16_t best_eval = -INFINITY;
+    int64_t best_eval = -INFINITY;
+    set_half_move_count(position->half_move_count);
 
     move_finder(position);
     printf("Immediate children: %d\n", position->num_children);
@@ -51,7 +49,7 @@ void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t 
         printf("Nodes analysed: %llu, %d \r", nodes_analysed, 100 * i / position->num_children);
         fflush(stdout);
         Position_t* child = position->child_positions[i];
-        int16_t eval = -negamax(child, depth - 1);
+        int64_t eval = -negamax(child, depth - 1);
         if (eval > best_eval)
         {
             best_eval = eval;
@@ -61,7 +59,7 @@ void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t 
 
     printf("Nodes analysed: %llu       \n", nodes_analysed);
     printf("Moves generated: %lu\n", moves_generated);
-    printf("Best score: %d\n", best_eval);
+    printf("Best score: %ld\n", best_eval);
     if (best_move == NULL)
     {
         printf("No best move found!\n");

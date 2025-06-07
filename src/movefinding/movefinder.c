@@ -160,7 +160,7 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
 
 void move_finder(Position_t *position)
 {
-    int16_t value = position->piece_value_diff;
+    int64_t value = position->piece_value_diff;
     // if position is checkmate, do not generate moves
     if (value < -CHECKMATE_VALUE || value > CHECKMATE_VALUE)
     {

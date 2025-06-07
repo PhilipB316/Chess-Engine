@@ -145,7 +145,7 @@ void print_position(Position_t* position)
     printf("\n\n    a b c d e f g h\n");
 
     printf("\n");
-    printf("piece value difference: %d, WTM: %d\n", position->piece_value_diff, position->white_to_move);
+    printf("piece value difference: %ld, WTM: %d\n", position->piece_value_diff, position->white_to_move);
     printf("\n");
 }
 
@@ -272,10 +272,10 @@ void fen_to_board(char *fen, Position_t *fen_position)
     {
         whole_move_count = whole_move_count * 10 + (fen[i++] - '0');
     }
-    fen_position->half_move_count = whole_move_count * 2;
-    if (!fen_position->white_to_move)
+    fen_position->half_move_count = whole_move_count * 2 - 1;
+    if (fen_position->white_to_move)
     {
-        fen_position->half_move_count++;
+        fen_position->half_move_count--;
     }
 }
 
