@@ -2,13 +2,12 @@
 
 #include <stdio.h>
 #include <stdint.h>
-// #include <time.h>
+#include <time.h>
 
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
 #include "./movefinding/memory.h"
 #include "./search/search.h"
-#include "search/evaluate.h"
 
 /**
     * TODO:
@@ -16,6 +15,7 @@
     * - implement move ordering
     * - improve position evaluation
 */
+uint8_t count_trailing_zeros(uint64_t v);
 
 int main(void)
 {
@@ -23,7 +23,7 @@ int main(void)
     custom_memory_init();
     move_finder_init();
 
-    char game_1[100] = "r3r3/pppk1ppp/8/8/P1N2P2/R2p1P2/1P1P1bPP/2nK3R w - - 0 23";
+    char game_1[100] = "3rrk2/ppp2ppp/8/8/P2b1P2/R2N1P2/1P1P2PP/2K1R3 w - - 3 27";
 
     // char fen1[100] = "r2qkb1r/p1pp1p1p/bpn2n1B/3Pp1p1/8/2N1PNPB/PPPQ1P1P/R3K2R w KQkq e6 0 10";
     // char fen2[100] = "r3kb1r/pp1npppp/2p2n2/q2p2B1/2PP2b1/2N2P2/PPQ1P1PP/R3KBNR w KQkq - 3 1";
@@ -43,16 +43,17 @@ int main(void)
     fen_to_board(game_1, &position);
     print_position(&position);
 
-    // clock_t start_time = clock();
+    clock_t start_time = clock();
 
     find_best_move(&position, &best_move, 6);
 
-    // clock_t end_time = clock();
-    // double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
-    // printf("Time spent: %.2f seconds\n", time_spent);
+    clock_t end_time = clock();
+    double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("Time spent: %.2f seconds\n", time_spent);
 
     printf("Number of new positions generated: %lu\n", get_num_new_positions());
     printf("Best move:\n");
     print_position(&best_move);
     custom_memory_deinit();
 }
+
