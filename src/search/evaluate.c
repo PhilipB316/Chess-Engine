@@ -43,7 +43,8 @@ int64_t opening_evaluation(Position_t* position)
         pawn_bitboard &= ~(1ULL << from_square);
     }
     all_threathened_squards = threatened_squares;
-    score += __builtin_popcountll(threatened_squares & CENTER_FOUR_SQUARES) * CENTER_SQUARE_ATTACK_VALUE;
+    score += __builtin_popcountll(threatened_squares & CENTER_FOUR_SQUARES) * 
+        (CENTER_SQUARE_ATTACK_VALUE + PAWN_CENTER_ATTACK_VALUE_OFFSET);
     score += __builtin_popcountll(threatened_squares & BOX_SQUARES) * BOX_SQUARE_ATTACK_VALUE;
 
     // ============================== KNIGHTS ==============================
@@ -56,7 +57,8 @@ int64_t opening_evaluation(Position_t* position)
         knight_bitboard &= ~(1ULL << from_square);
     }
     all_threathened_squards |= threatened_squares;
-    score += __builtin_popcountll(threatened_squares & CENTER_FOUR_SQUARES) * CENTER_SQUARE_ATTACK_VALUE;
+    score += __builtin_popcountll(threatened_squares & CENTER_FOUR_SQUARES) * 
+        (CENTER_SQUARE_ATTACK_VALUE + KNIGHT_CENTER_ATTACK_VALUE_OFFSET);
     score += __builtin_popcountll(threatened_squares & BOX_SQUARES) * BOX_SQUARE_ATTACK_VALUE;
 
     ULL rook_blockers, bishop_blockers;

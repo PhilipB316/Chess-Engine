@@ -33,6 +33,8 @@ extern char *pretty_print_moves[64];
  */
 typedef struct
 {
+    bool castle_kingside;
+    bool castle_queenside;
     ULL pawns;
     ULL knights;
     ULL bishops;
@@ -40,8 +42,6 @@ typedef struct
     ULL queens;
     ULL kings;
     ULL all_pieces;
-    bool castle_kingside;
-    bool castle_queenside;
 } PiecesOneColour_t;
 
 /**
@@ -52,15 +52,15 @@ typedef struct
  */
 typedef struct Position_t
 {
-    ULL all_pieces;
-    ULL en_passant_bitboard;
     bool white_to_move;
     uint8_t num_children;
     uint16_t half_move_count;
     int64_t piece_value_diff;
-    PiecesOneColour_t pieces[2];
+    ULL all_pieces;
+    ULL en_passant_bitboard;
     struct Position_t* parent_position;
     struct Position_t* child_positions[MAX_CHILDREN];
+    PiecesOneColour_t pieces[2];
 } Position_t;
 
 /**

@@ -256,7 +256,7 @@ uint8_t offset_BBits[64] = {
 static ULL array_for_rook_magic_numbers[64];
 static ULL array_for_bishop_random_numbers[64];
 
-void generate_lookup_tables()
+void generate_lookup_tables(void)
 {
     pawn_attack_generator();
     knight_attack_generator();
@@ -340,6 +340,7 @@ void generate_rook_blocker_masks(void)
         rook_blocker_masks[square] = mask;
     }
 }
+
 void generate_bishop_blocker_masks(void)
 {
     for (int square = 0; square < 64; square++)
