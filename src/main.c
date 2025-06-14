@@ -8,7 +8,6 @@
 #include "./movefinding/board.h"
 #include "./movefinding/memory.h"
 #include "./search/search.h"
-#include "search/evaluate.h"
 
 /**
     * TODO:
@@ -44,9 +43,7 @@ int main(void)
     print_position(&position);
 
     clock_t start_time = clock();
-
-    find_best_move(&position, &best_move, 7);
-
+    find_best_move(&position, &best_move, 6);
     clock_t end_time = clock();
     double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
     printf("Time spent: %.2f seconds\n", time_spent);
