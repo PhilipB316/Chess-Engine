@@ -2,19 +2,22 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <time.h>
 
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
 #include "./movefinding/memory.h"
+#include "./movefinding/movedisplay.h"
 #include "./search/search.h"
 
 /**
     * TODO:
+    *
+    * - thoroughly test move display
     * - improve position evaluation
     * - implement quiescence search
+    * - implement multithreading
+    * - display principal variation
 */
-uint8_t count_trailing_zeros(uint64_t v);
 
 int main(void)
 {
@@ -35,22 +38,21 @@ int main(void)
     // char fen10[100] ="3r2k1/b4bp1/2pRn2p/1p2N3/1P6/1B5P/5PP1/6K1 w - - 3 30";
     // char fen11[100] = "r2q3r/1p2kp2/4b2p/pB2Q3/4Nn2/2P4P/P1K2P2/R6R w - - 1 24";
     // char fen12[100] = "rnb1k1nr/ppp1pppp/3p4/2b5/7q/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    char fen13[100] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
+    // char fen13[100] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
     // char fen[100] = "r3k2r/ppp1pp1p/2q2np1/bb6/1n1pP3/1Q5B/PPPP1PPP/RNB1K1NR b KQkq e3 0 2";
+    char fen14[100] = "8/1k4P1/8/8/8/8/8/2K5 w - - 0 1";
 
     Position_t position, best_move;
-    fen_to_board(fen13, &position);
+    fen_to_board(fen14, &position);
     print_position(&position);
-
-    clock_t start_time = clock();
-    find_best_move(&position, &best_move, 7);
-    clock_t end_time = clock();
-    double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
-    printf("Time spent: %.2f seconds\n", time_spent);
-
-    printf("Number of new positions generated: %lu\n", get_num_new_positions());
-    printf("Best move:\n");
+    find_best_move(&position, &best_move, 5);
+    printf("Best move found:\n");
     print_position(&best_move);
+
+    char move_notation[10];
+    determine_move_notation(&position, &best_move, move_notation);
+    printf("Best move notation: %s\n", move_notation);
+
     check_memory_leak();
     custom_memory_deinit();
 }

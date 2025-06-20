@@ -423,3 +423,11 @@ void free_depth_memory(Position_t* position, uint8_t depth)
     custom_free();
 }
 
+void clear_children_count(Position_t *position)
+{
+    for (uint16_t i = 0; i < position->num_children; i++)
+    {
+        position->child_positions[i]->num_children = 0;
+    }
+}
+

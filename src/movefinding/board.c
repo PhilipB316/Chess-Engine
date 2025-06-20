@@ -7,8 +7,8 @@
 
 #include "board.h"
 #include "../search/evaluate.h"
-
-#define WHITE_INDEX 1
+#include "movefinder.h"
+#include "memory.h"
 
 char *pretty_print_moves[64] =
     {
@@ -145,7 +145,7 @@ void print_position(Position_t* position)
     printf("\n\n    a b c d e f g h\n");
 
     printf("\n");
-    printf("piece value difference: %ld, WTM: %d\n", position->piece_value_diff, position->white_to_move);
+    printf("score: %ld, white turn: %d\n", evaluate_position(position), position->white_to_move);
     printf("\n");
 }
 

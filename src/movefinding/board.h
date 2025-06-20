@@ -20,6 +20,8 @@
 
 #define MAX_CHILDREN 100
 
+#define WHITE_INDEX 1
+
 #define DEBUG 1
 #define SAFE 0 // safe alerts if custom memory pool has been exhausted
 

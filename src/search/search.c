@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "search.h"
 #include "evaluate.h"
@@ -26,8 +27,6 @@ int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_
     // depth move search one depth (generate single layer children)
     move_finder(position);
     sort_children(position, 4);
-
-    printf("Immediate children: %d\n", position->num_children);
 
     for (uint16_t i = 0; i < position->num_children; i++)
     {
@@ -67,12 +66,6 @@ int64_t negamax(Position_t* position, uint8_t depth, int64_t alpha, int64_t beta
         nodes_analysed++;
         return evaluate_position(position);
     }
-
-    // if (depth % 3 == 0)
-    // {
-    //     // Sort children for better move ordering
-    //     sort_children(position, 2);
-    // }
 
     int64_t value = -INT64_MAX;
     move_finder(position);
@@ -121,19 +114,24 @@ void sort_children(Position_t* position, uint8_t depth)
         evals[j + 1] = key_eval;
         position->child_positions[j + 1] = key_pos;
     }
-
-    for (uint16_t i = 0; i < n; i++) {
-        position->child_positions[i]->num_children = 0; // Reset children count for each child
-    }
+    clear_children_count(position);
 }
 
 void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth)
 {
+    clock_t start_time = clock();
     nodes_analysed = 0;
     moves_generated = 0;
     int64_t best_eval = negamax_start(position, return_best_move, depth);
-    printf("Nodes analysed: %llu       \n", nodes_analysed);
-    printf("Moves generated: %lu\n", moves_generated);
-    printf("Best score: %ld\n", best_eval);
+    clock_t end_time = clock();
+    double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+
+    printf("+-------------------------------------------+\n");
+    printf("| %-24s | %14llu |\n", "Nodes analysed", nodes_analysed);
+    printf("| %-24s | %14lu |\n", "Moves generated", moves_generated);
+    printf("| %-24s | %14lu |\n", "New positions generated", get_num_new_positions());
+    printf("| %-24s | %14ld |\n", "Best score", best_eval);
+    printf("| %-24s | %14.2f |\n", "Time spent (seconds)", time_spent);
+    printf("+-------------------------------------------+\n\n");
 }
 

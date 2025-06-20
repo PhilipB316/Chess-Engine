@@ -60,8 +60,8 @@ void custom_free(void)
 void check_memory_leak(void) 
 {
     if (pool_index > 0) {
-        printf("Memory leak detected! %zu positions not freed.\n", pool_index);
+        printf("-leak-detected-%zu-positions-leaked---\n", pool_index);
     } else {
-        printf("No memory leaks detected.\n");
+        printf("---no-leaks-detected---\n");
     }
 }
