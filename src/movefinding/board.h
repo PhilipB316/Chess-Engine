@@ -53,7 +53,7 @@ typedef struct
 typedef struct Position_t
 {
     bool white_to_move;
-    uint8_t num_children;
+    uint16_t num_children;
     uint16_t half_move_count;
     int64_t piece_value_diff;
     ULL all_pieces;

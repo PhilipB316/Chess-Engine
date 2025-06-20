@@ -281,7 +281,7 @@ void fen_to_board(char *fen, Position_t *fen_position)
 
 void print_children_positions(Position_t *position)
 {
-    for (uint8_t i = 0; i < position->num_children; i++)
+    for (uint16_t i = 0; i < position->num_children; i++)
     {
         printf("Child %d:\n", i);
         print_position(position->child_positions[i]);

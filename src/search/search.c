@@ -11,38 +11,8 @@
 static ULL nodes_analysed = 0;
 static uint64_t moves_generated = 0;
 
-int64_t negamax(Position_t* position, uint8_t depth, int64_t alpha, int64_t beta)
-{
-    if (depth == 0)
-    {
-        nodes_analysed++;
-        return evaluate_position(position);
-    }
-
-    int64_t value = -INT64_MAX;
-    move_finder(position);
-    moves_generated++;
-    for (uint8_t i = 0; i < position->num_children; i++)
-    {
-        Position_t* child = position->child_positions[i];
-        int64_t score = -negamax(child, depth - 1, -beta, -alpha);
-
-        if (score > value)
-        {
-            value = score;
-        }
-        if (value > alpha)
-        {
-            alpha = value;
-            if (alpha >= beta)
-            {
-                break; // Beta cutoff
-            }
-        }
-    }
-    free_children_memory(position);
-    return value;
-}
+void sort_children(Position_t* postion, uint8_t depth);
+int64_t negamax(Position_t* position, uint8_t depth, int64_t alpha, int64_t beta);
 
 int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_t depth)
 {
@@ -50,14 +20,16 @@ int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_
     int64_t alpha = -INT64_MAX;
     int64_t beta = INT64_MAX;
     int64_t best_eval = -INT64_MAX;
-
     // set half-move count for as current, rather than use the one from the position
     // as this will be dependent on the depth of the search
     set_half_move_count(position->half_move_count); 
+    // depth move search one depth (generate single layer children)
     move_finder(position);
+    sort_children(position, 4);
+
     printf("Immediate children: %d\n", position->num_children);
 
-    for (uint8_t i = 0; i < position->num_children; i++)
+    for (uint16_t i = 0; i < position->num_children; i++)
     {
         printf("Nodes analysed: %llu, %d \r", nodes_analysed, 100 * i / position->num_children);
         fflush(stdout);
@@ -86,6 +58,73 @@ int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_
     *return_best_move = *best_move;
     free_children_memory(position);
     return best_eval;
+}
+
+int64_t negamax(Position_t* position, uint8_t depth, int64_t alpha, int64_t beta)
+{
+    if (depth == 0)
+    {
+        nodes_analysed++;
+        return evaluate_position(position);
+    }
+
+    // if (depth % 3 == 0)
+    // {
+    //     // Sort children for better move ordering
+    //     sort_children(position, 2);
+    // }
+
+    int64_t value = -INT64_MAX;
+    move_finder(position);
+    moves_generated++;
+    for (uint16_t i = 0; i < position->num_children; i++)
+    {
+        Position_t* child = position->child_positions[i];
+        int64_t score = -negamax(child, depth - 1, -beta, -alpha);
+
+        if (score > value)
+        {
+            value = score;
+        }
+        if (value > alpha)
+        {
+            alpha = value;
+            if (alpha >= beta)
+            {
+                break; // Beta cutoff
+            }
+        }
+    }
+    free_children_memory(position);
+    return value;
+}
+
+void sort_children(Position_t* position, uint8_t depth)
+{
+    int64_t evals[MAX_CHILDREN];
+    uint16_t n = position->num_children;
+
+    for (uint16_t i = 0; i < n; i++) {
+        evals[i] = -negamax(position->child_positions[i], depth, -INT64_MAX, INT64_MAX);
+    }
+
+    // Simple insertion sort based on evals (descending order)
+    for (uint8_t i = 1; i < n; i++) {
+        int64_t key_eval = evals[i];
+        Position_t* key_pos = position->child_positions[i];
+        int j = i - 1;
+        while (j >= 0 && evals[j] < key_eval) {
+            evals[j + 1] = evals[j];
+            position->child_positions[j + 1] = position->child_positions[j];
+            j--;
+        }
+        evals[j + 1] = key_eval;
+        position->child_positions[j + 1] = key_pos;
+    }
+
+    for (uint16_t i = 0; i < n; i++) {
+        position->child_positions[i]->num_children = 0; // Reset children count for each child
+    }
 }
 
 void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth)

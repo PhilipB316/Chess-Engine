@@ -36,4 +36,11 @@ Position_t* custom_alloc(void);
  */
 void custom_free(void);
 
+/**
+ * @brief Checks for memory leaks in the custom memory pool.
+ *
+ * Prints a message if there are any positions that were not freed.
+ */
+void check_memory_leak(void);
+
 #endif // MEMORY_H

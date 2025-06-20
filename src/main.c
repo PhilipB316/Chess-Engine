@@ -11,21 +11,20 @@
 
 /**
     * TODO:
-    * - implement alpha-beta pruning
-    * - implement move ordering
+    * - improve position evaluation
+    * - implement quiescence search
 */
 uint8_t count_trailing_zeros(uint64_t v);
 
 int main(void)
 {
-    printf("Hello, World!\n");
     custom_memory_init();
     move_finder_init();
 
     // char game_1[100] = "rnbqkbnr/ppp1pppp/8/3p4/8/4P3/PPPP1PPP/RNBQKBNR w KQkq d6 0 2";
 
     // char fen1[100] = "r2qkb1r/p1pp1p1p/bpn2n1B/3Pp1p1/8/2N1PNPB/PPPQ1P1P/R3K2R w KQkq e6 0 10";
-    // char fen2[100] = "r3kb1r/pp1npppp/2p2n2/q2p2B1/2PP2b1/2N2P2/PPQ1P1PP/R3KBNR w KQkq - 3 1";
+    // char fen2[100] = "r3kb1r/pp1npppp/2p2n2/q2p2B1/2PP2b1/2N2P2/PPQ1P1PP/R3KBNR w KQkq - 3 15";
     // char fen3[100] = "rnb1kbnr/pppppppp/8/8/8/4P3/PPPP1PPP/R3K2R w KQkq - 0 1";
     // char fen4[100] = "2k5/8/8/4Pp2/8/8/8/2K5 w - f6 0 2";
     // char fen5[100] = "k4q2/6P1/8/8/8/8/8/7K w - - 0 1";
@@ -36,14 +35,15 @@ int main(void)
     // char fen10[100] ="3r2k1/b4bp1/2pRn2p/1p2N3/1P6/1B5P/5PP1/6K1 w - - 3 30";
     // char fen11[100] = "r2q3r/1p2kp2/4b2p/pB2Q3/4Nn2/2P4P/P1K2P2/R6R w - - 1 24";
     // char fen12[100] = "rnb1k1nr/ppp1pppp/3p4/2b5/7q/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    char fen[100] = "r3k2r/ppp1pp1p/2q2np1/bb6/1n1pP3/1Q5B/PPPP1PPP/RNB1K1NR b KQkq e3 0 2";
+    char fen13[100] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
+    // char fen[100] = "r3k2r/ppp1pp1p/2q2np1/bb6/1n1pP3/1Q5B/PPPP1PPP/RNB1K1NR b KQkq e3 0 2";
 
     Position_t position, best_move;
-    fen_to_board(fen, &position);
+    fen_to_board(fen13, &position);
     print_position(&position);
 
     clock_t start_time = clock();
-    find_best_move(&position, &best_move, 6);
+    find_best_move(&position, &best_move, 7);
     clock_t end_time = clock();
     double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
     printf("Time spent: %.2f seconds\n", time_spent);
@@ -51,6 +51,7 @@ int main(void)
     printf("Number of new positions generated: %lu\n", get_num_new_positions());
     printf("Best move:\n");
     print_position(&best_move);
+    check_memory_leak();
     custom_memory_deinit();
 }
 

@@ -394,7 +394,7 @@ void depth_move_finder(Position_t* position, uint8_t depth)
         return;
     }
     move_finder(position);
-    for (uint8_t i = 0; i < position->num_children; i++)
+    for (uint16_t i = 0; i < position->num_children; i++)
     {
         depth_move_finder(position->child_positions[i], depth - 1);
     }
@@ -402,7 +402,7 @@ void depth_move_finder(Position_t* position, uint8_t depth)
 
 void free_children_memory(Position_t *position)
 {
-    for (uint8_t i = 0; i < position->num_children; i++)
+    for (uint16_t i = 0; i < position->num_children; i++)
     {
         // free(position->child_positions[i]);
         custom_free();
@@ -415,7 +415,7 @@ void free_depth_memory(Position_t* position, uint8_t depth)
     {
         return;
     }
-    for (uint8_t i = 0; i < position->num_children; i++)
+    for (uint16_t i = 0; i < position->num_children; i++)
     {
         free_depth_memory(position->child_positions[i], depth - 1);
     }
