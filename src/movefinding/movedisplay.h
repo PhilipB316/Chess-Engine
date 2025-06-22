@@ -24,4 +24,6 @@
  */
 void determine_move_notation(Position_t *old_position, Position_t *new_position, char *move_notation);
 
+void make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination);
+
 #endif // MOVEDISPLAY_H

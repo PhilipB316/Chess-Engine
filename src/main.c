@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <sys/types.h>
 
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
@@ -11,12 +14,12 @@
 
 /**
     * TODO:
-    *
     * - thoroughly test move display
+    * - display principal variation
+    * - take move input from user
+    * - implement multi-threading
     * - improve position evaluation
     * - implement quiescence search
-    * - implement multithreading
-    * - display principal variation
 */
 
 int main(void)
@@ -26,7 +29,7 @@ int main(void)
 
     // char game_1[100] = "rnbqkbnr/ppp1pppp/8/3p4/8/4P3/PPPP1PPP/RNBQKBNR w KQkq d6 0 2";
 
-    // char fen1[100] = "r2qkb1r/p1pp1p1p/bpn2n1B/3Pp1p1/8/2N1PNPB/PPPQ1P1P/R3K2R w KQkq e6 0 10";
+    char fen1[100] = "r2qkb1r/p1pp1p1p/bpn2n1B/3Pp1p1/3p4/2N1PNPB/PPPQ1P1P/R3K2R w KQkq e6 0 10";
     // char fen2[100] = "r3kb1r/pp1npppp/2p2n2/q2p2B1/2PP2b1/2N2P2/PPQ1P1PP/R3KBNR w KQkq - 3 15";
     // char fen3[100] = "rnb1kbnr/pppppppp/8/8/8/4P3/PPPP1PPP/R3K2R w KQkq - 0 1";
     // char fen4[100] = "2k5/8/8/4Pp2/8/8/8/2K5 w - f6 0 2";
@@ -40,18 +43,43 @@ int main(void)
     // char fen12[100] = "rnb1k1nr/ppp1pppp/3p4/2b5/7q/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     // char fen13[100] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
     // char fen[100] = "r3k2r/ppp1pp1p/2q2np1/bb6/1n1pP3/1Q5B/PPPP1PPP/RNB1K1NR b KQkq e3 0 2";
-    char fen14[100] = "8/1k4P1/8/8/8/8/8/2K5 w - - 0 1";
+    // char fen14[100] = "8/1k4P1/8/8/8/8/8/2K5 w - - 0 1";
 
     Position_t position, best_move;
-    fen_to_board(fen14, &position);
+    fen_to_board(fen1, &position);
     print_position(&position);
-    find_best_move(&position, &best_move, 5);
+    find_best_move(&position, &best_move, 3);
     printf("Best move found:\n");
     print_position(&best_move);
 
-    char move_notation[10];
+    char move_notation[20];
     determine_move_notation(&position, &best_move, move_notation);
     printf("Best move notation: %s\n", move_notation);
+
+    strcpy(move_notation, "e4");
+    printf("Making move from notation: %s\n", move_notation);
+    make_move_from_notation(move_notation, &position, &best_move);
+
+    // char* san_move = "Kxb1";
+    // make_move_from_notation(san_move, &position, &best_move);
+    // san_move = "e3";
+    // make_move_from_notation(san_move, &position, &best_move);
+    // san_move = "Be5";
+    // make_move_from_notation(san_move, &position, &best_move);
+    // san_move = "0-0-0";
+    // make_move_from_notation(san_move, &position, &best_move);
+    // san_move = "R1a8";
+    // make_move_from_notation(san_move, &position, &best_move);
+    // san_move = "Q1xb1";
+    // make_move_from_notation(san_move, &position, &best_move);
+    // san_move = "g8=Q";
+    // make_move_from_notation(san_move, &position, &best_move);
+    // san_move = "Qc6xb6";
+    // make_move_from_notation(san_move, &position, &best_move);
+    // san_move = "bxc8=R";
+    // make_move_from_notation(san_move, &position, &best_move);
+    // san_move = "bxc6";
+    // make_move_from_notation(san_move, &position, &best_move);
 
     check_memory_leak();
     custom_memory_deinit();

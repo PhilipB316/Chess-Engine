@@ -431,3 +431,96 @@ void clear_children_count(Position_t *position)
     }
 }
 
+ULL find_pawn_moves(Position_t* position, uint8_t pawn_square)
+{
+    ULL possible_move_squares;
+    WHITE_TO_MOVE = position->white_to_move;
+    ULL all_pieces_bitboard = position->all_pieces;
+    ULL opponent_pieces_bitboard = position->pieces[!WHITE_TO_MOVE].all_pieces;
+    uint8_t start_rank, en_passant_rank;
+    int direction;
+
+    if (WHITE_TO_MOVE)
+    {
+        direction = -1;
+        start_rank = 6;
+        en_passant_rank = 3;
+    }
+    else
+    {
+        direction = 1;
+        start_rank = 1;
+        en_passant_rank = 4;
+    }
+    uint8_t from_square = pawn_square;
+    uint8_t rank = from_square / 8;
+    ULL possible_attacks_bitboard = pawn_attack_lookup_table[WHITE_TO_MOVE][from_square];
+    possible_move_squares = possible_attacks_bitboard & opponent_pieces_bitboard;
+
+    // single pushes (normal)
+    ULL single_push_bitboard = 1ULL << (from_square + direction * 8);
+    if (single_push_bitboard & ~all_pieces_bitboard)
+    {
+        possible_move_squares |= single_push_bitboard;
+
+        // double push
+        ULL double_push_bitboard = 1ULL << (from_square + direction * 16);
+        if ((rank == start_rank) && (double_push_bitboard & ~all_pieces_bitboard))
+        {
+            possible_move_squares |= double_push_bitboard;
+        }
+    }
+
+    // check for possible en passant captures
+    if ((rank == en_passant_rank) && (possible_attacks_bitboard & POSITION->en_passant_bitboard))
+    {
+        ULL en_passant_bitboard = POSITION->en_passant_bitboard;
+        uint8_t en_passant_moved_square = __builtin_ctzll(en_passant_bitboard) - (direction * 8);
+        ULL pawn_to_capture_bitboard = 1ULL << en_passant_moved_square;
+        possible_move_squares |= pawn_to_capture_bitboard;
+    }
+    return possible_move_squares;
+}
+
+
+ULL find_knight_moves(Position_t *position, uint8_t knight_square)
+{
+    (void)position; // Unused parameter, but required for function signature
+    return knight_attack_lookup_table[knight_square];
+}
+
+ULL find_bishop_moves(Position_t *position, uint8_t bishop_square)
+{
+    ULL all_pieces_bitboard = position->all_pieces;
+    ULL bishop_blockers = bishop_blocker_masks[bishop_square] & all_pieces_bitboard;
+    uint16_t index = (bishop_blockers * actual_bishop_magic_numbers[bishop_square]) >> offset_BBits[bishop_square];
+    return bishop_attack_lookup_table[bishop_square][index];
+}
+
+ULL find_rook_moves(Position_t *position, uint8_t rook_square)
+{
+    ULL all_pieces_bitboard = position->all_pieces;
+    ULL rook_blockers = rook_blocker_masks[rook_square] & all_pieces_bitboard;
+    uint16_t index = (rook_blockers * actual_rook_magic_numbers[rook_square]) >> offset_RBits[rook_square];
+    return rook_attack_lookup_table[rook_square][index];
+}
+
+ULL find_queen_moves(Position_t *position, uint8_t queen_square)
+{
+    ULL all_pieces_bitboard = position->all_pieces;
+    ULL rook_blockers = rook_blocker_masks[queen_square] & all_pieces_bitboard;
+    uint16_t index = (rook_blockers * actual_rook_magic_numbers[queen_square]) >> offset_RBits[queen_square];
+    ULL possible_moves = rook_attack_lookup_table[queen_square][index];
+
+    ULL bishop_blockers = bishop_blocker_masks[queen_square] & all_pieces_bitboard;
+    index = (bishop_blockers * actual_bishop_magic_numbers[queen_square]) >> offset_BBits[queen_square];
+    possible_moves |= bishop_attack_lookup_table[queen_square][index];
+
+    return possible_moves;
+}
+
+ULL find_king_moves(Position_t *position, uint8_t king_square)
+{
+    (void)position; // Unused parameter, but required for function signature
+    return king_attack_lookup_table[king_square];
+}

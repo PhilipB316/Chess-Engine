@@ -8,6 +8,300 @@
 #include "board.h"
 #include "movefinder.h"
 
+static ULL rank_row_masks[8] = {
+    0xFF00000000000000, // Rank 8
+    0x00FF000000000000, // Rank 7
+    0x0000FF0000000000, // Rank 6
+    0x000000FF00000000, // Rank 5
+    0x00000000FF000000, // Rank 4
+    0x0000000000FF0000, // Rank 3
+    0x000000000000FF00, // Rank 2
+    0x00000000000000FF, // Rank 1
+};
+
+static ULL file_column_masks[8] = {
+    0x0101010101010101, // File a
+    0x0202020202020202, // File b
+    0x0404040404040404, // File c
+    0x0808080808080808, // File d
+    0x1010101010101010, // File e
+    0x2020202020202020, // File f
+    0x4040404040404040, // File g
+    0x8080808080808080, // File h
+};
+
+typedef enum {
+    PIECE_PAWN,
+    PIECE_KNIGHT,
+    PIECE_BISHOP,
+    PIECE_ROOK,
+    PIECE_QUEEN,
+    PIECE_KING,
+} PieceType_t;
+
+int parse_move_notation(char *move_notation, 
+                        MoveType_t *move_type,
+                        uint8_t* to_square, 
+                        char *disambiguation, 
+                        bool *is_capture);
+
+ULL determine_from_square_bitboard(Position_t *position, 
+                                   MoveType_t move_type, 
+                                   uint8_t to_square, 
+                                   char *disambiguation);
+
+static int square_index(char file, char rank) {
+    if (file < 'a' || file > 'h' || rank < '1' || rank > '8') return -1;
+    return ('8' - rank) * 8 + (file - 'a');
+}
+
+static char to_lower(char c) {
+    if (c >= 'A' && c <= 'Z') return c + ('a' - 'A');
+    return c;
+}
+
+static bool is_lower(char c) {
+    return (c >= 'a' && c <= 'z');
+}
+
+static bool is_numeric(char c) {
+    return (c >= '0' && c <= '9');
+}
+
+static bool is_alphabetic(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+static PieceType_t get_piece_type_from_move_type(MoveType_t move_type) {
+    switch (move_type) {
+        case PAWN: return PIECE_PAWN;
+        case KNIGHT: return PIECE_KNIGHT;
+        case BISHOP: return PIECE_BISHOP;
+        case ROOK: return PIECE_ROOK;
+        case QUEEN: return PIECE_QUEEN;
+        case KING: return PIECE_KING;
+        case PROMOTE_QUEEN: return PIECE_PAWN;
+        case PROMOTE_ROOK: return PIECE_PAWN;
+        case PROMOTE_BISHOP: return PIECE_PAWN;
+        case PROMOTE_KNIGHT: return PIECE_PAWN;
+        default: return -1; // Invalid move type
+    }
+}
+
+ULL filter_disambiguation(char *disambiguation)
+{
+    uint8_t length = strlen(disambiguation);
+    if (length == 0) {
+        return ~(0x0000000000000000); // No disambiguation provided
+    } else if (length == 1) {
+        if (is_numeric(disambiguation[0])) {
+            return rank_row_masks[disambiguation[0] - '1'];
+        } else if (is_alphabetic(disambiguation[0])) {
+            return file_column_masks[disambiguation[0] - 'a'];
+        }
+    } else {
+        return 1ULL << square_index(disambiguation[0], disambiguation[1]);
+    }
+    return 0; // Invalid disambiguation
+}
+
+
+void make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination) 
+{
+    MoveType_t move_type;
+    uint8_t to_square = 0; // This will be set based on the move notation
+    char disambiguation[2] = "\0"; // This will be set based on the move notation
+    bool is_capture = false; // This will be set based on the move notation
+
+    parse_move_notation(move_notation, &move_type, &to_square, disambiguation, &is_capture);
+    ULL from_square_bitboard = determine_from_square_bitboard(source, move_type, to_square, disambiguation);
+}
+
+int parse_move_notation(char *move_notation, 
+                        MoveType_t *move_type,
+                        uint8_t* to_square, 
+                        char *disambiguation, 
+                        bool *is_capture)
+{
+    uint8_t length = strlen(move_notation);
+    *to_square = square_index(move_notation[length - 2], move_notation[length - 1]);
+
+    // Remove check/checkmate symbols
+    if (move_notation[-1] == '#' || move_notation[-1] == '+') { length--; }
+    if (length < 2 || length > 10) { return 0; }
+ 
+    // check for captures
+    for (int i = 0; i < length; ++i) {
+        if (move_notation[i] == 'x') { *is_capture = true; break; }
+    }
+
+    // check for promotion
+    for (int i = 0; i < length; ++i) {
+        if (move_notation[i] == '=') {
+            *to_square = square_index(move_notation[length - 4], move_notation[length - 3]);
+            char promoted_piece = to_lower(move_notation[length - 1]);
+
+            if (is_capture) {
+                disambiguation[0] = move_notation[0];
+            }
+            switch (promoted_piece) {
+                case 'q': *move_type = PROMOTE_QUEEN; return 1;
+                case 'r': *move_type = PROMOTE_ROOK; return 1;
+                case 'b': *move_type = PROMOTE_BISHOP; return 1;
+                case 'n': *move_type = PROMOTE_KNIGHT; return 1;
+                default: return 0; // Invalid promotion piece
+            }
+        }
+    }
+
+    // check for castling
+    for (int i = 0; i < length; ++i) {
+        if (move_notation[i] == '-') {
+            if (length == 3) { *move_type = CASTLE_KINGSIDE;
+                return 1; // kingside castling
+            } else if (length == 5) {
+                *move_type = CASTLE_QUEENSIDE;
+                return 1; // queenside castling
+            } else {
+                return 0; // Invalid castling notation
+            }
+        }
+    }
+
+    // check for disambiguation letters
+    if (*is_capture) {
+        if (move_notation[2] == 'x') {
+            disambiguation[0] = move_notation[1];
+        } else if(move_notation[3] == 'x') {
+            disambiguation[0] = move_notation[1];
+            disambiguation[1] = move_notation[2];
+        }
+    } else {
+        if (length == 4) {
+            *disambiguation = move_notation[1];
+        } else if (length == 5) {
+            disambiguation[0] = move_notation[1];
+            disambiguation[1] = move_notation[2];
+        }
+    }
+
+    char piece_type = move_notation[0];
+    if (piece_type == 'K') {*move_type = KING; return 1;} // King move
+    else if (piece_type == 'Q') {*move_type = QUEEN; return 1;} // Queen move
+    else if (piece_type == 'R') {*move_type = ROOK; return 1;} // Rook move
+    else if (piece_type == 'B') {*move_type = BISHOP; return 1;} // Bishop move
+    else if (piece_type == 'N') {*move_type = KNIGHT; return 1;} // Knight move
+    // Pawn move
+    if (is_lower(piece_type)) {
+        *move_type = PAWN;
+        if (length == 4) {
+            disambiguation[0] = move_notation[0];
+        }
+    }
+    return 0;
+}
+
+
+ULL determine_from_square_bitboard(Position_t *position, 
+                                   MoveType_t move_type, 
+                                   uint8_t to_square, 
+                                   char *disambiguation) 
+{
+    PieceType_t piece_type = get_piece_type_from_move_type(move_type);
+    ULL relevant_bitboard = 0;
+    uint8_t from_square = 0;
+    ULL disambiguation_mask = filter_disambiguation(disambiguation);
+
+    switch (piece_type) {
+
+        case PIECE_PAWN:
+            relevant_bitboard = position->pieces[WHITE_INDEX].pawns & disambiguation_mask;
+            while (relevant_bitboard) {
+                from_square = __builtin_ctzll(relevant_bitboard);
+                ULL pawn_moves = find_pawn_moves(position, from_square);
+                if (pawn_moves & (1ULL << to_square)) {
+                    return 1ULL << from_square;
+                }
+                relevant_bitboard &= ~(1ULL << from_square);
+            }
+            break;
+
+        case PIECE_KNIGHT:
+            relevant_bitboard = position->pieces[WHITE_INDEX].knights & disambiguation_mask;
+            while (relevant_bitboard) {
+                from_square = __builtin_ctzll(relevant_bitboard);
+                ULL knight_moves = find_knight_moves(position, from_square);
+                if (knight_moves & (1ULL << to_square)) {
+                    return 1ULL << from_square;
+                }
+                relevant_bitboard &= ~(1ULL << from_square);
+            }
+            break;
+
+        case PIECE_BISHOP:
+            relevant_bitboard = position->pieces[WHITE_INDEX].bishops & disambiguation_mask;
+            while (relevant_bitboard) {
+                from_square = __builtin_ctzll(relevant_bitboard);
+                ULL bishop_moves = find_bishop_moves(position, from_square);
+                if (bishop_moves & (1ULL << to_square)) {
+                    return 1ULL << from_square;
+                }
+                relevant_bitboard &= ~(1ULL << from_square);
+            }
+            break;
+
+        case PIECE_ROOK:
+            relevant_bitboard = position->pieces[WHITE_INDEX].rooks & disambiguation_mask;
+            while (relevant_bitboard) {
+                from_square = __builtin_ctzll(relevant_bitboard);
+                ULL rook_moves = find_rook_moves(position, from_square);
+                if (rook_moves & (1ULL << to_square)) {
+                    return 1ULL << from_square;
+                }
+                relevant_bitboard &= ~(1ULL << from_square);
+            }
+            break;
+
+        case PIECE_QUEEN:
+            relevant_bitboard = position->pieces[WHITE_INDEX].queens & disambiguation_mask;
+            while (relevant_bitboard) {
+                from_square = __builtin_ctzll(relevant_bitboard);
+                ULL queen_moves = find_queen_moves(position, from_square);
+                if (queen_moves & (1ULL << to_square)) {
+                    return 1ULL << from_square;
+                }
+                relevant_bitboard &= ~(1ULL << from_square);
+            }
+            break;
+
+        case PIECE_KING:
+            // since there is only only one king it must be the only piece on the board
+            return position->pieces[WHITE_INDEX].kings;
+    }
+    return 0; // No valid from square found
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Helper to get bitboard for piece type
 static ULL get_piece_bitboard(PiecesOneColour_t *pieces, int piece_type) {
     switch (piece_type) {
@@ -22,7 +316,7 @@ static ULL get_piece_bitboard(PiecesOneColour_t *pieces, int piece_type) {
 }
 
 // Helper to find the source square for a move of a given piece type to to_square
-static int find_source_square(PiecesOneColour_t *parent, PiecesOneColour_t *child, int piece_type, int to_square) {
+int find_source_square(PiecesOneColour_t *parent, PiecesOneColour_t *child, int piece_type, int to_square) {
     uint64_t parent_bb = get_piece_bitboard(parent, piece_type);
     uint64_t child_bb = get_piece_bitboard(child, piece_type);
 
@@ -61,9 +355,41 @@ int get_legal_moves(Position_t *position, int piece_type, int to_square, int *fr
             from_squares[found_count++] = source_square;
         }
     }
-    printf("Num children: %d\n", position->num_children);
     free_children_memory(position);
     return found_count;
+}
+
+int find_from_square(Position_t *position, MoveType_t move_type, uint8_t to_square, char *disambiguation) 
+{
+    int from_squares[8];
+    int num_from_squares = 0;
+
+    // Determine the piece type based on the move type
+    int piece_type = 0; // Default to pawn
+    switch (move_type) {
+        case KNIGHT: piece_type = 1; break;
+        case BISHOP: piece_type = 2; break;
+        case ROOK: piece_type = 3; break;
+        case QUEEN: piece_type = 4; break;
+        case KING: piece_type = 5; break;
+        default: break; // Pawn or other types don't need special handling
+    }
+
+    num_from_squares = get_legal_moves(position, piece_type, to_square, from_squares, 8);
+
+    if (num_from_squares == 0) return -1; // No valid moves found
+
+    // If disambiguation is provided, find the correct source square
+    if (disambiguation[0] != '\0') {
+        for (int i = 0; i < num_from_squares; ++i) {
+            if ((from_squares[i] % 8) == (disambiguation[0] - 'a')) { // Check file
+                return from_squares[i];
+            }
+        }
+    }
+
+    // If no disambiguation, return the first found square
+    return from_squares[0];
 }
 
 void determine_move_notation(Position_t *old_position, Position_t *new_position, char *move_notation)
@@ -185,3 +511,4 @@ check_suffix:
     // if (is_check(new_position, !white_to_move)) strcat(move_notation, is_checkmate(new_position, !white_to_move) ? "#" : "+");
     return;
 }
+

@@ -93,4 +93,14 @@ uint64_t get_num_new_positions(void);
 */
 void clear_children_count(Position_t *position);
 
+
+// ---------------------- THE FOLLOWING FUNCTIONS ARE FOR MOVE DISPLAY ----------------------
+
+ULL find_knight_moves(Position_t *position, uint8_t knight_square);
+ULL find_bishop_moves(Position_t *position, uint8_t bishop_square);
+ULL find_rook_moves(Position_t *position, uint8_t rook_square);
+ULL find_queen_moves(Position_t *position, uint8_t queen_square);
+ULL find_king_moves(Position_t *position, uint8_t king_square);
+ULL find_pawn_moves(Position_t* position, uint8_t pawn_square);
+
 #endif
