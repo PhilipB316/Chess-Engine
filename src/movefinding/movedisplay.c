@@ -8,6 +8,7 @@
 #include "board.h"
 #include "movefinder.h"
 
+// rank and file masks - the entire rank or file at the given index
 static ULL rank_row_masks[8] = {
     0xFF00000000000000, // Rank 8
     0x00FF000000000000, // Rank 7
@@ -39,17 +40,6 @@ typedef enum {
     PIECE_KING,
 } PieceType_t;
 
-int parse_move_notation(char *move_notation, 
-                        MoveType_t *move_type,
-                        uint8_t* to_square, 
-                        char *disambiguation, 
-                        bool *is_capture);
-
-ULL determine_from_square_bitboard(Position_t *position, 
-                                   MoveType_t move_type, 
-                                   uint8_t to_square, 
-                                   char *disambiguation);
-
 static int square_index(char file, char rank) {
     if (file < 'a' || file > 'h' || rank < '1' || rank > '8') return -1;
     return ('8' - rank) * 8 + (file - 'a');
@@ -72,6 +62,12 @@ static bool is_alphabetic(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
+/**
+ * @brief Determines the simple piece type from the move type.
+ *
+ * @param move_type The type of the move (e.g., PAWN, KNIGHT, etc.).
+ * @return The corresponding piece type.
+ */
 static PieceType_t get_piece_type_from_move_type(MoveType_t move_type) {
     switch (move_type) {
         case PAWN: return PIECE_PAWN;
@@ -84,10 +80,18 @@ static PieceType_t get_piece_type_from_move_type(MoveType_t move_type) {
         case PROMOTE_ROOK: return PIECE_PAWN;
         case PROMOTE_BISHOP: return PIECE_PAWN;
         case PROMOTE_KNIGHT: return PIECE_PAWN;
+        case DOUBLE_PUSH: return PIECE_PAWN;
+        case EN_PASSANT_CAPTURE: return PIECE_PAWN;
         default: return -1; // Invalid move type
     }
 }
 
+/**
+ * @brief Filters the disambiguation string to determine the bitboard for the disambiguation.
+ *
+ * @param disambiguation The disambiguation string (e.g., "e", "1", "a2").
+ * @return The bitboard representing the disambiguation.
+ */
 ULL filter_disambiguation(char *disambiguation)
 {
     uint8_t length = strlen(disambiguation);
@@ -105,24 +109,27 @@ ULL filter_disambiguation(char *disambiguation)
     return 0; // Invalid disambiguation
 }
 
-
-void make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination) 
-{
-    MoveType_t move_type;
-    uint8_t to_square = 0; // This will be set based on the move notation
-    char disambiguation[2] = "\0"; // This will be set based on the move notation
-    bool is_capture = false; // This will be set based on the move notation
-
-    parse_move_notation(move_notation, &move_type, &to_square, disambiguation, &is_capture);
-    ULL from_square_bitboard = determine_from_square_bitboard(source, move_type, to_square, disambiguation);
-}
-
+/**
+ * @brief Parses a move notation string and extracts the move type, destination square,
+ * disambiguation, and whether it is a capture.
+ *
+ * @param move_notation The move notation string (e.g., "e4", "Nf3", "Bb5+", "O-O").
+ * @param move_type Pointer to store the type of the move (e.g., PAWN, KNIGHT, etc.).
+ * @param to_square Pointer to store the destination square index (0-63).
+ * @param disambiguation Pointer to store any disambiguation characters (e.g., file or rank).
+ * @param is_capture Pointer to store whether the move is a capture.
+ * @param position Pointer to the current position to check for en passant and double push
+ */
 int parse_move_notation(char *move_notation, 
                         MoveType_t *move_type,
                         uint8_t* to_square, 
                         char *disambiguation, 
-                        bool *is_capture)
+                        bool *is_capture,
+                        Position_t *position,
+                        ULL* special_flags)
 {
+    bool white_to_move = position->white_to_move;
+    ULL opponent_pieces_bitboard = position->pieces[!white_to_move].all_pieces;
     uint8_t length = strlen(move_notation);
     *to_square = square_index(move_notation[length - 2], move_notation[length - 1]);
 
@@ -193,21 +200,49 @@ int parse_move_notation(char *move_notation,
     else if (piece_type == 'N') {*move_type = KNIGHT; return 1;} // Knight move
     // Pawn move
     if (is_lower(piece_type)) {
-        *move_type = PAWN;
         if (length == 4) {
             disambiguation[0] = move_notation[0];
+            ULL to_square_bitboard = 1ULL << *to_square;
+            if (!(opponent_pieces_bitboard & to_square_bitboard)) {
+                // length 4 means a capture, and if there was no opponent piece on the to square
+                // it must be an en passant capture
+                *move_type = EN_PASSANT_CAPTURE; // En passant capture
+                uint8_t rank_offset = (white_to_move) ? 8 : -8; // direction of pawn movement
+                *special_flags = 1ULL << (*to_square + rank_offset);
+                return 1;
+            }
+        } else if (length == 2) {
+            uint8_t rank = square_index(move_notation[0], move_notation[1]) / 8;
+            uint8_t double_push_rank = (white_to_move) ? 4 : 3;
+            int rank_offset = (white_to_move) ? 8 : -8; // direction of pawn movement
+            if (rank == double_push_rank) {
+                *move_type = DOUBLE_PUSH;
+                *special_flags = 1ULL << (*to_square + rank_offset);
+                return 1;
+            }
         }
+        *move_type = PAWN;
+        return 1;
     }
     return 0;
 }
 
-
+/**
+ * @brief Determines the from square bitboard for a given move type and destination square.
+ *
+ * @param position The current position.
+ * @param move_type The type of the move (e.g., PAWN, KNIGHT, etc.).
+ * @param to_square The destination square index (0-63).
+ * @param disambiguation The disambiguation string (e.g., file or rank).
+ * @return A bitboard representing the from square for the move.
+ */
 ULL determine_from_square_bitboard(Position_t *position, 
                                    MoveType_t move_type, 
                                    uint8_t to_square, 
                                    char *disambiguation) 
 {
     PieceType_t piece_type = get_piece_type_from_move_type(move_type);
+    bool white_to_move = position->white_to_move;
     ULL relevant_bitboard = 0;
     uint8_t from_square = 0;
     ULL disambiguation_mask = filter_disambiguation(disambiguation);
@@ -215,7 +250,7 @@ ULL determine_from_square_bitboard(Position_t *position,
     switch (piece_type) {
 
         case PIECE_PAWN:
-            relevant_bitboard = position->pieces[WHITE_INDEX].pawns & disambiguation_mask;
+            relevant_bitboard = position->pieces[white_to_move].pawns & disambiguation_mask;
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL pawn_moves = find_pawn_moves(position, from_square);
@@ -227,7 +262,7 @@ ULL determine_from_square_bitboard(Position_t *position,
             break;
 
         case PIECE_KNIGHT:
-            relevant_bitboard = position->pieces[WHITE_INDEX].knights & disambiguation_mask;
+            relevant_bitboard = position->pieces[white_to_move].knights & disambiguation_mask;
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL knight_moves = find_knight_moves(position, from_square);
@@ -239,7 +274,7 @@ ULL determine_from_square_bitboard(Position_t *position,
             break;
 
         case PIECE_BISHOP:
-            relevant_bitboard = position->pieces[WHITE_INDEX].bishops & disambiguation_mask;
+            relevant_bitboard = position->pieces[white_to_move].bishops & disambiguation_mask;
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL bishop_moves = find_bishop_moves(position, from_square);
@@ -251,7 +286,7 @@ ULL determine_from_square_bitboard(Position_t *position,
             break;
 
         case PIECE_ROOK:
-            relevant_bitboard = position->pieces[WHITE_INDEX].rooks & disambiguation_mask;
+            relevant_bitboard = position->pieces[white_to_move].rooks & disambiguation_mask;
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL rook_moves = find_rook_moves(position, from_square);
@@ -263,7 +298,7 @@ ULL determine_from_square_bitboard(Position_t *position,
             break;
 
         case PIECE_QUEEN:
-            relevant_bitboard = position->pieces[WHITE_INDEX].queens & disambiguation_mask;
+            relevant_bitboard = position->pieces[white_to_move].queens & disambiguation_mask;
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL queen_moves = find_queen_moves(position, from_square);
@@ -276,9 +311,29 @@ ULL determine_from_square_bitboard(Position_t *position,
 
         case PIECE_KING:
             // since there is only only one king it must be the only piece on the board
-            return position->pieces[WHITE_INDEX].kings;
+            return position->pieces[white_to_move].kings;
     }
     return 0; // No valid from square found
+}
+
+
+int make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination) 
+{
+    MoveType_t move_type;
+    uint8_t to_square = 0;
+    char disambiguation[2] = "\0";
+    bool is_capture = false;
+    ULL special_flags = 0;
+
+    bool correct = parse_move_notation(move_notation, &move_type, &to_square, disambiguation, &is_capture, source, &special_flags);
+    if (!correct) {
+        fprintf(stderr, "Invalid move notation: %s\n", move_notation);
+        return 0; // Invalid move notation
+    }
+    ULL from_square_bitboard = determine_from_square_bitboard(source, move_type, to_square, disambiguation);
+    ULL to_square_bitboard = 1ULL << to_square;
+    make_notation_move(source, destination, move_type, to_square_bitboard, from_square_bitboard, special_flags);
+    return 1; // Move successfully made
 }
 
 

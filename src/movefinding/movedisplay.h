@@ -24,6 +24,14 @@
  */
 void determine_move_notation(Position_t *old_position, Position_t *new_position, char *move_notation);
 
-void make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination);
+/**
+ * @brief Makes a move from the given notation in the source position and updates the destination position.
+ *
+ * @param move_notation The move notation string (e.g., "e4", "Nf3", "Bb5+", "O-O").
+ * @param source The source position from which the move is made.
+ * @param destination The destination position to update after the move.
+ * @return 1 if the move was successfully made, 0 if the move notation was invalid.
+ */
+int make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination);
 
 #endif // MOVEDISPLAY_H

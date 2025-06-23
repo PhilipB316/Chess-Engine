@@ -36,7 +36,7 @@ int main(void)
     // char fen5[100] = "k4q2/6P1/8/8/8/8/8/7K w - - 0 1";
     // char fen6[100] = "1k6/8/2p5/3Pp3/8/8/8/2K5 w - e6 0 2";
     // char fen7[100] = "6k1/8/4r3/6r1/6b1/5rr1/8/R3K2R w - - 0 1";
-    // char fen8[100] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    char fen8[100] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     // char fen9[100] = "r1bn1r2/p4Npk/1p5p/1qp2p1Q/3p4/P2P3P/BPP2PP1/4RRK1 w - - 4 21";
     // char fen10[100] ="3r2k1/b4bp1/2pRn2p/1p2N3/1P6/1B5P/5PP1/6K1 w - - 3 30";
     // char fen11[100] = "r2q3r/1p2kp2/4b2p/pB2Q3/4Nn2/2P4P/P1K2P2/R6R w - - 1 24";
@@ -44,11 +44,12 @@ int main(void)
     // char fen13[100] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
     // char fen[100] = "r3k2r/ppp1pp1p/2q2np1/bb6/1n1pP3/1Q5B/PPPP1PPP/RNB1K1NR b KQkq e3 0 2";
     // char fen14[100] = "8/1k4P1/8/8/8/8/8/2K5 w - - 0 1";
+    char fen15[100] = "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2";
 
     Position_t position, best_move;
-    fen_to_board(fen1, &position);
+    fen_to_board(fen15, &position);
     print_position(&position);
-    find_best_move(&position, &best_move, 3);
+    find_best_move(&position, &best_move, 1);
     printf("Best move found:\n");
     print_position(&best_move);
 
@@ -56,9 +57,30 @@ int main(void)
     determine_move_notation(&position, &best_move, move_notation);
     printf("Best move notation: %s\n", move_notation);
 
-    strcpy(move_notation, "e4");
+    strcpy(move_notation, "Qf3");
     printf("Making move from notation: %s\n", move_notation);
-    make_move_from_notation(move_notation, &position, &best_move);
+    Position_t move_position;
+    make_move_from_notation(move_notation, &position, &move_position);
+    print_position(&move_position);
+
+    fen_to_board(fen8, &position);
+    while (1) {
+        printf("Enter move notation (or 'exit' to quit): ");
+        fgets(move_notation, sizeof(move_notation), stdin);
+        move_notation[strcspn(move_notation, "\n")] = 0; // Remove newline character
+
+        if (strcmp(move_notation, "exit") == 0) {
+            break;
+        }
+        make_move_from_notation(move_notation, &position, &move_position);
+        position = move_position;
+        print_position(&position);
+        find_best_move(&position, &move_position, 5);
+        position = move_position;
+        print_position(&position);
+
+    }
+
 
     // char* san_move = "Kxb1";
     // make_move_from_notation(san_move, &position, &best_move);
