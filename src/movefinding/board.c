@@ -141,7 +141,7 @@ void print_position(Position_t* position)
         }
         printf("%c ", mailboxes[i]);
     }
-    printf("\n\n%d  a b c d e f g h\n", position->white_to_move);
+    printf("\n\n%d   a b c d e f g h\n", position->white_to_move);
 
     printf("\n");
     printf("score: %ld\n", evaluate_position(position));
