@@ -7,8 +7,6 @@
 
 #include "board.h"
 #include "../search/evaluate.h"
-#include "movefinder.h"
-#include "memory.h"
 
 char *pretty_print_moves[64] =
     {
@@ -74,6 +72,7 @@ void print_bitboard(uint64_t bitboard)
 
 void print_position(Position_t* position)
 {
+    printf("\n");
     char mailboxes[64] = {0};
     PiecesOneColour_t white_pieces = position->pieces[WHITE_INDEX];
     PiecesOneColour_t black_pieces = position->pieces[!WHITE_INDEX];
@@ -142,10 +141,10 @@ void print_position(Position_t* position)
         }
         printf("%c ", mailboxes[i]);
     }
-    printf("\n\n    a b c d e f g h\n");
+    printf("\n\n%d  a b c d e f g h\n", position->white_to_move);
 
     printf("\n");
-    printf("score: %ld, white turn: %d\n", evaluate_position(position), position->white_to_move);
+    printf("score: %ld\n", evaluate_position(position));
     printf("\n");
 }
 

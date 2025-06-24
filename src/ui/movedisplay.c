@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "board.h"
-#include "movefinder.h"
+#include "../movefinding/board.h"
+#include "../movefinding/movefinder.h"
 
 // rank and file masks - the entire rank or file at the given index
 static ULL rank_row_masks[8] = {

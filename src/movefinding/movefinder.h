@@ -86,8 +86,17 @@ void depth_move_finder(Position_t* position, uint8_t depth);
 uint64_t get_num_new_positions(void);
 
 /**
-* @brief Clears the children count for the given position.
+* @brief Clears the grandchildren count for the given position.
 * This resets the number of children to 0 for all child positions.
+*
+* @param position The position to clear the grandchildren count for.
+*/
+void clear_grandchildren_count(Position_t *position);
+
+
+/**
+* @brief Clears the children count for the given position.
+* This resets the number of children to 0 for the position itself.
 *
 * @param position The position to clear the children count for.
 */

@@ -19,10 +19,11 @@
 #include <stdbool.h>
 
 #define MAX_CHILDREN 100
+#define FEN_LENGTH 100
 
 #define WHITE_INDEX 1
 
-#define DEBUG 1
+#define DEBUG 0
 #define SAFE 0 // safe alerts if custom memory pool has been exhausted
 
 #define ULL unsigned long long

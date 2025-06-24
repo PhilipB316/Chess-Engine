@@ -21,7 +21,8 @@
  * @param position The current position to evaluate.
  * @param best_move The position to store the best move found.
  * @param depth The maximum depth to search.
+ * @return Whether the position is checkmate or not.
  */
-void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth);
+uint8_t find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth);
 
 #endif // SEARCH_H

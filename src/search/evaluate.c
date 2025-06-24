@@ -1,7 +1,6 @@
 // evaluate.c
 
 #include <stdint.h>
-#include <stdio.h>
 
 #include "../movefinding/board.h"
 #include "../movefinding/lookuptables.h"

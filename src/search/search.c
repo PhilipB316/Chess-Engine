@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <sys/types.h>
 #include <time.h>
 
 #include "search.h"
@@ -11,11 +12,13 @@
 
 static ULL nodes_analysed = 0;
 static uint64_t moves_generated = 0;
+static int64_t best_eval = 0;
+static double time_spent = 0.0;
 
 void sort_children(Position_t* postion, uint8_t depth);
 int64_t negamax(Position_t* position, uint8_t depth, int64_t alpha, int64_t beta);
 
-int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_t depth)
+int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_t depth, bool* success)
 {
     Position_t* best_move = NULL;
     int64_t alpha = -INT64_MAX;
@@ -48,13 +51,14 @@ int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_
     // If no best move was found, return the original position
     if (best_move == NULL)
     {
-        printf("No best move found!\n");
+        *success = false;
         *return_best_move = *position;
         free_children_memory(position);
         return 0;
     }
 
     *return_best_move = *best_move;
+    *success = true;
     free_children_memory(position);
     return best_eval;
 }
@@ -114,18 +118,30 @@ void sort_children(Position_t* position, uint8_t depth)
         evals[j + 1] = key_eval;
         position->child_positions[j + 1] = key_pos;
     }
-    clear_children_count(position);
+    clear_grandchildren_count(position);
 }
 
-void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth)
+uint8_t find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth)
 {
     clock_t start_time = clock();
     nodes_analysed = 0;
     moves_generated = 0;
-    int64_t best_eval = negamax_start(position, return_best_move, depth);
-    clock_t end_time = clock();
-    double time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    bool success = false;
 
+    while (!success && depth > 2)
+    {
+        best_eval = negamax_start(position, return_best_move, depth, &success);
+        clear_children_count(position);
+        depth--;
+    }
+
+    clock_t end_time = clock();
+    time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    return success;
+}
+
+void print_stats(void)
+{
     printf("+-------------------------------------------+\n");
     printf("| %-24s | %14llu |\n", "Nodes analysed", nodes_analysed);
     printf("| %-24s | %14lu |\n", "Moves generated", moves_generated);
@@ -134,4 +150,3 @@ void find_best_move(Position_t* position, Position_t* return_best_move, uint8_t 
     printf("| %-24s | %14.2f |\n", "Time spent (seconds)", time_spent);
     printf("+-------------------------------------------+\n\n");
 }
-

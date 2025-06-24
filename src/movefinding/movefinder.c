@@ -424,12 +424,17 @@ void free_depth_memory(Position_t* position, uint8_t depth)
     custom_free();
 }
 
-void clear_children_count(Position_t *position)
+void clear_grandchildren_count(Position_t *position)
 {
     for (uint16_t i = 0; i < position->num_children; i++)
     {
         position->child_positions[i]->num_children = 0;
     }
+}
+
+void clear_children_count(Position_t *position)
+{
+    position->num_children = 0;
 }
 
 
@@ -555,8 +560,15 @@ void make_notation_move(Position_t *old_position,
     PiecesOneColour_t *active_pieces_set = &new_position->pieces[white_to_move];
     PiecesOneColour_t *opponent_pieces_set = &new_position->pieces[!white_to_move];
 
+    if (piece == CASTLE_KINGSIDE || piece == CASTLE_QUEENSIDE)
+    {
+        // Castling moves require special handling
+        from_square_bitboard = active_pieces_set->kings;
+        move_bitboard = king_castling_array[white_to_move][piece == CASTLE_KINGSIDE ? KINGSIDE : QUEENSIDE] | from_square_bitboard;
+        to_square_bitboard = move_bitboard & ~from_square_bitboard; // Get the new king position
+
+    }
     // --- updating the general position ---
-    //
     new_position->all_pieces &= ~from_square_bitboard;
     new_position->all_pieces |= to_square_bitboard;
     new_position->white_to_move = !white_to_move;
@@ -593,6 +605,10 @@ void make_notation_move(Position_t *old_position,
             active_pieces_set->castle_queenside = false;
             break;
         case CASTLE_KINGSIDE:
+            move_bitboard = king_castling_array[white_to_move][KINGSIDE] | from_square_bitboard;
+            printf("castling kingside\n");
+            print_bitboard(move_bitboard);
+
             active_pieces_set->kings ^= move_bitboard;
             active_pieces_set->rooks ^= rook_castling_array[white_to_move][KINGSIDE];
             new_position->all_pieces ^= rook_castling_array[white_to_move][KINGSIDE];
@@ -600,6 +616,7 @@ void make_notation_move(Position_t *old_position,
             active_pieces_set->castle_queenside = false;
             break;
         case CASTLE_QUEENSIDE:
+            move_bitboard = king_castling_array[white_to_move][QUEENSIDE] | from_square_bitboard;
             active_pieces_set->kings ^= move_bitboard;
             active_pieces_set->rooks ^= rook_castling_array[white_to_move][QUEENSIDE];
             new_position->all_pieces ^= rook_castling_array[white_to_move][QUEENSIDE];

@@ -12,9 +12,10 @@ file(GLOB MAIN
     "./src/movefinding/lookuptables.c"
     "./src/movefinding/board.c"
     "./src/movefinding/memory.c"
-    "./src/movefinding/movedisplay.c"
     "./src/search/search.c"
     "./src/search/evaluate.c"
+    "./src/ui/movedisplay.c"
+    "./src/ui/ui.c"
     )
 add_compile_options(-Wall -Wextra -Wpedantic -O3)
 

@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "board.h"
+#include "../movefinding/board.h"
 
 /**
  * @brief Determines the move notation for a move from old_position to new_position.
