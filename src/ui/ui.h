@@ -14,6 +14,25 @@
 
 #define MOVE_LENGTH 10
 
+#define COLOUR_BOLD "\e[1m"
+#define COLOUR_RESET "\e[m"
+
+/**
+ * @brief Initializes the user interface.
+ * 
+ * This function sets up the user interface for the chess engine, preparing it for interaction.
+ */
+void ui_init(void);
+
+/**
+ * @brief Prints the board position in ascii format.
+ * 
+ * Includes ranks and files labels for better readability.
+ * 
+ * @param position The position to be printed.
+ */
+void print_position(Position_t* position);
+
 /**
  * @brief Makes a move from command line input.
  * 

@@ -29,7 +29,8 @@ int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_
     set_half_move_count(position->half_move_count); 
     // depth move search one depth (generate single layer children)
     move_finder(position);
-    sort_children(position, 4);
+    sort_children(position, 3);
+    sort_children(position, 5);
 
     for (uint16_t i = 0; i < position->num_children; i++)
     {

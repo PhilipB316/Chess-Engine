@@ -7,6 +7,7 @@
 
 #include "board.h"
 #include "../search/evaluate.h"
+#include "../ui/ui.h"
 
 char *pretty_print_moves[64] =
     {
@@ -70,83 +71,6 @@ void print_bitboard(uint64_t bitboard)
     printf("\n\n    a b c d e f g h\n\n");
 }
 
-void print_position(Position_t* position)
-{
-    printf("\n");
-    char mailboxes[64] = {0};
-    PiecesOneColour_t white_pieces = position->pieces[WHITE_INDEX];
-    PiecesOneColour_t black_pieces = position->pieces[!WHITE_INDEX];
-
-    for (uint8_t i = 0; i < 64; i++)
-    {
-        if (white_pieces.pawns & (1ULL << i))
-        {
-            mailboxes[i] = 'P';
-        }
-        else if (white_pieces.knights & (1ULL << i))
-        {
-            mailboxes[i] = 'N';
-        }
-        else if (white_pieces.bishops & (1ULL << i))
-        {
-            mailboxes[i] = 'B';
-        }
-        else if (white_pieces.rooks & (1ULL << i))
-        {
-            mailboxes[i] = 'R';
-        }
-        else if (white_pieces.queens & (1ULL << i))
-        {
-            mailboxes[i] = 'Q';
-        }
-        else if (white_pieces.kings & (1ULL << i))
-        {
-            mailboxes[i] = 'K';
-        }
-        else if (black_pieces.pawns & (1ULL << i))
-        {
-            mailboxes[i] = 'p';
-        }
-        else if (black_pieces.knights & (1ULL << i))
-        {
-            mailboxes[i] = 'n';
-        }
-        else if (black_pieces.bishops & (1ULL << i))
-        {
-            mailboxes[i] = 'b';
-        }
-        else if (black_pieces.rooks & (1ULL << i))
-        {
-            mailboxes[i] = 'r';
-        }
-        else if (black_pieces.queens & (1ULL << i))
-        {
-            mailboxes[i] = 'q';
-        }
-        else if (black_pieces.kings & (1ULL << i))
-        {
-            mailboxes[i] = 'k';
-        }
-        else
-        {
-            mailboxes[i] = '.';
-        }
-    }
-
-    for (uint8_t i = 0; i < 64; i++)
-    {
-        if (i % 8 == 0)
-        {
-            printf("\n%d   ", 8 - i / 8);
-        }
-        printf("%c ", mailboxes[i]);
-    }
-    printf("\n\n%d   a b c d e f g h\n", position->white_to_move);
-
-    printf("\n");
-    printf("score: %ld\n", evaluate_position(position));
-    printf("\n");
-}
 
 void fen_to_board(char *fen, Position_t *fen_position)
 {

@@ -270,6 +270,14 @@ void generate_lookup_tables(void)
     castling_blocker_masks[1][1] = 1ULL << 57 | 1ULL << 58 | 1ULL << 59;
 }
 
+uint16_t random(void)
+{
+    // This function should return a random number.
+    // For simplicity, we can use rand() from stdlib.h.
+    // In a real chess engine, you might want to use a better random number generator.
+    return rand() % 65536; // Return a random number between 0 and 65535
+}
+
 /**
  * @brief Generates a random unsigned long long integer.
  *

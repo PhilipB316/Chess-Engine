@@ -606,8 +606,6 @@ void make_notation_move(Position_t *old_position,
             break;
         case CASTLE_KINGSIDE:
             move_bitboard = king_castling_array[white_to_move][KINGSIDE] | from_square_bitboard;
-            printf("castling kingside\n");
-            print_bitboard(move_bitboard);
 
             active_pieces_set->kings ^= move_bitboard;
             active_pieces_set->rooks ^= rook_castling_array[white_to_move][KINGSIDE];

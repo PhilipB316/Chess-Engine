@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
@@ -19,10 +20,13 @@
     * - implement quiescence search
 */
 
+uint8_t play_game(Position_t* position);
+
 int main(void)
 {
     custom_memory_init();
     move_finder_init();
+    ui_init();
 
     print_name();
     print_welcome_message();
@@ -41,29 +45,43 @@ int main(void)
     // char fen13[FEN_LENGTH] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
     // char fen[FEN_LENGTH] = "1k5R/6R1/8/8/8/3K4/8/8 b - - 0 1";
     // char fen14[FEN_LENGTH] = "1k6/6R1/7R/8/8/3K4/8/8 b - - 0 1";
-    // char fen15[FEN_LENGTH] = "1k6/8/7R/6R1/8/3K4/8/8 b - - 0 1";
+    // char fen15[FEN_LENGTH] = "rn2kbnr/1pB1pppp/p7/8/2qP4/5B2/PPP2PPP/R2QR1K1 w kq - 0 1";
 
     char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-    Position_t position, move_position;
-    //
-    // fen_to_board(fen, &position);
-    // print_position(&position);
-    // uint8_t success = find_best_move(&position, &move_position, 7);
-    // print_position(&move_position);
+    Position_t position;
 
     fen_to_board(new, &position);
     print_position(&position);
-    while (make_move_from_cli(&position, &move_position)) {
-        position = move_position;
-        print_position(&position);
-        find_best_move(&position, &move_position, 7);
-        position = move_position;
-        print_position(&position);
-        clear_children_count(&position);
+    // find_best_move(&position, &best_move, 7);
+    // print_position(&best_move);
+    while (1)
+    {
+        if (!play_game(&position)) {
+            break; // Exit the game loop if no valid move is made or user chooses to exit
+        }
     }
     check_memory_leak();
     custom_memory_deinit();
+}
+
+uint8_t play_game(Position_t* position)
+{
+    Position_t move_position;
+    bool outcome = make_move_from_cli(position, &move_position);
+    if (!outcome) {
+        return 0; // User chose to exit
+    }
+    *position = move_position;
+    print_position(position);
+    outcome = find_best_move(position, &move_position, 7);
+    if (!outcome) {
+        printf("Checkmate or stalemate reached.\n");
+        return 0; // No valid moves found
+    }
+    *position = move_position;
+    print_position(position);
+    return 1;
 }
 
 // char* san_move = "Kxb1";

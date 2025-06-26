@@ -74,15 +74,6 @@ typedef struct Position_t
 void print_bitboard(uint64_t bitboard);
 
 /**
- * @brief Prints the board position in ascii format.
- * 
- * Includes ranks and files labels for better readability.
- * 
- * @param position The position to be printed.
- */
-void print_position(Position_t* position);
-
-/**
  * @brief Converts a FEN string to a position, represented as bitboards.
  *
  * Includes castling rights, en passant square, piece values, and side to move.

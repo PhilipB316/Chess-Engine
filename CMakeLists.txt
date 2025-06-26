@@ -17,6 +17,6 @@ file(GLOB MAIN
     "./src/ui/movedisplay.c"
     "./src/ui/ui.c"
     )
-add_compile_options(-Wall -Wextra -Wpedantic -O3)
+add_compile_options(-Wall -Wextra -O3 -std=c17)
 
 add_executable(executable ${MAIN})
