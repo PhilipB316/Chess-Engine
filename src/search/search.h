@@ -25,4 +25,11 @@
  */
 uint8_t find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth);
 
+
+
+/**
+ * @brief Prints the statistics of the search.
+ */
+void print_stats(void);
+
 #endif // SEARCH_H

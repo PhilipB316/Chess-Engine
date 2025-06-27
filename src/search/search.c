@@ -10,6 +10,8 @@
 #include "../movefinding/board.h"
 #include "../movefinding/movefinder.h"
 
+#include "../movefinding/memory.h"
+
 static ULL nodes_analysed = 0;
 static uint64_t moves_generated = 0;
 static int64_t best_eval = 0;
@@ -18,19 +20,16 @@ static double time_spent = 0.0;
 void sort_children(Position_t* postion, uint8_t depth);
 int64_t negamax(Position_t* position, uint8_t depth, int64_t alpha, int64_t beta);
 
-int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_t depth, bool* success)
+int64_t negamax_start(Position_t* position, 
+                      Position_t* return_best_move,
+                      uint8_t depth,
+                      bool* success,
+                      int64_t* child_evals)
 {
     Position_t* best_move = NULL;
     int64_t alpha = -INT64_MAX;
     int64_t beta = INT64_MAX;
     int64_t best_eval = -INT64_MAX;
-    // set half-move count for as current, rather than use the one from the position
-    // as this will be dependent on the depth of the search
-    set_half_move_count(position->half_move_count); 
-    // depth move search one depth (generate single layer children)
-    move_finder(position);
-    sort_children(position, 3);
-    sort_children(position, 5);
 
     for (uint16_t i = 0; i < position->num_children; i++)
     {
@@ -38,14 +37,12 @@ int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_
         fflush(stdout);
         Position_t* child = position->child_positions[i];
         int64_t eval = -negamax(child, depth - 1, -beta, -alpha);
+        child_evals[i] = eval;
         if (eval > best_eval)
         {
             best_eval = eval;
             best_move = child;
-            if (best_eval > alpha)
-            {
-                alpha = best_eval;
-            }
+            if (eval > alpha) { alpha = eval; }
         }
     }
 
@@ -54,13 +51,11 @@ int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_
     {
         *success = false;
         *return_best_move = *position;
-        free_children_memory(position);
         return 0;
     }
 
     *return_best_move = *best_move;
     *success = true;
-    free_children_memory(position);
     return best_eval;
 }
 
@@ -129,12 +124,18 @@ uint8_t find_best_move(Position_t* position, Position_t* return_best_move, uint8
     moves_generated = 0;
     bool success = false;
 
-    while (!success && depth > 2)
-    {
-        best_eval = negamax_start(position, return_best_move, depth, &success);
-        clear_children_count(position);
-        depth--;
-    }
+    int64_t child_evals[MAX_CHILDREN];
+
+    move_finder(position);
+
+    printf("ONCE\n\n");
+    best_eval = negamax_start(position, return_best_move, 2, &success, child_evals);
+    printf("\n\n");
+    printf("TWICE");
+    printf("\n\n");
+    best_eval = negamax_start(position, return_best_move, 2, &success, child_evals);
+
+    free_children_memory(position);
 
     clock_t end_time = clock();
     time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;

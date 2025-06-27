@@ -73,6 +73,7 @@ uint8_t play_game(Position_t* position)
     *position = move_position;
     print_position(position);
     outcome = find_best_move(position, &move_position, 7);
+    print_stats();
     if (!outcome) {
         printf("Checkmate or stalemate reached.\n");
         return 0; // No valid moves found
