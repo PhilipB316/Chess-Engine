@@ -259,7 +259,7 @@ ULL determine_from_square_bitboard(Position_t *position,
                 }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
-            break;
+            return 0; // No valid from square found for pawn
 
         case PIECE_KNIGHT:
             relevant_bitboard = position->pieces[white_to_move].knights & disambiguation_mask;
@@ -271,7 +271,7 @@ ULL determine_from_square_bitboard(Position_t *position,
                 }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
-            break;
+            return 0; // No valid from square found for knight
 
         case PIECE_BISHOP:
             relevant_bitboard = position->pieces[white_to_move].bishops & disambiguation_mask;
@@ -283,7 +283,7 @@ ULL determine_from_square_bitboard(Position_t *position,
                 }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
-            break;
+            return 0; // No valid from square found for bishop
 
         case PIECE_ROOK:
             relevant_bitboard = position->pieces[white_to_move].rooks & disambiguation_mask;
@@ -295,7 +295,7 @@ ULL determine_from_square_bitboard(Position_t *position,
                 }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
-            break;
+            return 0; // No valid from square found for rook
 
         case PIECE_QUEEN:
             relevant_bitboard = position->pieces[white_to_move].queens & disambiguation_mask;
@@ -307,11 +307,16 @@ ULL determine_from_square_bitboard(Position_t *position,
                 }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
-            break;
+            return 0; // No valid from square found for queen
 
         case PIECE_KING:
-            // since there is only only one king it must be the only piece on the board
-            return position->pieces[white_to_move].kings;
+            relevant_bitboard = position->pieces[white_to_move].kings & disambiguation_mask;
+            from_square = __builtin_ctzll(relevant_bitboard);
+            ULL king_moves = find_king_moves(position, from_square);
+            if (king_moves & (1ULL << to_square)) {
+                return 1ULL << from_square;
+            }
+            return 0;
     }
     return 0; // No valid from square found
 }
@@ -331,6 +336,10 @@ int make_move_from_notation(char *move_notation, Position_t *source, Position_t 
         return 0; // Invalid move notation
     }
     ULL from_square_bitboard = determine_from_square_bitboard(source, move_type, to_square, disambiguation);
+    if (from_square_bitboard == 0) {
+        fprintf(stderr, "This move is illegal: %s\n", move_notation);
+        return 0; // No valid from square found
+    }
     ULL to_square_bitboard = 1ULL << to_square;
     make_notation_move(source, destination, move_type, to_square_bitboard, from_square_bitboard, special_flags);
     return 1; // Move successfully made

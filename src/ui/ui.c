@@ -26,7 +26,14 @@ uint8_t make_move_from_cli(Position_t *position, Position_t *move_position)
     move_notation[strcspn(move_notation, "\n")] = 0; // Remove newline character
 
     if (!(strcmp(move_notation, "exit") == 0)) {
-        make_move_from_notation(move_notation, position, move_position);
+
+        while (!make_move_from_notation(move_notation, position, move_position)) {
+            printf("Invalid move notation. Please try again: ");
+            if (fgets(move_notation, MOVE_LENGTH, stdin) == NULL) {
+                // Handle error or end-of-file
+            }
+            move_notation[strcspn(move_notation, "\n")] = 0; // Remove newline character
+        }
         return 1;
     }
     return 0;

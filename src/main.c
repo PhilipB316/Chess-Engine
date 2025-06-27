@@ -12,9 +12,7 @@
 
 /**
     * TODO:
-    * - thoroughly test move display
     * - display principal variation
-    * - take move input from user
     * - implement multi-threading
     * - improve position evaluation
     * - implement quiescence search
@@ -45,7 +43,7 @@ int main(void)
     // char fen13[FEN_LENGTH] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
     // char fen[FEN_LENGTH] = "1k5R/6R1/8/8/8/3K4/8/8 b - - 0 1";
     // char fen14[FEN_LENGTH] = "1k6/6R1/7R/8/8/3K4/8/8 b - - 0 1";
-    // char fen15[FEN_LENGTH] = "rn2kbnr/1pB1pppp/p7/8/2qP4/5B2/PPP2PPP/R2QR1K1 w kq - 0 1";
+    char fen15[FEN_LENGTH] = "rnbk1bnr/1p4pp/2q2p2/pN1pB1N1/8/4PP2/PPP3PP/R2QKB1R w KQ - 0 13";
 
     char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
