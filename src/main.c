@@ -101,3 +101,7 @@ uint8_t play_game(Position_t* position)
 // san_move = "bxc6";
 // make_move_from_notation(san_move, &position, &best_move);
 
+
+/**
+ * e4, Qf3, Nh3, Bd3, 0-0, Nc3, Qe3, fxe3, cxd3, b3, d4, Nf2, exd4, Re1, a3, axb4
+*/
