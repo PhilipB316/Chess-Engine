@@ -26,7 +26,7 @@ int main(void)
     // char fen1[FEN_LENGTH] = "r2qkb1r/p1pp1p1p/bpn2n1B/3Pp1p1/3p4/2N1PNPB/PPPQ1P1P/R3K2R w KQkq e6 0 10";
     // char fen2[FEN_LENGTH] = "r3kb1r/pp1npppp/2p2n2/q2p2B1/2PP2b1/2N2P2/PPQ1P1PP/R3KBNR w KQkq - 3 15";
     // char fen3[FEN_LENGTH] = "rnb1kbnr/pppppppp/8/8/8/4P3/PPPP1PPP/R3K2R w KQkq - 0 1";
-    char fen4[FEN_LENGTH] = "4k3/2p2p2/1p4r1/6P1/7P/1P6/3K4/8 w - - 0 1";
+    // char fen4[FEN_LENGTH] = "4k3/2p2p2/1p4r1/6P1/7P/1P6/3K4/8 w - - 0 1";
     // char fen5[FEN_LENGTH] = "k4q2/6P1/8/8/8/8/8/7K w - - 0 1";
     // char fen6[FEN_LENGTH] = "1k6/8/2p5/3Pp3/8/8/8/2K5 w - e6 0 2";
     // char fen7[FEN_LENGTH] = "6k1/8/4r3/6r1/6b1/5rr1/8/R3K2R w - - 0 1";
@@ -37,7 +37,7 @@ int main(void)
     // char fen13[FEN_LENGTH] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
     // char fen[FEN_LENGTH] = "1k5R/6R1/8/8/8/3K4/8/8 b - - 0 1";
     // char fen14[FEN_LENGTH] = "1k6/6R1/7R/8/8/3K4/8/8 b - - 0 1";
-    char fen15[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/4PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1";
+    // char fen15[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/4PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1";
 
     char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -49,7 +49,7 @@ int main(void)
     print_name();
     print_welcome_message();
     set_search_time(&max_search_time);
-    fen_to_board(fen15, &position);
+    fen_to_board(new, &position);
     print_position(&position);
 
     while (1)

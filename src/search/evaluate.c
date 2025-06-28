@@ -32,8 +32,8 @@ KingStatus_t determine_king_status(Position_t* position)
         position->child_positions[i]->white_to_move = position->white_to_move; // Switch to opponent's perspective
         if (is_check(position->child_positions[i])) { check_count++; }
     }
-    clear_children_count(position);
     free_children_memory(position);
+    clear_children_count(position);
 
     if (check_count == num_children) {
         if (is_check(position)) { return CHECKMATE; } 
