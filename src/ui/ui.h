@@ -27,8 +27,6 @@ void ui_init(void);
 /**
  * @brief Prints the board position in ascii format.
  * 
- * Includes ranks and files labels for better readability.
- * 
  * @param position The position to be printed.
  */
 void print_position(Position_t* position);
@@ -41,11 +39,18 @@ void print_position(Position_t* position);
  * 
  * @param position Pointer to the current position.
  * @param move_position Pointer to the position where the move will be applied.
- * @return 1 if a move was made, 0 if the user chose to exit.
  */
-uint8_t make_move_from_cli(Position_t *position, Position_t *move_position);
+void make_move_from_cli(Position_t *position, Position_t *move_position);
 
 /**
+ * @brief Prints the game status based on the current position.
+ * 
+ * @param position Pointer to the current position.
+ * @return 1 if the game has ended, 0 otherwise.
+ */
+bool is_game_ended(Position_t *position);
+
+/*
  * @brief Prints the name and version of the chess engine.
  * 
  * Displays the name, author, and version information of the chess engine.
@@ -58,5 +63,15 @@ void print_name(void);
  * Displays a welcome message and instructions for the user when they start the chess engine.
  */
 void print_welcome_message(void);
+
+/**
+ * @brief Sets the maximum search time for the engine.
+ * 
+ * Prompts the user to enter the maximum search time per move and returns the value.
+ * If the input is invalid, it will prompt again.
+ * 
+ * @param max_search_time Pointer to the variable where the maximum search time will be stored.
+ */
+void set_search_time(uint16_t* max_search_time);
 
 #endif // UI_H

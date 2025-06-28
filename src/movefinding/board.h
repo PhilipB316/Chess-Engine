@@ -59,6 +59,7 @@ typedef struct Position_t
     uint16_t num_children;
     uint16_t half_move_count;
     int64_t piece_value_diff;
+    int64_t evaluation;
     ULL all_pieces;
     ULL en_passant_bitboard;
     struct Position_t* parent_position;

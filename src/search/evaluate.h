@@ -41,6 +41,13 @@
 #define BOX_SQUARES 0x00003C24243C0000
 #define NOT_EDGE_RANKS 0x00FFFFFFFFFFFF00
 
+typedef enum {
+    BORING,
+    CHECK,
+    CHECKMATE,
+    STALEMATE
+} KingStatus_t;
+
 /**
  * @brief Evaluates the position 
  * 
@@ -50,10 +57,19 @@
 int64_t evaluate_position(Position_t* position);
 
 /**
- * @brief Sets the half move count for the position.
- * 
- * @param count The half move count to set
+ * @brief Determines if the position is check.
+ *
+ * @param position The position to check
+ * @return true if the position is check, false otherwise
  */
-void set_half_move_count(uint16_t count);
+bool is_check(Position_t* position);
+
+/**
+ * @brief Determines the status of the king in the position.
+ *
+ * @param position The position to check
+ * @return The status of the king (CHECK, CHECKMATE, STALEMATE, or BORING)
+ */
+KingStatus_t determine_king_status(Position_t* position);
 
 #endif // EVALUATE_H

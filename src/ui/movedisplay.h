@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 #include "../movefinding/board.h"
+#include "../movefinding/movefinder.h"
 
 /**
  * @brief Determines the move notation for a move from old_position to new_position.
@@ -25,13 +26,37 @@
 void determine_move_notation(Position_t *old_position, Position_t *new_position, char *move_notation);
 
 /**
- * @brief Makes a move from the given notation in the source position and updates the destination position.
+ * @brief Determines the from square bitboard for a given move type and destination square.
+ *
+ * @param position The current position.
+ * @param move_type The type of the move (e.g., PAWN, KNIGHT, etc.).
+ * @param to_square The destination square index (0-63).
+ * @param disambiguation The disambiguation string (e.g., file or rank).
+ * @return A bitboard representing the from square for the move.
+ */
+ULL determine_from_square_bitboard(Position_t *position,
+                                   MoveType_t move_type,
+                                   uint8_t to_square,
+                                   char *disambiguation);
+
+/**
+ * @brief Parses a move notation string and extracts the move type, destination square,
+ * disambiguation, and whether it is a capture.
  *
  * @param move_notation The move notation string (e.g., "e4", "Nf3", "Bb5+", "O-O").
- * @param source The source position from which the move is made.
- * @param destination The destination position to update after the move.
- * @return 1 if the move was successfully made, 0 if the move notation was invalid.
+ * @param move_type Pointer to store the type of the move (e.g., PAWN, KNIGHT, etc.).
+ * @param to_square Pointer to store the destination square index (0-63).
+ * @param disambiguation Pointer to store any disambiguation characters (e.g., file or rank).
+ * @param is_capture Pointer to store whether the move is a capture.
+ * @param position Pointer to the current position to check for en passant and double push
  */
-int make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination);
+int parse_move_notation(char *move_notation,
+                        MoveType_t *move_type,
+                        uint8_t* to_square,
+                        char *disambiguation,
+                        bool *is_capture,
+                        Position_t *position,
+                        ULL* special_flags);
 
 #endif // MOVEDISPLAY_H
+

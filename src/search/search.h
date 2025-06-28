@@ -9,6 +9,7 @@
 #define SEARCH_H
 
 #include <stdint.h>
+#include <time.h>
 
 #include "../movefinding/board.h"
 
@@ -20,11 +21,13 @@
  * 
  * @param position The current position to evaluate.
  * @param best_move The position to store the best move found.
- * @param depth The maximum depth to search.
- * @return Whether the position is checkmate or not.
+ * @param max_depth The maximum depth to search.
+ * @param max_time The maximum time allowed for the search.
  */
-uint8_t find_best_move(Position_t* position, Position_t* return_best_move, uint8_t depth);
-
+void find_best_move(Position_t* position, 
+                       Position_t* return_best_move, 
+                       uint8_t max_depth,
+                       clock_t max_time);
 
 
 /**

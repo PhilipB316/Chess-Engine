@@ -11,9 +11,6 @@
 #include "memory.h"
 #include "../search/evaluate.h"
 
-#define KINGSIDE 0
-#define QUEENSIDE 1
-
 static uint64_t num_new_positions = 0;
 
 Position_t *POSITION;
@@ -51,105 +48,94 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
         // --- updating the moved piece ---
         switch (piece)
         {
-        case PAWN:
-            active_pieces_set->pawns ^= move_bitboard;
-            break;
-        case KNIGHT:
-            active_pieces_set->knights ^= move_bitboard;
-            break;
-        case BISHOP:
-            active_pieces_set->bishops ^= move_bitboard;
-            break;
-        case ROOK:
-            active_pieces_set->rooks ^= move_bitboard;
-            break;
-        case DOUBLE_PUSH:
-            active_pieces_set->pawns ^= move_bitboard;
-            new_position->en_passant_bitboard = special_flags;
-            break;
-        case QUEEN:
-            active_pieces_set->queens ^= move_bitboard;
-            break;
-        case KING:
-            active_pieces_set->kings ^= move_bitboard;
-            active_pieces_set->castle_kingside = false;
-            active_pieces_set->castle_queenside = false;
-            break;
-        case CASTLE_KINGSIDE:
-            active_pieces_set->kings ^= move_bitboard;
-            active_pieces_set->rooks ^= rook_castling_array[WHITE_TO_MOVE][KINGSIDE];
-            new_position->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][KINGSIDE];
-            active_pieces_set->castle_kingside = false;
-            active_pieces_set->castle_queenside = false;
-            break;
-        case CASTLE_QUEENSIDE:
-            active_pieces_set->kings ^= move_bitboard;
-            active_pieces_set->rooks ^= rook_castling_array[WHITE_TO_MOVE][QUEENSIDE];
-            new_position->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][QUEENSIDE];
-            active_pieces_set->castle_kingside = false;
-            active_pieces_set->castle_queenside = false;
-            break;
-        case EN_PASSANT_CAPTURE:
-            active_pieces_set->pawns ^= move_bitboard;
-            // remove the captured pawn
-            opponent_pieces_set->pawns ^= special_flags;
-            opponent_pieces_set->all_pieces ^= special_flags;
-            new_position->all_pieces ^= special_flags;
-            new_position->piece_value_diff += PIECE_COLOUR * PAWN_VALUE;
-            break;
-        case PROMOTE_QUEEN:
-            active_pieces_set->pawns &= ~from_square_bitboard;
-            active_pieces_set->queens |= to_square_bitboard;
-            new_position->piece_value_diff += PIECE_COLOUR * (QUEEN_VALUE - PAWN_VALUE);
-            break;
-        case PROMOTE_ROOK:
-            active_pieces_set->pawns &= ~from_square_bitboard;
-            active_pieces_set->rooks |= to_square_bitboard;
-            new_position->piece_value_diff += PIECE_COLOUR * (ROOK_VALUE - PAWN_VALUE);
-            break;
-        case PROMOTE_BISHOP:
-            active_pieces_set->pawns &= ~from_square_bitboard;
-            active_pieces_set->bishops |= to_square_bitboard;
-            new_position->piece_value_diff += PIECE_COLOUR * (BISHOP_VALUE - PAWN_VALUE);
-            break;
-        case PROMOTE_KNIGHT:
-            active_pieces_set->pawns &= ~from_square_bitboard;
-            active_pieces_set->knights |= to_square_bitboard;
-            new_position->piece_value_diff += PIECE_COLOUR * (KNIGHT_VALUE - PAWN_VALUE);
-            break;
+            case PAWN:
+                active_pieces_set->pawns ^= move_bitboard;
+                break;
+            case KNIGHT:
+                active_pieces_set->knights ^= move_bitboard;
+                break;
+            case BISHOP:
+                active_pieces_set->bishops ^= move_bitboard;
+                break;
+            case ROOK:
+                active_pieces_set->rooks ^= move_bitboard;
+                break;
+            case DOUBLE_PUSH:
+                active_pieces_set->pawns ^= move_bitboard;
+                new_position->en_passant_bitboard = special_flags;
+                break;
+            case QUEEN:
+                active_pieces_set->queens ^= move_bitboard;
+                break;
+            case KING:
+                active_pieces_set->kings ^= move_bitboard;
+                active_pieces_set->castle_kingside = false;
+                active_pieces_set->castle_queenside = false;
+                break;
+            case CASTLE_KINGSIDE:
+                active_pieces_set->kings ^= move_bitboard;
+                active_pieces_set->rooks ^= rook_castling_array[WHITE_TO_MOVE][KINGSIDE];
+                new_position->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][KINGSIDE];
+                active_pieces_set->castle_kingside = false;
+                active_pieces_set->castle_queenside = false;
+                break;
+            case CASTLE_QUEENSIDE:
+                active_pieces_set->kings ^= move_bitboard;
+                active_pieces_set->rooks ^= rook_castling_array[WHITE_TO_MOVE][QUEENSIDE];
+                new_position->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][QUEENSIDE];
+                active_pieces_set->castle_kingside = false;
+                active_pieces_set->castle_queenside = false;
+                break;
+            case EN_PASSANT_CAPTURE:
+                active_pieces_set->pawns ^= move_bitboard;
+                // remove the captured pawn
+                opponent_pieces_set->pawns ^= special_flags;
+                opponent_pieces_set->all_pieces ^= special_flags;
+                new_position->all_pieces ^= special_flags;
+                new_position->piece_value_diff += PIECE_COLOUR * PAWN_VALUE;
+                break;
+            case PROMOTE_QUEEN:
+                active_pieces_set->pawns &= ~from_square_bitboard;
+                active_pieces_set->queens |= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * (QUEEN_VALUE - PAWN_VALUE);
+                break;
+            case PROMOTE_ROOK:
+                active_pieces_set->pawns &= ~from_square_bitboard;
+                active_pieces_set->rooks |= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * (ROOK_VALUE - PAWN_VALUE);
+                break;
+            case PROMOTE_BISHOP:
+                active_pieces_set->pawns &= ~from_square_bitboard;
+                active_pieces_set->bishops |= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * (BISHOP_VALUE - PAWN_VALUE);
+                break;
+            case PROMOTE_KNIGHT:
+                active_pieces_set->pawns &= ~from_square_bitboard;
+                active_pieces_set->knights |= to_square_bitboard;
+                new_position->piece_value_diff += PIECE_COLOUR * (KNIGHT_VALUE - PAWN_VALUE);
+                break;
         }
 
         // --- updating the opponent pieces if captures ---
-        if (opponent_pieces_set->all_pieces & to_square_bitboard)
-        {
+        if (opponent_pieces_set->all_pieces & to_square_bitboard) {
             opponent_pieces_set->all_pieces ^= to_square_bitboard;
-            if (opponent_pieces_set->pawns & to_square_bitboard)
-            {
+
+            if (opponent_pieces_set->pawns & to_square_bitboard) {
                 opponent_pieces_set->pawns ^= to_square_bitboard;
                 new_position->piece_value_diff += PIECE_COLOUR * PAWN_VALUE;
-            }
-            else if (opponent_pieces_set->knights & to_square_bitboard)
-            {
+            } else if (opponent_pieces_set->knights & to_square_bitboard) {
                 opponent_pieces_set->knights ^= to_square_bitboard;
                 new_position->piece_value_diff += PIECE_COLOUR * KNIGHT_VALUE;
-            }
-            else if (opponent_pieces_set->bishops & to_square_bitboard)
-            {
+            } else if (opponent_pieces_set->bishops & to_square_bitboard) {
                 opponent_pieces_set->bishops ^= to_square_bitboard;
                 new_position->piece_value_diff += PIECE_COLOUR * BISHOP_VALUE;
-            }
-            else if (opponent_pieces_set->rooks & to_square_bitboard)
-            {
+            } else if (opponent_pieces_set->rooks & to_square_bitboard) {
                 opponent_pieces_set->rooks ^= to_square_bitboard;
                 new_position->piece_value_diff += PIECE_COLOUR * ROOK_VALUE;
-            }
-            else if (opponent_pieces_set->queens & to_square_bitboard)
-            {
+            } else if (opponent_pieces_set->queens & to_square_bitboard) {
                 opponent_pieces_set->queens ^= to_square_bitboard;
                 new_position->piece_value_diff += PIECE_COLOUR * QUEEN_VALUE;
-            }
-            else
-            {
+            } else {
                 opponent_pieces_set->kings ^= to_square_bitboard;
                 new_position->piece_value_diff += PIECE_COLOUR * KING_VALUE;
             }
@@ -316,6 +302,7 @@ void move_finder(Position_t *position)
 
     // ------------------------------- KING MOVES -------------------------------
     ULL threatened_squares = 0;
+    all_pieces_bitboard ^= king_bitboard; // remove king from all pieces bitboard for attack calculations
     ULL opponent_diagonals_bitboard = opponent_pieces_set->queens | opponent_pieces_set->bishops;
     while (opponent_diagonals_bitboard)
     {
@@ -537,8 +524,9 @@ ULL find_queen_moves(Position_t *position, uint8_t queen_square)
 
 ULL find_king_moves(Position_t *position, uint8_t king_square)
 {
+    bool white_to_move = position->white_to_move;
     (void)position; // Unused parameter, but required for function signature
-    return king_attack_lookup_table[king_square];
+    return king_attack_lookup_table[king_square] | king_castling_array[white_to_move][QUEENSIDE] | king_castling_array[white_to_move][KINGSIDE];
 }
 
 void make_notation_move(Position_t *old_position,
@@ -687,5 +675,4 @@ void make_notation_move(Position_t *old_position,
         }
     }
 }
-
 

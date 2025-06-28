@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "../movefinding/board.h"
+#include "../movefinding/lookuptables.h"
 #include "../movefinding/movefinder.h"
 
 // rank and file masks - the entire rank or file at the given index
@@ -81,6 +82,8 @@ static PieceType_t get_piece_type_from_move_type(MoveType_t move_type) {
         case PROMOTE_BISHOP: return PIECE_PAWN;
         case PROMOTE_KNIGHT: return PIECE_PAWN;
         case DOUBLE_PUSH: return PIECE_PAWN;
+        case CASTLE_KINGSIDE: return PIECE_KING;
+        case CASTLE_QUEENSIDE: return PIECE_KING;
         case EN_PASSANT_CAPTURE: return PIECE_PAWN;
         default: return -1; // Invalid move type
     }
@@ -109,17 +112,6 @@ ULL filter_disambiguation(char *disambiguation)
     return 0; // Invalid disambiguation
 }
 
-/**
- * @brief Parses a move notation string and extracts the move type, destination square,
- * disambiguation, and whether it is a capture.
- *
- * @param move_notation The move notation string (e.g., "e4", "Nf3", "Bb5+", "O-O").
- * @param move_type Pointer to store the type of the move (e.g., PAWN, KNIGHT, etc.).
- * @param to_square Pointer to store the destination square index (0-63).
- * @param disambiguation Pointer to store any disambiguation characters (e.g., file or rank).
- * @param is_capture Pointer to store whether the move is a capture.
- * @param position Pointer to the current position to check for en passant and double push
- */
 int parse_move_notation(char *move_notation, 
                         MoveType_t *move_type,
                         uint8_t* to_square, 
@@ -165,9 +157,11 @@ int parse_move_notation(char *move_notation,
     for (int i = 0; i < length; ++i) {
         if (move_notation[i] == '-') {
             if (length == 3) { *move_type = CASTLE_KINGSIDE;
+                *to_square = __builtin_ctzll(king_castling_array[white_to_move][KINGSIDE]);
                 return 1; // kingside castling
             } else if (length == 5) {
                 *move_type = CASTLE_QUEENSIDE;
+                *to_square = __builtin_ctzll(king_castling_array[white_to_move][QUEENSIDE]);
                 return 1; // queenside castling
             } else {
                 return 0; // Invalid castling notation
@@ -227,15 +221,6 @@ int parse_move_notation(char *move_notation,
     return 0;
 }
 
-/**
- * @brief Determines the from square bitboard for a given move type and destination square.
- *
- * @param position The current position.
- * @param move_type The type of the move (e.g., PAWN, KNIGHT, etc.).
- * @param to_square The destination square index (0-63).
- * @param disambiguation The disambiguation string (e.g., file or rank).
- * @return A bitboard representing the from square for the move.
- */
 ULL determine_from_square_bitboard(Position_t *position, 
                                    MoveType_t move_type, 
                                    uint8_t to_square, 
@@ -254,9 +239,7 @@ ULL determine_from_square_bitboard(Position_t *position,
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL pawn_moves = find_pawn_moves(position, from_square);
-                if (pawn_moves & (1ULL << to_square)) {
-                    return 1ULL << from_square;
-                }
+                if (pawn_moves & (1ULL << to_square)) { return 1ULL << from_square; }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
             return 0; // No valid from square found for pawn
@@ -266,9 +249,7 @@ ULL determine_from_square_bitboard(Position_t *position,
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL knight_moves = find_knight_moves(position, from_square);
-                if (knight_moves & (1ULL << to_square)) {
-                    return 1ULL << from_square;
-                }
+                if (knight_moves & (1ULL << to_square)) { return 1ULL << from_square; }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
             return 0; // No valid from square found for knight
@@ -278,9 +259,7 @@ ULL determine_from_square_bitboard(Position_t *position,
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL bishop_moves = find_bishop_moves(position, from_square);
-                if (bishop_moves & (1ULL << to_square)) {
-                    return 1ULL << from_square;
-                }
+                if (bishop_moves & (1ULL << to_square)) { return 1ULL << from_square; }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
             return 0; // No valid from square found for bishop
@@ -290,9 +269,7 @@ ULL determine_from_square_bitboard(Position_t *position,
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL rook_moves = find_rook_moves(position, from_square);
-                if (rook_moves & (1ULL << to_square)) {
-                    return 1ULL << from_square;
-                }
+                if (rook_moves & (1ULL << to_square)) { return 1ULL << from_square; }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
             return 0; // No valid from square found for rook
@@ -302,48 +279,22 @@ ULL determine_from_square_bitboard(Position_t *position,
             while (relevant_bitboard) {
                 from_square = __builtin_ctzll(relevant_bitboard);
                 ULL queen_moves = find_queen_moves(position, from_square);
-                if (queen_moves & (1ULL << to_square)) {
-                    return 1ULL << from_square;
-                }
+                if (queen_moves & (1ULL << to_square)) { return 1ULL << from_square; }
                 relevant_bitboard &= ~(1ULL << from_square);
             }
             return 0; // No valid from square found for queen
 
         case PIECE_KING:
+
             relevant_bitboard = position->pieces[white_to_move].kings & disambiguation_mask;
             from_square = __builtin_ctzll(relevant_bitboard);
             ULL king_moves = find_king_moves(position, from_square);
-            if (king_moves & (1ULL << to_square)) {
-                return 1ULL << from_square;
-            }
+            if (king_moves & (1ULL << to_square)) { return 1ULL << from_square; }
             return 0;
     }
     return 0; // No valid from square found
 }
 
-
-int make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination) 
-{
-    MoveType_t move_type;
-    uint8_t to_square = 0;
-    char disambiguation[2] = "\0";
-    bool is_capture = false;
-    ULL special_flags = 0;
-
-    bool correct = parse_move_notation(move_notation, &move_type, &to_square, disambiguation, &is_capture, source, &special_flags);
-    if (!correct) {
-        fprintf(stderr, "Invalid move notation: %s\n", move_notation);
-        return 0; // Invalid move notation
-    }
-    ULL from_square_bitboard = determine_from_square_bitboard(source, move_type, to_square, disambiguation);
-    if (from_square_bitboard == 0) {
-        fprintf(stderr, "This move is illegal: %s\n", move_notation);
-        return 0; // No valid from square found
-    }
-    ULL to_square_bitboard = 1ULL << to_square;
-    make_notation_move(source, destination, move_type, to_square_bitboard, from_square_bitboard, special_flags);
-    return 1; // Move successfully made
-}
 
 
 

@@ -2,13 +2,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
 #include "./movefinding/memory.h"
 #include "./search/search.h"
 #include "./ui/ui.h"
+
+static uint16_t max_search_time = 5; // Default search time in seconds
 
 /**
     * TODO:
@@ -22,17 +23,10 @@ uint8_t play_game(Position_t* position);
 
 int main(void)
 {
-    custom_memory_init();
-    move_finder_init();
-    ui_init();
-
-    print_name();
-    print_welcome_message();
-
     // char fen1[FEN_LENGTH] = "r2qkb1r/p1pp1p1p/bpn2n1B/3Pp1p1/3p4/2N1PNPB/PPPQ1P1P/R3K2R w KQkq e6 0 10";
     // char fen2[FEN_LENGTH] = "r3kb1r/pp1npppp/2p2n2/q2p2B1/2PP2b1/2N2P2/PPQ1P1PP/R3KBNR w KQkq - 3 15";
     // char fen3[FEN_LENGTH] = "rnb1kbnr/pppppppp/8/8/8/4P3/PPPP1PPP/R3K2R w KQkq - 0 1";
-    // char fen4[FEN_LENGTH] = "2k5/8/8/4Pp2/8/8/8/2K5 w - f6 0 2";
+    char fen4[FEN_LENGTH] = "4k3/2p2p2/1p4r1/6P1/7P/1P6/3K4/8 w - - 0 1";
     // char fen5[FEN_LENGTH] = "k4q2/6P1/8/8/8/8/8/7K w - - 0 1";
     // char fen6[FEN_LENGTH] = "1k6/8/2p5/3Pp3/8/8/8/2K5 w - e6 0 2";
     // char fen7[FEN_LENGTH] = "6k1/8/4r3/6r1/6b1/5rr1/8/R3K2R w - - 0 1";
@@ -43,43 +37,46 @@ int main(void)
     // char fen13[FEN_LENGTH] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
     // char fen[FEN_LENGTH] = "1k5R/6R1/8/8/8/3K4/8/8 b - - 0 1";
     // char fen14[FEN_LENGTH] = "1k6/6R1/7R/8/8/3K4/8/8 b - - 0 1";
-    char fen15[FEN_LENGTH] = "rnbk1bnr/1p4pp/2q2p2/pN1pB1N1/8/4PP2/PPP3PP/R2QKB1R w KQ - 0 13";
+    char fen15[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/4PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1";
 
     char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     Position_t position;
 
-    fen_to_board(new, &position);
+    custom_memory_init();
+    move_finder_init();
+    ui_init();
+    print_name();
+    print_welcome_message();
+    set_search_time(&max_search_time);
+    fen_to_board(fen15, &position);
     print_position(&position);
-    // find_best_move(&position, &best_move, 7);
-    // print_position(&best_move);
+
     while (1)
     {
-        if (!play_game(&position)) {
-            break; // Exit the game loop if no valid move is made or user chooses to exit
-        }
+        if (!play_game(&position)) { break; /* Exit the game loop if no valid move is made */ }
     }
+ 
     check_memory_leak();
     custom_memory_deinit();
 }
 
 uint8_t play_game(Position_t* position)
 {
+    // user move
     Position_t move_position;
-    bool outcome = make_move_from_cli(position, &move_position);
-    if (!outcome) {
-        return 0; // User chose to exit
-    }
+    make_move_from_cli(position, &move_position);
     *position = move_position;
     print_position(position);
-    outcome = find_best_move(position, &move_position, 7);
+    if (is_game_ended(position)) { return 0; }
+
+    // engine move
+    find_best_move(position, &move_position, 20, max_search_time);
     print_stats();
-    if (!outcome) {
-        printf("Checkmate or stalemate reached.\n");
-        return 0; // No valid moves found
-    }
     *position = move_position;
     print_position(position);
+    if (is_game_ended(position)) { return 0; }
+
     return 1;
 }
 

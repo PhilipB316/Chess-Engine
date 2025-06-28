@@ -13,6 +13,9 @@
 
 #include "board.h"
 
+#define KINGSIDE 0
+#define QUEENSIDE 1
+
 /**
  * @brief Enum for the different piece types moves.
  */
