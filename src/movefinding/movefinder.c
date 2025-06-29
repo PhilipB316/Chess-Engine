@@ -46,6 +46,9 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
         active_pieces_set->all_pieces ^= move_bitboard;
 
         // --- updating the moved piece ---
+        //
+        // NOTE: CHANGES TO THIS CODE SHOULD BE REFLECTED LATER IN THE FILE WHEN THIS CODE IS REPEATED
+        //
         switch (piece)
         {
             case PAWN:
@@ -208,6 +211,9 @@ void move_finder(Position_t *position)
     register ULL rook_blockers, bishop_blockers;
     register uint16_t index;
 
+    //
+    // NOTE: CHANGES TO THIS CODE SHOULD BE REFLECTED LATER IN THE FILE WHEN THIS CODE IS REPEATED
+    //
     // ------------------------------- QUEEN MOVES -------------------------------
     while (queen_bitboard)
     {
