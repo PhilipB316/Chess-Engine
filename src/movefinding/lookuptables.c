@@ -766,14 +766,14 @@ void king_attack_generator(void)
 
         // move tables for rooks and kings castling
         rook_castling_array[0][0] = 1ULL << 7 | 1ULL << 5;
-        rook_castling_array[0][1] = 1ULL << 0 | 1ULL << 2;
+        rook_castling_array[0][1] = 1ULL << 0 | 1ULL << 3;
         rook_castling_array[1][0] = 1ULL << 63 | 1ULL << 61;
-        rook_castling_array[1][1] = 1ULL << 56 | 1ULL << 58;
+        rook_castling_array[1][1] = 1ULL << 56 | 1ULL << 59;
 
         king_castling_array[0][0] = 1ULL << 6;
-        king_castling_array[0][1] = 1ULL << 1;
+        king_castling_array[0][1] = 1ULL << 2;
         king_castling_array[1][0] = 1ULL << 62;
-        king_castling_array[1][1] = 1ULL << 57;
+        king_castling_array[1][1] = 1ULL << 58;
 
         original_rook_locations[!WHITE_INDEX][QUEENSIDE] = 1ULL << 56;
         original_rook_locations[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 63;
