@@ -749,6 +749,10 @@ bool make_notation_move(Position_t *old_position,
             new_position->piece_value_diff += PIECE_COLOUR * (KNIGHT_VALUE - PAWN_VALUE);
             break;
     }
+    new_position->white_to_move = white_to_move;
+    if (is_check(new_position)) {return 0;}
+    new_position->white_to_move = !white_to_move;
+
     return 1;
 }
 
