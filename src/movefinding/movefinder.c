@@ -597,7 +597,6 @@ ULL calculate_attack_squares(Position_t* position)
     // ============================== KINGS ==============================
     from_square = __builtin_ctzll(active_pieces_set->kings);
     threatened_squares |= king_attack_lookup_table[from_square];
-
     return threatened_squares;
 }
 
@@ -698,7 +697,7 @@ bool make_notation_move(Position_t *old_position,
         case QUEEN: active_pieces_set->queens ^= move_bitboard; break;
         case KING:
             ULL attack_squares = calculate_attack_squares(new_position);
-            if (attack_squares & move_bitboard) { /*this is an illegal move */ return 0; }
+            if (attack_squares & to_square_bitboard) { /*this is an illegal move */ return 0; }
             active_pieces_set->kings ^= move_bitboard;
             active_pieces_set->castle_kingside = false;
             active_pieces_set->castle_queenside = false;
@@ -709,7 +708,6 @@ bool make_notation_move(Position_t *old_position,
             active_pieces_set->all_pieces ^= rook_castling_array[white_to_move][KINGSIDE];
             active_pieces_set->rooks ^= rook_castling_array[white_to_move][KINGSIDE];
             new_position->all_pieces ^= rook_castling_array[white_to_move][KINGSIDE];
-
             active_pieces_set->castle_kingside = false;
             active_pieces_set->castle_queenside = false;
             break;

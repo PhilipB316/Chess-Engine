@@ -25,9 +25,9 @@ bool is_game_ended(Position_t *position)
             return false;
         case CHECKMATE:
             if (position->white_to_move) {
-                printf("White wins by checkmate! Game over.\n");
-            } else {
                 printf("Black wins by checkmate! Game over.\n");
+            } else {
+                printf("White wins by checkmate! Game over.\n");
             }
             return true;
         case STALEMATE:
@@ -104,7 +104,7 @@ int make_move_from_notation(char *move_notation, Position_t *source, Position_t 
                             to_square_bitboard, 
                             from_square_bitboard, 
                             special_flags)) {
-        printf("This move is illegal: %s, please try again.\n", move_notation);
+        printf("This move is check: %s, please try again.\n", move_notation);
         return 0; // Move could not be made
     }
 

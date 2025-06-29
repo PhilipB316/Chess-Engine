@@ -265,11 +265,6 @@ void generate_lookup_tables(void)
     king_attack_generator();
     rook_attack_generator();
     bishop_attack_generator();
-
-    castling_blocker_masks[0][0] = 1ULL << 5 | 1ULL << 6;
-    castling_blocker_masks[0][1] = 1ULL << 1 | 1ULL << 2 | 1ULL << 3;
-    castling_blocker_masks[1][0] = 1ULL << 61 | 1ULL << 62;
-    castling_blocker_masks[1][1] = 1ULL << 57 | 1ULL << 58 | 1ULL << 59;
 }
 
 uint16_t random(void)
@@ -784,6 +779,12 @@ void king_attack_generator(void)
         original_rook_locations[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 63;
         original_rook_locations[WHITE_INDEX][QUEENSIDE] = 1ULL << 0;
         original_rook_locations[WHITE_INDEX][!QUEENSIDE] = 1ULL << 7;
+
+        // these masks include the king square as the king cannot be in check and castle at the same time
+        castling_blocker_masks[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 4 | 1ULL << 5 | 1ULL << 6;
+        castling_blocker_masks[!WHITE_INDEX][QUEENSIDE] = 1ULL << 1 | 1ULL << 2 | 1ULL << 3 | 1ULL << 4;
+        castling_blocker_masks[WHITE_INDEX][!QUEENSIDE] = 1ULL << 60 | 1ULL << 61 | 1ULL << 62;
+        castling_blocker_masks[WHITE_INDEX][QUEENSIDE] = 1ULL << 57 | 1ULL << 58 | 1ULL << 59 | 1ULL << 60;
 
     }
 }
