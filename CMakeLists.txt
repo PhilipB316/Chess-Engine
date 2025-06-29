@@ -19,4 +19,4 @@ file(GLOB MAIN
     )
 add_compile_options(-Wall -Wextra -O3 -std=c17)
 
-add_executable(touch ${MAIN})
+add_executable(tessmax ${MAIN})
