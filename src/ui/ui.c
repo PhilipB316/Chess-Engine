@@ -50,7 +50,7 @@ void set_search_time(uint16_t* max_search_time)
         while ((c = getchar()) != '\n' && c != EOF) { }
         set_search_time(max_search_time); // Retry if input is invalid
     } else {
-        printf("Maximum search time set to %hu seconds.\n", *max_search_time);
+        printf("Maximum search time set to %hu seconds.\n\n", *max_search_time);
         // Clear the input buffer to remove any leftover characters
         int c;
         while ((c = getchar()) != '\n' && c != EOF) { }
@@ -79,8 +79,6 @@ void set_colour(bool* playing_as_white)
     }
     white_perspective = *playing_as_white; // Set the perspective based on the player's choice
 }
-
-
 
 int make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination) 
 {
@@ -142,7 +140,7 @@ void print_welcome_message(void)
     printf("Welcom to TessMax!\n");
     printf("When prompted, please enter your move.\n");
     printf("BE AWARE: Mistakes in your input can lead to unexpected behavior!\n");
-    printf("To terminate the game, press ctrl + C.\n");
+    printf("To terminate the game, press ctrl + C.\n\n");
 }
 
 void print_position(Position_t* position)
