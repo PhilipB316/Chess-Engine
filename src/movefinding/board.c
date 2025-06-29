@@ -7,7 +7,6 @@
 
 #include "board.h"
 #include "../search/evaluate.h"
-#include "../ui/ui.h"
 
 char *pretty_print_moves[64] =
     {

@@ -68,7 +68,7 @@ int main(void)
 uint8_t play_game(Position_t* position)
 {
     Position_t move_position;
-    bool first_move = true;
+    static bool first_move = true;
     if (first_move && !playing_as_white) {
         // If the user is playing as black, the engine makes the first move
         find_best_move(position, &move_position, 20, max_search_time);

@@ -92,15 +92,22 @@ int make_move_from_notation(char *move_notation, Position_t *source, Position_t 
         fprintf(stderr, "Invalid move notation: %s, please try again\n", move_notation);
         return 0; // Invalid move notation
     }
-    printf("Parsed move: %s, move type: %d, to square: %d, disambiguation: %s, is capture: %d\n", 
-           move_notation, move_type, to_square, disambiguation, is_capture);
     ULL from_square_bitboard = determine_from_square_bitboard(source, move_type, to_square, disambiguation);
     if (from_square_bitboard == 0) {
         fprintf(stderr, "This move is illegal: %s, please try again.\n", move_notation);
         return 0; // No valid from square found
     }
     ULL to_square_bitboard = 1ULL << to_square;
-    make_notation_move(source, destination, move_type, to_square_bitboard, from_square_bitboard, special_flags);
+    if (!make_notation_move(source, 
+                            destination, 
+                            move_type, 
+                            to_square_bitboard, 
+                            from_square_bitboard, 
+                            special_flags)) {
+        printf("This move is illegal: %s, please try again.\n", move_notation);
+        return 0; // Move could not be made
+    }
+
     return 1; // Move successfully made
 }
 

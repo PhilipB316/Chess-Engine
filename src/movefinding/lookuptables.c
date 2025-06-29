@@ -327,25 +327,13 @@ void generate_rook_blocker_masks(void)
         int square_file = square % 8;
 
         // north direction
-        for (int i = square_rank + 1; i < 7; i++)
-        {
-            mask |= (1ULL << (square_file + i * 8));
-        }
+        for (int i = square_rank + 1; i < 7; i++) { mask |= (1ULL << (square_file + i * 8)); }
         // south direction
-        for (int i = square_rank - 1; i > 0; i--)
-        {
-            mask |= (1ULL << (square_file + i * 8));
-        }
+        for (int i = square_rank - 1; i > 0; i--) { mask |= (1ULL << (square_file + i * 8)); }
         // east direction
-        for (int i = square_file + 1; i < 7; i++)
-        {
-            mask |= (1ULL << (i + square_rank * 8));
-        }
+        for (int i = square_file + 1; i < 7; i++) { mask |= (1ULL << (i + square_rank * 8)); }
         // west direction
-        for (int i = square_file - 1; i > 0; i--)
-        {
-            mask |= (1ULL << (i + square_rank * 8));
-        }
+        for (int i = square_file - 1; i > 0; i--) { mask |= (1ULL << (i + square_rank * 8)); }
 
         rook_blocker_masks[square] = mask;
     }
@@ -606,20 +594,9 @@ bool generate_possible_blockers_and_magic_numbers(uint8_t square, bool rook)
             else
             {
                 // if there is no collision, store the possible moves in the lookup table
-                if (current == possible_moves)
-                {
-                    continue;
-                }
-                else if (!current)
-                {
-                    rook_attack_lookup_table[square][index] = possible_moves;
-                }
-                else
-                {
-                    // counter++;
-                    return 0;
-                }
-            }
+                if (current == possible_moves) { continue; }
+                else if (!current) { rook_attack_lookup_table[square][index] = possible_moves; }
+                else { return 0; } }
         }
         else
         {
@@ -635,34 +612,17 @@ bool generate_possible_blockers_and_magic_numbers(uint8_t square, bool rook)
             }
             else
             {
-                if (current == possible_moves)
-                {
-                    continue;
-                }
-                else if (!current)
-                {
-                    bishop_attack_lookup_table[square][index] = possible_moves;
-                }
-                else
-                {
-                    // counter++;
-                    return 0;
-                }
+                if (current == possible_moves) { continue; }
+                else if (!current) { bishop_attack_lookup_table[square][index] = possible_moves; }
+                else { return 0; }
             }
         }
     }
 
     if (!KNOWN_MAGIC_NUMBERS)
     {
-        // printf("Collision detected %llu times\n", counter);
-        if (rook)
-        {
-            array_for_rook_magic_numbers[square] = magic_number;
-        }
-        else
-        {
-            array_for_bishop_random_numbers[square] = magic_number;
-        }
+        if (rook) { array_for_rook_magic_numbers[square] = magic_number; }
+        else { array_for_bishop_random_numbers[square] = magic_number; }
     }
     return 1;
 }
@@ -697,10 +657,7 @@ bool generate_magic_numbers_for_knights(void)
             }
             else
             {
-                for (int i = 0; i < 4096; i++)
-                {
-                    magic_knight_attack_lookup_table[i] = 0;
-                }
+                for (int i = 0; i < 4096; i++) { magic_knight_attack_lookup_table[i] = 0; }
                 return false;
             }
         }

@@ -285,7 +285,6 @@ ULL determine_from_square_bitboard(Position_t *position,
             return 0; // No valid from square found for queen
 
         case PIECE_KING:
-
             relevant_bitboard = position->pieces[white_to_move].kings & disambiguation_mask;
             from_square = __builtin_ctzll(relevant_bitboard);
             ULL king_moves = find_king_moves(position, from_square);

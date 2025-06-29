@@ -114,12 +114,12 @@ ULL find_rook_moves(Position_t *position, uint8_t rook_square);
 ULL find_queen_moves(Position_t *position, uint8_t queen_square);
 ULL find_king_moves(Position_t *position, uint8_t king_square);
 ULL find_pawn_moves(Position_t* position, uint8_t pawn_square);
-void make_notation_move(Position_t *old_position,
+bool make_notation_move(Position_t *old_position,
                         Position_t *new_position,
                         MoveType_t piece,
                         ULL to_square_bitboard, 
                         ULL from_square_bitboard, 
                         ULL special_flags);
 
-
 #endif // MOVEFINDER_H
+
