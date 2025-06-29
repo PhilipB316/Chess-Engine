@@ -74,4 +74,11 @@ void print_welcome_message(void);
  */
 void set_search_time(uint16_t* max_search_time);
 
+/**
+ * @brief Sets the color the user wants to play as.
+ * 
+ * @param playing_as_white Pointer to a boolean that will be set to true if the user chooses white, false if black.
+ */
+void set_colour(bool* playing_as_white);
+
 #endif // UI_H

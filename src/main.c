@@ -11,6 +11,8 @@
 #include "./ui/ui.h"
 
 static uint16_t max_search_time = 5; // Default search time in seconds
+static bool playing_as_white = false; // Default perspective for printing the board
+
 
 /**
     * TODO:
@@ -50,12 +52,13 @@ int main(void)
     print_name();
     print_welcome_message();
     set_search_time(&max_search_time);
+    set_colour(&playing_as_white);
     fen_to_board(new, &position);
     print_position(&position);
 
     while (1)
     {
-        if (!play_game(&position)) { break; /* Exit the game loop if no valid move is made */ }
+        if (!play_game(&position)) { break; /* Exit the game loop if game is over */ }
     }
  
     check_memory_leak();
@@ -64,8 +67,17 @@ int main(void)
 
 uint8_t play_game(Position_t* position)
 {
-    // user move
     Position_t move_position;
+    bool first_move = true;
+    if (first_move && !playing_as_white) {
+        // If the user is playing as black, the engine makes the first move
+        find_best_move(position, &move_position, 20, max_search_time);
+        print_stats();
+        *position = move_position;
+        print_position(position);
+        first_move = false;
+    }
+    // user move
     make_move_from_cli(position, &move_position);
     *position = move_position;
     print_position(position);

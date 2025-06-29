@@ -10,6 +10,8 @@
 #include "../search/evaluate.h"
 #include "../movefinding/movefinder.h"
 
+static bool white_perspective = true; // Default perspective for printing the board
+
 void ui_init(void)
 {
     printf(COLOUR_BOLD "\n" COLOUR_RESET);
@@ -52,9 +54,33 @@ void set_search_time(uint16_t* max_search_time)
         // Clear the input buffer to remove any leftover characters
         int c;
         while ((c = getchar()) != '\n' && c != EOF) { }
-
     }
 }
+
+void set_colour(bool* playing_as_white)
+{
+    char input[10];
+    printf("Do you want to play as white or black? (w/b): ");
+    if (fgets(input, sizeof(input), stdin) != NULL) {
+        input[strcspn(input, "\n")] = 0; // Remove newline character
+        if (input[0] == 'w' || input[0] == 'W') {
+            *playing_as_white = true;
+            printf("You are playing as white.\n");
+        } else if (input[0] == 'b' || input[0] == 'B') {
+            *playing_as_white = false;
+            printf("You are playing as black.\n");
+        } else {
+            fprintf(stderr, "Invalid input. Please enter 'w' or 'b'.\n");
+            set_colour(playing_as_white); // Retry if input is invalid
+        }
+    } else {
+        fprintf(stderr, "Error reading input. Please try again.\n");
+        set_colour(playing_as_white); // Retry if fgets fails
+    }
+    white_perspective = *playing_as_white; // Set the perspective based on the player's choice
+}
+
+
 
 int make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination) 
 {
@@ -68,6 +94,8 @@ int make_move_from_notation(char *move_notation, Position_t *source, Position_t 
         fprintf(stderr, "Invalid move notation: %s, please try again\n", move_notation);
         return 0; // Invalid move notation
     }
+    printf("Parsed move: %s, move type: %d, to square: %d, disambiguation: %s, is capture: %d\n", 
+           move_notation, move_type, to_square, disambiguation, is_capture);
     ULL from_square_bitboard = determine_from_square_bitboard(source, move_type, to_square, disambiguation);
     if (from_square_bitboard == 0) {
         fprintf(stderr, "This move is illegal: %s, please try again.\n", move_notation);
@@ -140,10 +168,24 @@ void print_position(Position_t* position)
         else { mailboxes[i] = ". "; }
     }
     printf("\n");
-    for (uint8_t i = 0; i < 64; i++)
-    {
-        if (i % 8 == 0) { printf(COLOUR_BOLD "\n%d   " COLOUR_RESET, 8 - i / 8); }
-        printf("%s ", mailboxes[i]);
+    if (white_perspective) {
+        for (uint8_t rank = 0; rank < 8; rank++) {
+            printf(COLOUR_BOLD "\n%d   " COLOUR_RESET, 8 - rank);
+            for (uint8_t file = 0; file < 8; file++) {
+                uint8_t idx = rank * 8 + file;
+                printf("%s ", mailboxes[idx]);
+            }
+        }
+        printf("\n\n%c   a  b  c  d  e  f  g  h\n\n", position->white_to_move ? 'W' : 'B');
+    } else {
+        for (int rank = 7; rank >= 0; rank--) {
+            printf(COLOUR_BOLD "\n%d   " COLOUR_RESET, 8 - rank);
+            for (int file = 7; file >= 0; file--) {
+                uint8_t idx = rank * 8 + file;
+                printf("%s ", mailboxes[idx]);
+            }
+        }
+        printf("\n\n%c   h  g  f  e  d  c  b  a\n\n", position->white_to_move ? 'W' : 'B');
     }
-    printf("\n\n%d   a  b  c  d  e  f  g  h\n\n", position->white_to_move);
 }
+

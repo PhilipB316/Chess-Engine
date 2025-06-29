@@ -85,81 +85,38 @@ void fen_to_board(char *fen, Position_t *fen_position)
         PiecesOneColour_t *pieces;
         if (isalpha(character))
         {
-            if (isupper(character))
-            {
-                pieces = &fen_position->pieces[WHITE_INDEX];
-            }
-            else
-            {
-                pieces = &fen_position->pieces[!WHITE_INDEX];
-            }
+            if (isupper(character)) { pieces = &fen_position->pieces[WHITE_INDEX]; }
+            else { pieces = &fen_position->pieces[!WHITE_INDEX]; }
+
             character = tolower(character);
-            if (character == 'k')
-            {
-                pieces->kings |= (1ULL << square_counter);
-            }
-            else if (character == 'q')
-            {
-                pieces->queens |= (1ULL << square_counter);
-            }
-            else if (character == 'r')
-            {
-                pieces->rooks |= (1ULL << square_counter);
-            }
-            else if (character == 'b')
-            {
-                pieces->bishops |= (1ULL << square_counter);
-            }
-            else if (character == 'n')
-            {
-                pieces->knights |= (1ULL << square_counter);
-            }
-            else if (character == 'p')
-            {
-                pieces->pawns |= (1ULL << square_counter);
-            }
+            if (character == 'k') { pieces->kings |= (1ULL << square_counter); }
+            else if (character == 'q') { pieces->queens |= (1ULL << square_counter); }
+            else if (character == 'r') { pieces->rooks |= (1ULL << square_counter); }
+            else if (character == 'b') { pieces->bishops |= (1ULL << square_counter); }
+            else if (character == 'n') { pieces->knights |= (1ULL << square_counter); }
+            else if (character == 'p') { pieces->pawns |= (1ULL << square_counter); }
+
             pieces->all_pieces |= (1ULL << square_counter);
             fen_position->all_pieces |= (1ULL << square_counter);
             square_counter++;
         }
-        else if (isdigit(character))
-        {
-            square_counter += character - '0';
-        }
+        else if (isdigit(character)) { square_counter += character - '0'; }
         character = fen[i++];
     }
 
     // ========================= WHOSE TURN =========================
-    if (fen[i++] == 'w')
-    {
-        fen_position->white_to_move = true;
-    }
-    else
-    {
-        fen_position->white_to_move = false;
-    }
+    if (fen[i++] == 'w') { fen_position->white_to_move = true; }
+    else { fen_position->white_to_move = false; }
 
     // ========================= CASTLING =========================
     i++; // skip space
     character = fen[i++];
     while (character != ' ')
     {
-        if (character == 'K')
-        {
-            fen_position->pieces[WHITE_INDEX].castle_kingside = true;
-        }
-        else if (character == 'Q')
-        {
-            fen_position->pieces[WHITE_INDEX].castle_queenside = true;
-        }
-        else if (character == 'k')
-        {
-            fen_position->pieces[!WHITE_INDEX].castle_kingside = true;
-        }
-        else if (character == 'q')
-        {
-            fen_position->pieces[!WHITE_INDEX].castle_queenside = true;
-        }
+        if (character == 'K') { fen_position->pieces[WHITE_INDEX].castle_kingside = true; }
+        else if (character == 'Q') { fen_position->pieces[WHITE_INDEX].castle_queenside = true; }
+        else if (character == 'k') { fen_position->pieces[!WHITE_INDEX].castle_kingside = true; }
+        else if (character == 'q') { fen_position->pieces[!WHITE_INDEX].castle_queenside = true; }
         character = fen[i++];
     }
 
@@ -183,31 +140,13 @@ void fen_to_board(char *fen, Position_t *fen_position)
     // ========================== HALF MOVE COUNT =========================
     i++; // skip space
     uint8_t half_move_count = 0;
-    while (isdigit(fen[i]))
-    {
-        half_move_count = half_move_count * 10 + (fen[i++] - '0');
-    }
+    while (isdigit(fen[i])) { half_move_count = half_move_count * 10 + (fen[i++] - '0'); }
 
     // ========================= WHOLE MOVES =========================
     i++; // skip space
     uint8_t whole_move_count = 0;
-    while (isdigit(fen[i]))
-    {
-        whole_move_count = whole_move_count * 10 + (fen[i++] - '0');
-    }
+    while (isdigit(fen[i])) { whole_move_count = whole_move_count * 10 + (fen[i++] - '0'); }
     fen_position->half_move_count = whole_move_count * 2 - 1;
-    if (fen_position->white_to_move)
-    {
-        fen_position->half_move_count--;
-    }
-}
-
-void print_children_positions(Position_t *position)
-{
-    for (uint16_t i = 0; i < position->num_children; i++)
-    {
-        printf("Child %d:\n", i);
-        print_position(position->child_positions[i]);
-    }
+    if (fen_position->white_to_move) { fen_position->half_move_count--; }
 }
 

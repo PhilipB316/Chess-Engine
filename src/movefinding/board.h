@@ -85,12 +85,6 @@ void print_bitboard(uint64_t bitboard);
 void fen_to_board(char fen[], Position_t *position);
 
 /**
- * @brief Prints the children positions of a given position.
- * @param position The position whose children are to be printed.
- */
-void print_children_positions(Position_t *position);
-
-/**
  * @brief Calculates the difference in piece values between the two players.
  * @param position The position to be evaluated.
  */
