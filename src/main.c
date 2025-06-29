@@ -2,11 +2,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
 #include "./movefinding/memory.h"
-#include "./search/search.h"
 #include "./ui/ui.h"
 
 static uint16_t max_search_time = 5; // Default search time in seconds
@@ -37,7 +37,7 @@ int main(void)
     // char fen13[FEN_LENGTH] = "r1bqkb1r/pppp1pp1/B1n2n1p/4p3/4P3/2N2N1P/PPPP1PP1/R1BQK2R b Qq - 5 7";
     // char fen[FEN_LENGTH] = "1k5R/6R1/8/8/8/3K4/8/8 b - - 0 1";
     // char fen14[FEN_LENGTH] = "1k6/6R1/7R/8/8/3K4/8/8 b - - 0 1";
-    // char fen15[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/4PN2/PPPP1PPP/RNBQK2R w KQkq - 0 1";
+    char fen15[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/2P5/PP1PPPPP/R3K2R w KQkq - 0 1";
 
     char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -49,9 +49,16 @@ int main(void)
     print_name();
     print_welcome_message();
     set_search_time(&max_search_time);
-    fen_to_board(new, &position);
+    fen_to_board(fen15, &position);
     print_position(&position);
 
+
+
+    // Position_t move_position;
+    // make_move_from_cli(&position, &move_position);
+    // position = move_position;
+    // print_position(&position);
+    // print_bitboard(position.pieces[WHITE_INDEX].kings);
     while (1)
     {
         if (!play_game(&position)) { break; /* Exit the game loop if no valid move is made */ }
@@ -71,13 +78,13 @@ uint8_t play_game(Position_t* position)
     if (is_game_ended(position)) { return 0; }
 
     // engine move
-    find_best_move(position, &move_position, 20, max_search_time);
-    print_stats();
-    *position = move_position;
-    print_position(position);
-    if (is_game_ended(position)) { return 0; }
-
-    return 1;
+    // find_best_move(position, &move_position, 20, max_search_time);
+    // print_stats();
+    // *position = move_position;
+    // print_position(position);
+    // if (is_game_ended(position)) { return 0; }
+    //
+    // return 1;
 }
 
 // char* san_move = "Kxb1";

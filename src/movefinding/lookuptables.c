@@ -18,6 +18,7 @@
 #include <stdbool.h>
 
 #include "lookuptables.h"
+#include "board.h"
 
 ULL rook_blocker_masks[64];
 ULL bishop_blocker_masks[64];
@@ -32,6 +33,7 @@ ULL magic_knight_attack_lookup_table[4096];
 
 ULL rook_castling_array[2][2];
 ULL king_castling_array[2][2];
+ULL original_rook_locations[2][2];
 
 ULL actual_bishop_magic_numbers[64] = {
     306249795545277056ULL,
@@ -820,5 +822,11 @@ void king_attack_generator(void)
         king_castling_array[0][1] = 1ULL << 1;
         king_castling_array[1][0] = 1ULL << 62;
         king_castling_array[1][1] = 1ULL << 57;
+
+        original_rook_locations[!WHITE_INDEX][QUEENSIDE] = 1ULL << 56;
+        original_rook_locations[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 63;
+        original_rook_locations[WHITE_INDEX][QUEENSIDE] = 1ULL << 0;
+        original_rook_locations[WHITE_INDEX][!QUEENSIDE] = 1ULL << 7;
+
     }
 }

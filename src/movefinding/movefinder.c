@@ -59,6 +59,15 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
                 break;
             case ROOK:
                 active_pieces_set->rooks ^= move_bitboard;
+                // if the rook is moved, it cannot castle anymore
+                if (new_position->pieces[WHITE_TO_MOVE].castle_kingside ||
+                    new_position->pieces[WHITE_TO_MOVE].castle_queenside) {
+                    if (from_square_bitboard & original_rook_locations[WHITE_TO_MOVE][!QUEENSIDE]) {
+                        active_pieces_set->castle_kingside = false;
+                    } else if (from_square_bitboard & original_rook_locations[WHITE_TO_MOVE][QUEENSIDE]) {
+                        active_pieces_set->castle_queenside = false;
+                    }
+                }
                 break;
             case DOUBLE_PUSH:
                 active_pieces_set->pawns ^= move_bitboard;
@@ -73,14 +82,19 @@ void generate_new_position(MoveType_t piece, ULL possible_moves_bitboard, ULL fr
                 active_pieces_set->castle_queenside = false;
                 break;
             case CASTLE_KINGSIDE:
+                move_bitboard = king_castling_array[WHITE_TO_MOVE][KINGSIDE] | from_square_bitboard;
                 active_pieces_set->kings ^= move_bitboard;
+                active_pieces_set->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][KINGSIDE];
                 active_pieces_set->rooks ^= rook_castling_array[WHITE_TO_MOVE][KINGSIDE];
                 new_position->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][KINGSIDE];
                 active_pieces_set->castle_kingside = false;
                 active_pieces_set->castle_queenside = false;
                 break;
+
             case CASTLE_QUEENSIDE:
+                move_bitboard = king_castling_array[WHITE_TO_MOVE][QUEENSIDE] | from_square_bitboard;
                 active_pieces_set->kings ^= move_bitboard;
+                active_pieces_set->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][QUEENSIDE];
                 active_pieces_set->rooks ^= rook_castling_array[WHITE_TO_MOVE][QUEENSIDE];
                 new_position->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][QUEENSIDE];
                 active_pieces_set->castle_kingside = false;
@@ -369,23 +383,16 @@ uint64_t get_num_new_positions(void)
 void move_finder_init(void)
 {
     generate_lookup_tables();
-    if (DEBUG)
-    {
-        printf("---lookup-tables-generated---\n");
-    }
+    if (DEBUG) { printf("---lookup-tables-generated---\n"); }
 }
 
 void depth_move_finder(Position_t* position, uint8_t depth)
 {
     if (depth == 0)
-    {
-        return;
-    }
+    { return; }
     move_finder(position);
     for (uint16_t i = 0; i < position->num_children; i++)
-    {
-        depth_move_finder(position->child_positions[i], depth - 1);
-    }
+    { depth_move_finder(position->child_positions[i], depth - 1); }
 }
 
 void free_children_memory(Position_t *position)
@@ -399,31 +406,22 @@ void free_children_memory(Position_t *position)
 
 void free_depth_memory(Position_t* position, uint8_t depth)
 {
-    if (depth == 0)
-    {
-        return;
-    }
+    if (depth == 0) { return; }
     for (uint16_t i = 0; i < position->num_children; i++)
-    {
-        free_depth_memory(position->child_positions[i], depth - 1);
-    }
-    // free(position);
+    { free_depth_memory(position->child_positions[i], depth - 1); } // free(position);
     custom_free();
 }
 
 void clear_grandchildren_count(Position_t *position)
 {
     for (uint16_t i = 0; i < position->num_children; i++)
-    {
-        position->child_positions[i]->num_children = 0;
-    }
+    { position->child_positions[i]->num_children = 0; } 
 }
 
 void clear_children_count(Position_t *position)
 {
-    position->num_children = 0;
+    position->num_children = 0; 
 }
-
 
 // ================================================================================================
 // ================================================================================================
@@ -579,6 +577,15 @@ void make_notation_move(Position_t *old_position,
             break;
         case ROOK:
             active_pieces_set->rooks ^= move_bitboard;
+            // if the rook is moved, it cannot castle anymore
+            if (new_position->pieces[WHITE_TO_MOVE].castle_kingside ||
+                new_position->pieces[WHITE_TO_MOVE].castle_queenside) {
+                if (from_square_bitboard & original_rook_locations[WHITE_TO_MOVE][!QUEENSIDE]) {
+                    active_pieces_set->castle_kingside = false;
+                } else if (from_square_bitboard & original_rook_locations[WHITE_TO_MOVE][QUEENSIDE]) {
+                    active_pieces_set->castle_queenside = false;
+                }
+            }
             break;
         case DOUBLE_PUSH:
             active_pieces_set->pawns ^= move_bitboard;
@@ -594,16 +601,18 @@ void make_notation_move(Position_t *old_position,
             break;
         case CASTLE_KINGSIDE:
             move_bitboard = king_castling_array[white_to_move][KINGSIDE] | from_square_bitboard;
-
             active_pieces_set->kings ^= move_bitboard;
+            active_pieces_set->all_pieces ^= rook_castling_array[white_to_move][KINGSIDE];
             active_pieces_set->rooks ^= rook_castling_array[white_to_move][KINGSIDE];
             new_position->all_pieces ^= rook_castling_array[white_to_move][KINGSIDE];
+
             active_pieces_set->castle_kingside = false;
             active_pieces_set->castle_queenside = false;
             break;
         case CASTLE_QUEENSIDE:
             move_bitboard = king_castling_array[white_to_move][QUEENSIDE] | from_square_bitboard;
             active_pieces_set->kings ^= move_bitboard;
+            active_pieces_set->all_pieces ^= rook_castling_array[white_to_move][QUEENSIDE];
             active_pieces_set->rooks ^= rook_castling_array[white_to_move][QUEENSIDE];
             new_position->all_pieces ^= rook_castling_array[white_to_move][QUEENSIDE];
             active_pieces_set->castle_kingside = false;

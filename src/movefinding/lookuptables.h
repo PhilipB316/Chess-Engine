@@ -45,6 +45,8 @@ extern ULL rook_blocker_masks[64];
 extern ULL bishop_blocker_masks[64];
 extern ULL castling_blocker_masks[2][3];
 
+extern ULL original_rook_locations[2][2];
+
 extern ULL rook_castling_array[2][2];
 extern ULL king_castling_array[2][2];
 
@@ -74,7 +76,6 @@ void bishop_attack_generator(void);
  * This function populates a lookup table that provides precomputed attack
  * bitboards for pawns. The table is indexed by pawn color (0 for white, 1 for black)
  * and the square index (0-63) representing the position of the pawn on the board.
-
  */
 void pawn_attack_generator(void);
 
