@@ -49,5 +49,4 @@ The CLI instructions will guide you through the game. You can input moves in Sta
 
 ## License
 
-<!-- TODO -->
-<!-- ADD A LICENSE -->
+The license for this project can be found in the [LICENSE](LICENSE) file.
