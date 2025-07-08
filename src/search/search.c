@@ -32,10 +32,10 @@ static inline bool time_is_up(void)
 void find_best_move(Position_t* position, 
                        Position_t* return_best_move, 
                        uint8_t max_depth,
-                       clock_t max_time)
+                       long long max_time) // max time in milliseconds
 {
     start_time = clock();
-    global_max_time = max_time * CLOCKS_PER_SEC; // Convert seconds to clock ticks
+    global_max_time = max_time * CLOCKS_PER_SEC / 1000; // Convert milliseconds to clock ticks
     nodes_analysed = 0;
     moves_generated = 0;
     searched_depth = 1;
@@ -44,8 +44,6 @@ void find_best_move(Position_t* position,
 
     while (!time_is_up() && searched_depth < max_depth)
     {
-        printf("Running negamax with depth %d\r", searched_depth);
-        fflush(stdout);
         sort_children(position);
         best_eval = negamax_start(position, return_best_move, searched_depth);
         searched_depth++;
@@ -70,8 +68,6 @@ int64_t negamax_start(Position_t* position,
     {
         if (time_is_up()) { return 0; }
 
-        printf("Nodes analysed: %llu, %d \r", nodes_analysed, 100 * i / position->num_children);
-        fflush(stdout);
         Position_t* child = position->child_positions[i];
         int64_t eval = -negamax(child, depth - 1, -beta, -alpha);
         if (time_up) { return 0; /* Time ran out in deeper search */ }

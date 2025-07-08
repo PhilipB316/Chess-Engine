@@ -9,7 +9,6 @@
 #define SEARCH_H
 
 #include <stdint.h>
-#include <time.h>
 
 #include "../movefinding/board.h"
 
@@ -27,7 +26,7 @@
 void find_best_move(Position_t* position, 
                        Position_t* return_best_move, 
                        uint8_t max_depth,
-                       clock_t max_time);
+                       long long max_time);
 
 
 /**
