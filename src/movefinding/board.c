@@ -177,8 +177,8 @@ void find_difference(Position_t* position1,
                      ULL* from_bitboard,
                      ULL* to_bitboard)
 {
-    ULL move_bitboard = position1->pieces[position2->white_to_move].all_pieces ^ position2->pieces[position2->white_to_move].all_pieces;
-    print_bitboard(move_bitboard);
-    *from_bitboard = move_bitboard & position2->pieces[position2->white_to_move].all_pieces;
-    *to_bitboard = move_bitboard & position1->pieces[position2->white_to_move].all_pieces;
+    bool white_to_move = position1->white_to_move;
+    ULL move_bitboard = position1->pieces[white_to_move].all_pieces ^ position2->pieces[white_to_move].all_pieces;
+    *from_bitboard = move_bitboard & position1->pieces[white_to_move].all_pieces;
+    *to_bitboard = move_bitboard & position2->pieces[white_to_move].all_pieces;
 }

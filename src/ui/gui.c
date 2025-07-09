@@ -182,9 +182,7 @@ void* sdl_gui_loop(void* arg)
         render_chess_board(renderer);
 
         if (is_different(current_position, &previous_position)) {
-            find_difference(current_position, &previous_position, &from_bitboard, &to_bitboard);
-            print_bitboard(from_bitboard);
-            print_bitboard(to_bitboard);
+            find_difference(&previous_position, current_position, &from_bitboard, &to_bitboard);
             previous_position = *current_position; // Update previous position
             if (is_check(current_position)) {
                 check_square_bitboard = current_position->pieces[current_position->white_to_move].kings;
