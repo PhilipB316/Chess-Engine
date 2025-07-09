@@ -13,10 +13,10 @@ TessMax is my first chess engine. It is a bitboard engine written in C. It uses 
 
 ### User Interface Features
 
-- Unicde board printing
 - Engine search time setting
 - Standard Algebraic Notation (SAN) input
 - Colour selection (white or black)
+- GUI display of the current position
 
 ## Building TessMax
 

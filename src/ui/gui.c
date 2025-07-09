@@ -12,7 +12,8 @@ char board[BOARD_SIZE][BOARD_SIZE] = {0};
 SDL_Texture* piece_textures[12] = {NULL};
 
 static bool* playing_as_white; // Default perspective for printing the board
-static ULL from_bitboard, to_bitboard, check_square_bitboard;
+static ULL from_bitboard, to_bitboard;
+static ULL check_square_bitboard = 1;
 
 static char* piece_files[12] = {
     "../assets/pieces/w_pawn_png_shadow_1024px.png",
