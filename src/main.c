@@ -42,7 +42,7 @@ int main(void)
     pthread_create(&cli_thread, NULL, cli_game_loop, NULL);
 
     // Start SDL GUI loop thread
-    pthread_create(&sdl_thread, NULL, sdl_gui_loop, NULL);
+    pthread_create(&sdl_thread, NULL, sdl_gui_loop, &position);
 
     // Wait for both threads to finish
     pthread_join(cli_thread, NULL);
@@ -54,6 +54,7 @@ int main(void)
 // Thread function for CLI game loop
 void* cli_game_loop(void* arg)
 {
+    (void)arg; // Unused parameter
     char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     print_name();
@@ -62,7 +63,6 @@ void* cli_game_loop(void* arg)
     set_colour(&playing_as_white);
     fen_to_board(new, &position);
     printf("\n");
-    print_position(&position);
     start_clock(); // Start the clock for the first player
 
     while (1) {
@@ -99,9 +99,8 @@ bool play_game(Position_t* position)
 
 bool update_game(void)
 {
-    clear_output_screen(15);
+    // clear_output_screen(15);
     position = move_position;
-    print_position(&position);
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
     if (is_game_ended(&position)) { return 0; }

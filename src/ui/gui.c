@@ -1,7 +1,77 @@
 // File: gui.c
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "gui.h"
+#include "../movefinding/board.h"
+
+// Temporary arrays to prevent compile errors
+char board[BOARD_SIZE][BOARD_SIZE] = {0};
+SDL_Texture* piece_textures[12] = {NULL};
+
+void load_piece_textures(SDL_Renderer* renderer) {
+
+    for (int i = 0; i < 12; i++) {
+        SDL_Surface* surface = IMG_Load(piece_files[i]);
+        if (surface == NULL) {
+            printf("Warning: Could not load %s: %s\n", piece_files[i], IMG_GetError());
+            piece_textures[i] = NULL;
+        } else {
+            piece_textures[i] = SDL_CreateTextureFromSurface(renderer, surface);
+            SDL_FreeSurface(surface);
+        }
+    }
+}
+
+int piece_char_to_index(char piece) {
+    switch (piece) {
+        case 'P': return 0; // White Pawn
+        case 'N': return 1; // White Knight
+        case 'B': return 2; // White Bishop
+        case 'R': return 3; // White Rook
+        case 'Q': return 4; // White Queen
+        case 'K': return 5; // White King
+        case 'p': return 6; // Black Pawn
+        case 'n': return 7; // Black Knight
+        case 'b': return 8; // Black Bishop
+        case 'r': return 9; // Black Rook
+        case 'q': return 10; // Black Queen
+        case 'k': return 11; // Black King
+        default: return -1; // Empty square or unknown piece
+    }
+}
+
+void position_to_board_array(Position_t* position, char board[BOARD_SIZE][BOARD_SIZE]) 
+{
+    // clear the board array
+    for (int y = 0; y < BOARD_SIZE; y++) {
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            board[y][x] = '.';
+        }
+    }
+
+    PiecesOneColour_t white_pieces = position->pieces[WHITE_INDEX];
+    PiecesOneColour_t black_pieces = position->pieces[!WHITE_INDEX];
+
+    for (uint8_t i = 0; i < 64; i++) {
+        int rank = i / 8;
+        int file = i % 8;
+
+        if (white_pieces.pawns & (1ULL << i)) { board[rank][file] = 'P'; }
+        else if (white_pieces.knights & (1ULL << i)) { board[rank][file] = 'N'; }
+        else if (white_pieces.bishops & (1ULL << i)) { board[rank][file] = 'B'; }
+        else if (white_pieces.rooks & (1ULL << i)) { board[rank][file] = 'R'; }
+        else if (white_pieces.queens & (1ULL << i)) { board[rank][file] = 'Q'; }
+        else if (white_pieces.kings & (1ULL << i)) { board[rank][file] = 'K'; }
+        else if (black_pieces.pawns & (1ULL << i)) { board[rank][file] = 'p'; }
+        else if (black_pieces.knights & (1ULL << i)) { board[rank][file] = 'n'; }
+        else if (black_pieces.bishops & (1ULL << i)) { board[rank][file] = 'b'; }
+        else if (black_pieces.rooks & (1ULL << i)) { board[rank][file] = 'r'; }
+        else if (black_pieces.queens & (1ULL << i)) { board[rank][file] = 'q'; }
+        else if (black_pieces.kings & (1ULL << i)) { board[rank][file] = 'k'; }
+    }
+}
+
 
 void render_chess_board(SDL_Renderer* renderer)
 {
@@ -11,12 +81,28 @@ void render_chess_board(SDL_Renderer* renderer)
     for (int y = 0; y < BOARD_SIZE; ++y) {
         for (int x = 0; x < BOARD_SIZE; ++x) {
             SDL_Rect square = {x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE};
+
+            // Draw square background
             if ((x + y) % 2 == 0) {
                 SDL_SetRenderDrawColor(renderer, light.r, light.g, light.b, light.a);
             } else {
                 SDL_SetRenderDrawColor(renderer, dark.r, dark.g, dark.b, dark.a);
             }
             SDL_RenderFillRect(renderer, &square);
+
+
+            int texture_index = piece_char_to_index(board[y][x]);
+
+            if (texture_index >= 0 && piece_textures[texture_index] != NULL) {
+                // Create smaller rectangle for piece with padding
+                SDL_Rect piece_rect = {
+                    x * SQUARE_SIZE + PADDING,
+                    y * SQUARE_SIZE + PADDING,
+                    SQUARE_SIZE - (2 * PADDING),
+                    SQUARE_SIZE - (2 * PADDING)
+                };
+                SDL_RenderCopy(renderer, piece_textures[texture_index], NULL, &piece_rect);
+            }
         }
     }
 }
@@ -24,9 +110,15 @@ void render_chess_board(SDL_Renderer* renderer)
 // Thread function for SDL GUI loop
 void* sdl_gui_loop(void* arg) 
 {
+    Position_t* current_position = (Position_t*)arg;
+    
     SDL_Init(SDL_INIT_VIDEO);
+    IMG_Init(IMG_INIT_PNG);
     SDL_Window* window = SDL_CreateWindow("Chess Board", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    // Load piece textures
+    load_piece_textures(renderer);
 
     int running = 1;
     SDL_Event event;
@@ -38,6 +130,8 @@ void* sdl_gui_loop(void* arg)
             }
         }
 
+        position_to_board_array(current_position, board);
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
@@ -47,9 +141,16 @@ void* sdl_gui_loop(void* arg)
         SDL_Delay(16);
     }
 
+    // Clean up textures
+    for (int i = 0; i < 12; i++) {
+        if (piece_textures[i] != NULL) {
+            SDL_DestroyTexture(piece_textures[i]);
+        }
+    }
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    IMG_Quit();
     SDL_Quit();
     return NULL;
 }
-

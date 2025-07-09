@@ -24,6 +24,10 @@ TessMax is my first chess engine. It is a bitboard engine written in C.
 
 - CMake 3.10 or higher
 - gcc
+- SDL2 - this can be installed via apt with:
+```sh
+sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
+```
 
 ### Build Instructions (for Linux)
 

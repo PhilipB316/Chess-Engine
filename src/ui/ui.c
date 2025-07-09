@@ -91,19 +91,12 @@ void switch_time_decrement(void)
 
 void update_time_display(void)
 {
-    if (!playing_with_clock) { 
-        printf("\n\n");
-        printf("\033[2B");
-        return; 
-    }
+    if (!playing_with_clock) { return; }
     if (user_time_remaining < 0) { user_time_remaining = 0; }
     if (engine_time_remaining < 0) { engine_time_remaining = 0; }
     // printf("\033[2A");
-    printf("\033[2K");
     printf("User time remaining: %.1f seconds\n", (float)user_time_remaining / MILLISECONDS_IN_SECOND);
-    printf("\033[2K");
     printf("Engine time remaining: %.1f seconds\n", (float)engine_time_remaining / MILLISECONDS_IN_SECOND);
-    printf("\033[2B");
 }
 
 bool is_game_ended(Position_t *position)
@@ -144,7 +137,7 @@ void set_search_time(void)
         set_search_time(); // Retry if input is invalid
     } else {
         max_engine_search_time *= MILLISECONDS_IN_SECOND; // Convert to milliseconds
-        printf("Maximum search time set to %hu seconds.\n\n", max_engine_search_time);
+        printf("Maximum search time set to %hu seconds.\n\n", max_engine_search_time / MILLISECONDS_IN_SECOND);
         clear_input_buffer();
     }
 }
