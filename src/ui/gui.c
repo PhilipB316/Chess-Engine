@@ -2,14 +2,15 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <stdio.h>
+
 #include "gui.h"
 #include "../movefinding/board.h"
 
-// Temporary arrays to prevent compile errors
 char board[BOARD_SIZE][BOARD_SIZE] = {0};
 SDL_Texture* piece_textures[12] = {NULL};
 
-static bool playing_as_white = false; // Default perspective for printing the board
+static bool* playing_as_white; // Default perspective for printing the board
 
 static char* piece_files[12] = {
     "../assets/pieces/w_pawn_png_shadow_1024px.png",
@@ -73,8 +74,8 @@ void position_to_board_array(Position_t* position, char board[BOARD_SIZE][BOARD_
     for (uint8_t i = 0; i < 64; i++) {
         int rank = i / 8;
         int file = i % 8;
-        int display_rank = playing_as_white ? rank : (BOARD_SIZE - 1 - rank);
-        int display_file = playing_as_white ? file : (BOARD_SIZE - 1 - file);
+        int display_rank = *playing_as_white ? rank : (BOARD_SIZE - 1 - rank);
+        int display_file = *playing_as_white ? file : (BOARD_SIZE - 1 - file);
 
         if (white_pieces.pawns & (1ULL << i)) { board[display_rank][display_file] = 'P'; }
         else if (white_pieces.knights & (1ULL << i)) { board[display_rank][display_file] = 'N'; }
@@ -130,7 +131,7 @@ void* sdl_gui_loop(void* arg)
 {
     GUI_Args_t* gui_args = (GUI_Args_t*)arg;
     Position_t* current_position = gui_args->position;
-    playing_as_white = gui_args->playing_as_white;
+    playing_as_white = (gui_args->playing_as_white);
 
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
