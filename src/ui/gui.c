@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "gui.h"
+#include "../ui/ui.h"
 #include "../movefinding/board.h"
 #include "../search/evaluate.h"
 
@@ -100,8 +101,8 @@ void render_chess_board(SDL_Renderer* renderer)
 
     SDL_Color light = {240, 217, 181, 255};        // Standard light squares
     SDL_Color dark = {181, 136, 99, 255};          // Standard dark squares
-    SDL_Color from = {210, 180, 140, 255};    // Tan for dark "from"
-    SDL_Color to = {147, 112, 219, 255};      // Medium slate blue for dark "to"
+    SDL_Color to = {210, 180, 140, 255};    // Tan for dark "from"
+    SDL_Color from = {147, 112, 219, 255};      // Medium slate blue for dark "to"
     SDL_Color check = {255, 0, 0, 255}; // Red for check square
 
     uint8_t from_square = __builtin_ctzll(from_bitboard);
@@ -182,6 +183,8 @@ void* sdl_gui_loop(void* arg)
 
         if (is_different(current_position, &previous_position)) {
             find_difference(current_position, &previous_position, &from_bitboard, &to_bitboard);
+            print_bitboard(from_bitboard);
+            print_bitboard(to_bitboard);
             previous_position = *current_position; // Update previous position
             if (is_check(current_position)) {
                 check_square_bitboard = current_position->pieces[current_position->white_to_move].kings;
