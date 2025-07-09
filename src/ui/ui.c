@@ -274,8 +274,8 @@ void print_name(void)
 
     printf("|=================================================|\n");
     printf("|                   PHILIP BRAND                  |\n");
-    printf("|                    24-06-2025                   |\n");
-    printf("|                   Version  1.1                  | \n");
+    printf("|                    09-07-2025                   |\n");
+    printf("|                   Version  2.0                  | \n");
     printf("|==================================================\n");
     printf("\n");
 }

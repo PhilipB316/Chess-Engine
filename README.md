@@ -1,6 +1,6 @@
 # TessMax
 
-TessMax is my first chess engine. It is a bitboard engine written in C.
+TessMax is my first chess engine. It is a bitboard engine written in C. It uses a CLI for move input, and displays the position in a simple GUI.
 
 ## Features
 
@@ -25,6 +25,7 @@ TessMax is my first chess engine. It is a bitboard engine written in C.
 - CMake 3.10 or higher
 - gcc
 - SDL2 - this can be installed via apt with:
+
 ```sh
 sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
 ```
@@ -50,6 +51,8 @@ Run TessMax from the command line:
 ```
 
 The CLI instructions will guide you through the game. You can input moves in Standard Algebraic Notation (SAN) format.
+
+The current position will be displayed in a simple GUI.
 
 ## License
 
