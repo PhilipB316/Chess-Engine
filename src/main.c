@@ -14,6 +14,7 @@
 #include "./ui/gui.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
+static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
@@ -35,17 +36,13 @@ void* cli_game_loop(void* arg);
 
 int main(void)
 {
-    init(); // Initialize memory, move finder, and UI
+    init();
 
     pthread_t cli_thread, sdl_thread;
 
-    // Start CLI game loop thread
     pthread_create(&cli_thread, NULL, cli_game_loop, NULL);
-
-    // Start SDL GUI loop thread
     pthread_create(&sdl_thread, NULL, sdl_gui_loop, &gui_args);
 
-    // Wait for both threads to finish
     pthread_join(cli_thread, NULL);
     pthread_join(sdl_thread, NULL);
 
@@ -56,13 +53,10 @@ int main(void)
 void* cli_game_loop(void* arg)
 {
     (void)arg; // Unused parameter
-    char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
     print_name();
     print_welcome_message();
     set_time();
     set_colour(&playing_as_white);
-    fen_to_board(new, &position);
     printf("\n");
     start_clock(); // Start the clock for the first player
 
@@ -74,7 +68,6 @@ void* cli_game_loop(void* arg)
     custom_memory_deinit();
     return NULL;
 }
-
 
 bool play_game(Position_t* position)
 {
@@ -115,4 +108,6 @@ void init(void)
     custom_memory_init();
     move_finder_init();
     ui_init();
+    fen_to_board(new, &position);
 }
+

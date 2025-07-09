@@ -27,7 +27,7 @@ typedef struct {
 /**
  * @brief Thread function for the SDL GUI loop
  *
- * @param arg Pointer to the current position structure
+ * @param arg Pointer to GUI_Args_t containing position and playing perspective
  * @return Pointer to the result (NULL in this case)
  */
 void* sdl_gui_loop(void* arg);

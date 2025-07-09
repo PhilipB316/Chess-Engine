@@ -11,6 +11,7 @@ char board[BOARD_SIZE][BOARD_SIZE] = {0};
 SDL_Texture* piece_textures[12] = {NULL};
 
 static bool* playing_as_white; // Default perspective for printing the board
+static ULL from_bitboard, to_bitboard;
 
 static char* piece_files[12] = {
     "../assets/pieces/w_pawn_png_shadow_1024px.png",
@@ -94,8 +95,14 @@ void position_to_board_array(Position_t* position, char board[BOARD_SIZE][BOARD_
 
 void render_chess_board(SDL_Renderer* renderer)
 {
-    SDL_Color light = {240, 217, 181, 255};
-    SDL_Color dark = {181, 136, 99, 255};
+
+    SDL_Color light = {240, 217, 181, 255};        // Standard light squares
+    SDL_Color dark = {181, 136, 99, 255};          // Standard dark squares
+    SDL_Color from = {210, 180, 140, 255};    // Tan for dark "from"
+    SDL_Color to = {147, 112, 219, 255};      // Medium slate blue for dark "to"
+
+    uint8_t from_square = __builtin_ctzll(from_bitboard);
+    uint8_t to_square = __builtin_ctzll(to_bitboard);
 
     for (int y = 0; y < BOARD_SIZE; ++y) {
         for (int x = 0; x < BOARD_SIZE; ++x) {
@@ -103,15 +110,27 @@ void render_chess_board(SDL_Renderer* renderer)
 
             // Draw square background
             if ((x + y) % 2 == 0) {
-                SDL_SetRenderDrawColor(renderer, light.r, light.g, light.b, light.a);
+                if (x + 8 * y == from_square) {
+                    SDL_SetRenderDrawColor(renderer, from.r, from.g, from.b, from.a);
+                } else if (x + 8 * y == to_square) {
+                    SDL_SetRenderDrawColor(renderer, to.r, to.g, to.b, to.a);
+                } else {
+                    SDL_SetRenderDrawColor(renderer, light.r, light.g, light.b, light.a);
+                }
+
             } else {
-                SDL_SetRenderDrawColor(renderer, dark.r, dark.g, dark.b, dark.a);
+                if (x + 8 * y == from_square) {
+                    SDL_SetRenderDrawColor(renderer, from.r, from.g, from.b, from.a);
+                } else if (x + 8 * y == to_square) {
+                    SDL_SetRenderDrawColor(renderer, to.r, to.g, to.b, to.a);
+                } else {
+                    SDL_SetRenderDrawColor(renderer, dark.r, dark.g, dark.b, dark.a);
+                }
             }
+
             SDL_RenderFillRect(renderer, &square);
 
-
             int texture_index = piece_char_to_index(board[y][x]);
-
             if (texture_index >= 0 && piece_textures[texture_index] != NULL) {
                 // Create smaller rectangle for piece with padding
                 SDL_Rect piece_rect = {
@@ -131,35 +150,44 @@ void* sdl_gui_loop(void* arg)
 {
     GUI_Args_t* gui_args = (GUI_Args_t*)arg;
     Position_t* current_position = gui_args->position;
+    Position_t previous_position = *current_position;
     playing_as_white = (gui_args->playing_as_white);
 
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
-    SDL_Window* window = SDL_CreateWindow("Chess Board", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+
+    SDL_Window* window = SDL_CreateWindow("TessMax!!",
+                                          SDL_WINDOWPOS_CENTERED,
+                                          SDL_WINDOWPOS_CENTERED,
+                                          WINDOW_WIDTH,
+                                          WINDOW_HEIGHT,
+                                          SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    // Load piece textures
     load_piece_textures(renderer);
 
     int running = 1;
     SDL_Event event;
 
     while (running) {
+        // exit event handling
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                running = 0;
-            }
+            if (event.type == SDL_QUIT) { running = 0; }
         }
-
-        position_to_board_array(current_position, board);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+        position_to_board_array(current_position, board);
         render_chess_board(renderer);
 
+        if (is_different(current_position, &previous_position)) {
+            find_difference(current_position, &previous_position, &from_bitboard, &to_bitboard);
+            previous_position = *current_position; // Update previous position
+        }
+
         SDL_RenderPresent(renderer);
-        SDL_Delay(16);
+        SDL_Delay(50);
     }
 
     // Clean up textures
@@ -175,3 +203,4 @@ void* sdl_gui_loop(void* arg)
     SDL_Quit();
     return NULL;
 }
+

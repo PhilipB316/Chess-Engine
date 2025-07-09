@@ -149,3 +149,35 @@ void fen_to_board(char *fen, Position_t *fen_position)
     if (fen_position->white_to_move) { fen_position->half_move_count--; }
 }
 
+bool is_different(Position_t* position1, Position_t* position2)
+{
+    if (position1->white_to_move != position2->white_to_move) return true;
+    if (position1->en_passant_bitboard != position2->en_passant_bitboard) return true;
+    if (position1->all_pieces != position2->all_pieces) return true;
+
+    for (int i = 0; i < 2; i++)
+    {
+        PiecesOneColour_t* pieces1 = &position1->pieces[i];
+        PiecesOneColour_t* pieces2 = &position2->pieces[i];
+
+        if (pieces1->castle_kingside != pieces2->castle_kingside) return true;
+        if (pieces1->castle_queenside != pieces2->castle_queenside) return true;
+        if (pieces1->pawns != pieces2->pawns) return true;
+        if (pieces1->knights != pieces2->knights) return true;
+        if (pieces1->bishops != pieces2->bishops) return true;
+        if (pieces1->rooks != pieces2->rooks) return true;
+        if (pieces1->queens != pieces2->queens) return true;
+        if (pieces1->kings != pieces2->kings) return true;
+    }
+    return false;
+}
+
+void find_difference(Position_t* position1,
+                     Position_t* position2,
+                     ULL* from_bitboard,
+                     ULL* to_bitboard)
+{
+    ULL move_bitboard = position1->all_pieces ^ position2->all_pieces;
+    *from_bitboard = move_bitboard & position1->all_pieces;
+    *to_bitboard = move_bitboard & position2->all_pieces;
+}

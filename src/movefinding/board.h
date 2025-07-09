@@ -90,4 +90,27 @@ void fen_to_board(char fen[], Position_t *position);
  */
 int16_t calculate_piece_value_diff(Position_t *position);
 
+/**
+ * @breif Checks if two positions are different.
+ *
+ * @param position1 The first position to compare.
+ * @param position2 The second position to compare.
+ * @return true if the positions are different, false otherwise.
+ */
+bool is_different(Position_t* position1, Position_t* position2);
+
+/**
+ * @brief Finds from and to bitboards based on the difference between two positions.
+ *
+ * @param from_position The initial position.
+ * @param to_position The target position.
+ * @param from_bitboard Pointer to store the bitboard of pieces in the initial position.
+ * @param to_bitboard Pointer to store the bitboard of pieces in the target position.
+ */
+void find_difference(Position_t* from_position,
+                     Position_t* to_position,
+                     ULL* from_bitboard,
+                     ULL* to_bitboard);
+
 #endif // BOARD_FORMATTER_H
+
