@@ -6,12 +6,13 @@
 
 #include "gui.h"
 #include "../movefinding/board.h"
+#include "../search/evaluate.h"
 
 char board[BOARD_SIZE][BOARD_SIZE] = {0};
 SDL_Texture* piece_textures[12] = {NULL};
 
 static bool* playing_as_white; // Default perspective for printing the board
-static ULL from_bitboard, to_bitboard;
+static ULL from_bitboard, to_bitboard, check_square_bitboard;
 
 static char* piece_files[12] = {
     "../assets/pieces/w_pawn_png_shadow_1024px.png",
@@ -100,32 +101,29 @@ void render_chess_board(SDL_Renderer* renderer)
     SDL_Color dark = {181, 136, 99, 255};          // Standard dark squares
     SDL_Color from = {210, 180, 140, 255};    // Tan for dark "from"
     SDL_Color to = {147, 112, 219, 255};      // Medium slate blue for dark "to"
+    SDL_Color check = {255, 0, 0, 255}; // Red for check square
 
     uint8_t from_square = __builtin_ctzll(from_bitboard);
     uint8_t to_square = __builtin_ctzll(to_bitboard);
+    uint8_t check_square = __builtin_ctzll(check_square_bitboard);
 
     for (int y = 0; y < BOARD_SIZE; ++y) {
         for (int x = 0; x < BOARD_SIZE; ++x) {
             SDL_Rect square = {x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE};
 
             // Draw square background
-            if ((x + y) % 2 == 0) {
-                if (x + 8 * y == from_square) {
-                    SDL_SetRenderDrawColor(renderer, from.r, from.g, from.b, from.a);
-                } else if (x + 8 * y == to_square) {
-                    SDL_SetRenderDrawColor(renderer, to.r, to.g, to.b, to.a);
-                } else {
-                    SDL_SetRenderDrawColor(renderer, light.r, light.g, light.b, light.a);
-                }
+            if ((x + y) % 2 == 0) { 
+                SDL_SetRenderDrawColor(renderer, light.r, light.g, light.b, light.a); } 
+            else { 
+                SDL_SetRenderDrawColor(renderer, dark.r, dark.g, dark.b, dark.a); }
 
-            } else {
-                if (x + 8 * y == from_square) {
-                    SDL_SetRenderDrawColor(renderer, from.r, from.g, from.b, from.a);
-                } else if (x + 8 * y == to_square) {
-                    SDL_SetRenderDrawColor(renderer, to.r, to.g, to.b, to.a);
-                } else {
-                    SDL_SetRenderDrawColor(renderer, dark.r, dark.g, dark.b, dark.a);
-                }
+            if (x + 8 * y == from_square) {
+                SDL_SetRenderDrawColor(renderer, from.r, from.g, from.b, from.a);
+            } else if (x + 8 * y == to_square) {
+                SDL_SetRenderDrawColor(renderer, to.r, to.g, to.b, to.a);
+            }
+            if ((x + 8 * y == check_square) && (check_square_bitboard != 1)) {
+                SDL_SetRenderDrawColor(renderer, check.r, check.g, check.b, check.a);
             }
 
             SDL_RenderFillRect(renderer, &square);
@@ -184,6 +182,11 @@ void* sdl_gui_loop(void* arg)
         if (is_different(current_position, &previous_position)) {
             find_difference(current_position, &previous_position, &from_bitboard, &to_bitboard);
             previous_position = *current_position; // Update previous position
+            if (is_check(current_position)) {
+                check_square_bitboard = current_position->pieces[current_position->white_to_move].kings;
+            } else {
+                check_square_bitboard = 1; // No check
+            }
         }
 
         SDL_RenderPresent(renderer);

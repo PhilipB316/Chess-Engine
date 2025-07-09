@@ -16,7 +16,6 @@
 #define WHITE_PIECE_COLOUR 1
 #define BLACK_PIECE_COLOUR -1
 #define CHECKMATE_VALUE 100000
-#define INFINITY 1000000
 
 // Values of each piece type for evaluation
 #define PAWN_VALUE 100
