@@ -18,6 +18,7 @@ static bool playing_as_white = false; // Default perspective for printing the bo
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
 
+static GUI_Args_t gui_args; // Arguments for the GUI thread
 
 /**
     * TODO:
@@ -42,7 +43,7 @@ int main(void)
     pthread_create(&cli_thread, NULL, cli_game_loop, NULL);
 
     // Start SDL GUI loop thread
-    pthread_create(&sdl_thread, NULL, sdl_gui_loop, &position);
+    pthread_create(&sdl_thread, NULL, sdl_gui_loop, &gui_args);
 
     // Wait for both threads to finish
     pthread_join(cli_thread, NULL);
@@ -109,8 +110,9 @@ bool update_game(void)
 
 void init(void)
 {
+    gui_args.position = &position;
+    gui_args.playing_as_white = &playing_as_white;
     custom_memory_init();
     move_finder_init();
     ui_init();
 }
-

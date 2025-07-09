@@ -10,12 +10,19 @@
 
 #include <SDL2/SDL.h>
 
+#include "../movefinding/board.h"
+
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 640
 #define BOARD_SIZE 8
 #define SQUARE_SIZE (WINDOW_WIDTH / BOARD_SIZE)
 
 #define PADDING SQUARE_SIZE / 8
+
+typedef struct {
+    Position_t* position;
+    bool* playing_as_white;
+} GUI_Args_t;
 
 /**
  * @brief Thread function for the SDL GUI loop

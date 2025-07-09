@@ -9,6 +9,8 @@
 char board[BOARD_SIZE][BOARD_SIZE] = {0};
 SDL_Texture* piece_textures[12] = {NULL};
 
+static bool playing_as_white = false; // Default perspective for printing the board
+
 static char* piece_files[12] = {
     "../assets/pieces/w_pawn_png_shadow_1024px.png",
     "../assets/pieces/w_knight_png_shadow_1024px.png",
@@ -71,22 +73,23 @@ void position_to_board_array(Position_t* position, char board[BOARD_SIZE][BOARD_
     for (uint8_t i = 0; i < 64; i++) {
         int rank = i / 8;
         int file = i % 8;
+        int display_rank = playing_as_white ? rank : (BOARD_SIZE - 1 - rank);
+        int display_file = playing_as_white ? file : (BOARD_SIZE - 1 - file);
 
-        if (white_pieces.pawns & (1ULL << i)) { board[rank][file] = 'P'; }
-        else if (white_pieces.knights & (1ULL << i)) { board[rank][file] = 'N'; }
-        else if (white_pieces.bishops & (1ULL << i)) { board[rank][file] = 'B'; }
-        else if (white_pieces.rooks & (1ULL << i)) { board[rank][file] = 'R'; }
-        else if (white_pieces.queens & (1ULL << i)) { board[rank][file] = 'Q'; }
-        else if (white_pieces.kings & (1ULL << i)) { board[rank][file] = 'K'; }
-        else if (black_pieces.pawns & (1ULL << i)) { board[rank][file] = 'p'; }
-        else if (black_pieces.knights & (1ULL << i)) { board[rank][file] = 'n'; }
-        else if (black_pieces.bishops & (1ULL << i)) { board[rank][file] = 'b'; }
-        else if (black_pieces.rooks & (1ULL << i)) { board[rank][file] = 'r'; }
-        else if (black_pieces.queens & (1ULL << i)) { board[rank][file] = 'q'; }
-        else if (black_pieces.kings & (1ULL << i)) { board[rank][file] = 'k'; }
+        if (white_pieces.pawns & (1ULL << i)) { board[display_rank][display_file] = 'P'; }
+        else if (white_pieces.knights & (1ULL << i)) { board[display_rank][display_file] = 'N'; }
+        else if (white_pieces.bishops & (1ULL << i)) { board[display_rank][display_file] = 'B'; }
+        else if (white_pieces.rooks & (1ULL << i)) { board[display_rank][display_file] = 'R'; }
+        else if (white_pieces.queens & (1ULL << i)) { board[display_rank][display_file] = 'Q'; }
+        else if (white_pieces.kings & (1ULL << i)) { board[display_rank][display_file] = 'K'; }
+        else if (black_pieces.pawns & (1ULL << i)) { board[display_rank][display_file] = 'p'; }
+        else if (black_pieces.knights & (1ULL << i)) { board[display_rank][display_file] = 'n'; }
+        else if (black_pieces.bishops & (1ULL << i)) { board[display_rank][display_file] = 'b'; }
+        else if (black_pieces.rooks & (1ULL << i)) { board[display_rank][display_file] = 'r'; }
+        else if (black_pieces.queens & (1ULL << i)) { board[display_rank][display_file] = 'q'; }
+        else if (black_pieces.kings & (1ULL << i)) { board[display_rank][display_file] = 'k'; }
     }
 }
-
 
 void render_chess_board(SDL_Renderer* renderer)
 {
@@ -125,8 +128,10 @@ void render_chess_board(SDL_Renderer* renderer)
 // Thread function for SDL GUI loop
 void* sdl_gui_loop(void* arg) 
 {
-    Position_t* current_position = (Position_t*)arg;
-    
+    GUI_Args_t* gui_args = (GUI_Args_t*)arg;
+    Position_t* current_position = gui_args->position;
+    playing_as_white = gui_args->playing_as_white;
+
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
     SDL_Window* window = SDL_CreateWindow("Chess Board", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
