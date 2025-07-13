@@ -2,19 +2,24 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 
 #include "gui.h"
-#include "../ui/ui.h"
 #include "../movefinding/board.h"
+#include "../ui/movedisplay.h"
 #include "../search/evaluate.h"
 
-char board[BOARD_SIZE][BOARD_SIZE] = {0};
-SDL_Texture* piece_textures[12] = {NULL};
+static char board[BOARD_SIZE][BOARD_SIZE] = {0};
+static SDL_Texture* piece_textures[12] = {NULL};
+
+static char move_notation[ALL_MOVE_NOTATION_LENGTH] = {0};
 
 static bool* playing_as_white; // Default perspective for printing the board
 static ULL from_bitboard, to_bitboard;
 static ULL check_square_bitboard = 1;
+
+void cleanup_gui(SDL_Renderer* renderer, SDL_Window* window);
 
 static char* piece_files[12] = {
     "../assets/pieces/w_pawn_png_shadow_1024px.png",
@@ -151,7 +156,51 @@ void render_chess_board(SDL_Renderer* renderer)
     }
 }
 
-void* sdl_gui_loop(void* arg) 
+void render_moves(SDL_Renderer* renderer) 
+{
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_Rect move_rect = {BOARD_WIDTH, 0, BOARD_WIDTH + RIGHT_BORDER_WIDTH, BOARD_HEIGHT + BOTTOM_BORDER_HEIGHT};
+    SDL_RenderFillRect(renderer, &move_rect);
+
+    SDL_Color textColor = {0, 0, 0, 255}; // Black color
+    TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12);
+    SDL_Surface* textSurface = TTF_RenderUTF8_Blended_Wrapped(font, move_notation, textColor, move_rect.w - 20);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Rect textRect = {move_rect.x + 10, move_rect.y + 10, textSurface->w, textSurface->h};
+    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+    SDL_DestroyTexture(textTexture);
+    SDL_FreeSurface(textSurface);
+    TTF_CloseFont(font);
+}
+
+void update_notation_string(Position_t* current_position, Position_t* previous_position) 
+{
+    static uint8_t move_count = 0;
+
+    if (move_count % 2 == 0) {
+        strcat(move_notation, "\n"); 
+        char move_count_str[10];
+        sprintf(move_count_str, "%d. ", move_count / 2 + 1);
+    }
+    else { strcat(move_notation, " "); }
+
+    char move[10];
+    find_from_to_square(previous_position, current_position, &from_bitboard, &to_bitboard);
+    get_move_notation(previous_position, current_position, move);
+    strcat(move_notation, move);
+    move_count++;
+}
+
+void update_square_highlighting(Position_t *current_position, Position_t previous_position)
+{
+
+    find_from_to_square(&previous_position, current_position, &from_bitboard, &to_bitboard);
+    if (is_check(current_position)) {
+        check_square_bitboard = current_position->pieces[current_position->white_to_move].kings;
+    } else { check_square_bitboard = 1; /* No check */ }
+}
+
+void* sdl_gui_loop(void* arg)
 {
     GUI_Args_t* gui_args = (GUI_Args_t*)arg;
     Position_t* current_position = gui_args->position;
@@ -161,11 +210,18 @@ void* sdl_gui_loop(void* arg)
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
 
+    if (TTF_Init() == -1) {
+        fprintf(stderr, "TTF_Init: %s\n", TTF_GetError());
+        exit(1);
+    }
+
+    strcpy(move_notation, "-----------------\n");
+
     SDL_Window* window = SDL_CreateWindow("TessMax!!",
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
                                           BOARD_WIDTH + RIGHT_BORDER_WIDTH,
-                                          BOARD_HEIGHT,
+                                          BOARD_HEIGHT + BOTTOM_BORDER_HEIGHT,
                                           SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -176,41 +232,39 @@ void* sdl_gui_loop(void* arg)
 
     while (running) {
         // exit event handling
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) { running = 0; }
-        }
+        while (SDL_PollEvent(&event)) { if (event.type == SDL_QUIT) { running = 0; } }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
         position_to_board_array(current_position, board);
         render_chess_board(renderer);
+        render_moves(renderer);
 
+        // check for changes in position and update highlighting accordingly
         if (is_different(current_position, &previous_position)) {
-            find_from_to_square(&previous_position, current_position, &from_bitboard, &to_bitboard);
+            update_notation_string(current_position, &previous_position);
+            update_square_highlighting(current_position, previous_position);
             previous_position = *current_position; // Update previous position
-            if (is_check(current_position)) {
-                check_square_bitboard = current_position->pieces[current_position->white_to_move].kings;
-            } else {
-                check_square_bitboard = 1; // No check
-            }
         }
-
         SDL_RenderPresent(renderer);
         SDL_Delay(50);
     }
+    cleanup_gui(renderer, window);
+    return NULL;
+}
 
-    // Clean up textures
+void cleanup_gui(SDL_Renderer* renderer, SDL_Window* window) 
+{
     for (int i = 0; i < 12; i++) {
-        if (piece_textures[i] != NULL) {
+        if (piece_textures[i]) {
             SDL_DestroyTexture(piece_textures[i]);
         }
     }
-
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
+    TTF_Quit();
     SDL_Quit();
-    return NULL;
 }
 

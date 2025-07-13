@@ -16,9 +16,12 @@
 #define BOARD_HEIGHT 640
 #define BOARD_SIZE 8
 #define RIGHT_BORDER_WIDTH 200
+#define BOTTOM_BORDER_HEIGHT 200
 #define SQUARE_SIZE (BOARD_WIDTH / BOARD_SIZE)
 
 #define PADDING SQUARE_SIZE / 8
+
+#define ALL_MOVE_NOTATION_LENGTH 5000
 
 typedef struct {
     Position_t* position;

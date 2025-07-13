@@ -297,28 +297,91 @@ ULL determine_from_square_bitboard(Position_t *position,
 void get_move_notation(Position_t* previous_position, Position_t* new_position, char* notation)
 {
     MoveType_t move_type = find_move_type(previous_position, new_position);
+
+    ULL from_bitboard, to_bitboard;
+    find_from_to_square(previous_position, new_position, &from_bitboard, &to_bitboard);
+
+    uint8_t to_square = __builtin_ctzll(to_bitboard);
+    uint8_t from_square = __builtin_ctzll(from_bitboard);
+
+    char from_square_file[2] = {'a' + (from_square % 8), '\0'};
+    char to_square_file[2] = {'a' + (to_square % 8), '\0'};
+    char to_square_rank[2] = {'1' + (7 - to_square / 8), '\0'};
+
+    bool value_change = (new_position->piece_value_diff != previous_position->piece_value_diff);
+
     switch (move_type) {
         case PAWN:
-            sprintf(notation, "%c%c", 'a' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].pawns) % 8), '1' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].pawns) / 8));
+            if (value_change) {
+                strcat(notation, from_square_file);
+                strcat(notation, "x");
+            }
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
             break;
         case KNIGHT:
-            sprintf(notation, "N%c%c", 'a' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].knights) % 8), '1' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].knights) / 8));
+            strcat(notation, "N");
+            if (value_change) { strcat(notation, "x"); }
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
             break;
         case BISHOP:
-            sprintf(notation, "B%c%c", 'a' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].bishops) % 8), '1' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].bishops) / 8));
+            strcat(notation, "B");
+            if (value_change) { strcat(notation, "x"); }
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
             break;
         case ROOK:
-            sprintf(notation, "R%c%c", 'a' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].rooks) % 8), '1' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].rooks) / 8));
+            strcat(notation, "R");
+            if (value_change) { strcat(notation, "x"); }
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
             break;
         case QUEEN:
-            sprintf(notation, "Q%c%c", 'a' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].queens) % 8), '1' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].queens) / 8));
+            strcat(notation, "Q");
+            if (value_change) { strcat(notation, "x"); }
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
             break;
         case KING:
-            sprintf(notation, "K%c%c", 'a' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].kings) % 8), '1' + (__builtin_ctzll(new_position->pieces[previous_position->white_to_move].kings) / 8));
+            strcat(notation, "K");
+            if (value_change) { strcat(notation, "x"); }
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
             break;
-        default:
-            strcpy(notation, "Invalid move type");
+        case PROMOTE_QUEEN:
+            strcat(notation, "Q=");
+            if (value_change) { strcat(notation, "x"); }
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
+            break;
+        case PROMOTE_ROOK:
+            strcat(notation, "R=");
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
+            break;
+        case PROMOTE_BISHOP:
+            strcat(notation, "B=");
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
+            break;
+        case PROMOTE_KNIGHT:
+            strcat(notation, "N=");
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
+            break;
+        case DOUBLE_PUSH:
+            // should not happen
+            break;
+        case EN_PASSANT_CAPTURE:
+            // should not happen
+            break;
+        case CASTLE_KINGSIDE:
+            strcat(notation, "O-O");
+            break;
+        case CASTLE_QUEENSIDE:
+            strcat(notation, "O-O-O");
+            break;
     }
-
 }
 

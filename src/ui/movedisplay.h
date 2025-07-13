@@ -58,5 +58,14 @@ int parse_move_notation(char *move_notation,
                         Position_t *position,
                         ULL* special_flags);
 
+/**
+ * @brief Determines the move notation for a move
+ * 
+ * @param old_position The position before the move
+ * @param new_position The position after the move
+ * @param move_notation Buffer to store the generated move notation
+ */
+void get_move_notation(Position_t* previous_position, Position_t* new_position, char* notation);
+
 #endif // MOVEDISPLAY_H
 
