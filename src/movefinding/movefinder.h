@@ -17,27 +17,6 @@
 #define QUEENSIDE 1
 
 /**
- * @brief Enum for the different piece types moves.
- */
-typedef enum 
-{
-    PAWN,
-    KNIGHT,
-    BISHOP,
-    ROOK,
-    QUEEN,
-    KING,
-    DOUBLE_PUSH,
-    PROMOTE_QUEEN,
-    PROMOTE_ROOK,
-    PROMOTE_BISHOP,
-    PROMOTE_KNIGHT,
-    CASTLE_KINGSIDE,
-    CASTLE_QUEENSIDE,
-    EN_PASSANT_CAPTURE,
-} MoveType_t;
-
-/**
  * @brief Initialises lookup tables for move finding.
  */
 void move_finder_init(void);

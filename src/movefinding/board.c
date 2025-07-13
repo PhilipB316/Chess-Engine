@@ -6,6 +6,8 @@
 #include <ctype.h>
 
 #include "board.h"
+#include "movefinder.h"
+#include "lookuptables.h"
 #include "../search/evaluate.h"
 
 char *pretty_print_moves[64] =
@@ -172,13 +174,66 @@ bool is_different(Position_t* position1, Position_t* position2)
     return false;
 }
 
-void find_difference(Position_t* position1,
-                     Position_t* position2,
-                     ULL* from_bitboard,
-                     ULL* to_bitboard)
+void find_from_to_square(Position_t* position1,
+                         Position_t* position2,
+                         ULL* from_bitboard,
+                         ULL* to_bitboard)
 {
     bool white_to_move = position1->white_to_move;
     ULL move_bitboard = position1->pieces[white_to_move].all_pieces ^ position2->pieces[white_to_move].all_pieces;
+    uint8_t moved_piece_count = 0;
+
     *from_bitboard = move_bitboard & position1->pieces[white_to_move].all_pieces;
     *to_bitboard = move_bitboard & position2->pieces[white_to_move].all_pieces;
+
+    while (move_bitboard)
+    {
+        moved_piece_count++;
+        move_bitboard &= ~(1ULL << __builtin_ctzll(move_bitboard));
+    }
+    if (moved_piece_count > 2)
+    {
+        *from_bitboard = position1->pieces[white_to_move].kings;
+        *to_bitboard = position2->pieces[white_to_move].kings;
+    }
 }
+
+bool piece_moved_more_than_one_square(ULL from_bitboard, ULL to_bitboard)
+{
+    uint8_t from_square = __builtin_ctzll(from_bitboard);
+    uint8_t to_square = __builtin_ctzll(to_bitboard);
+    return (abs((int)(from_square / 8) - (int)(to_square / 8)) > 1 ||
+            abs((int)(from_square % 8) - (int)(to_square % 8)) > 1);
+}
+
+MoveType_t find_move_type(Position_t *from_position, Position_t *to_position)
+{
+    ULL from_bitboard, to_bitboard;
+    PiecesOneColour_t from_active_pieces_set = from_position->pieces[from_position->white_to_move];
+    PiecesOneColour_t to_active_pieces_set = to_position->pieces[from_position->white_to_move];
+    find_from_to_square(from_position, to_position, &from_bitboard, &to_bitboard);
+
+    if (from_bitboard & from_active_pieces_set.pawns)
+    {
+        if (to_bitboard & from_active_pieces_set.pawns) { return PAWN; }
+        else if (to_bitboard & to_active_pieces_set.bishops) { return PROMOTE_BISHOP; }
+        else if (to_bitboard & to_active_pieces_set.rooks) { return PROMOTE_ROOK; }
+        else if (to_bitboard & to_active_pieces_set.queens) { return PROMOTE_QUEEN; }
+        else if (to_bitboard & to_active_pieces_set.kings) { return PROMOTE_KNIGHT; }
+    }
+    else if (from_bitboard & from_active_pieces_set.knights) { return KNIGHT; }
+    else if (from_bitboard & from_active_pieces_set.bishops) { return BISHOP; }
+    else if (from_bitboard & from_active_pieces_set.rooks) { return ROOK; }
+    else if (from_bitboard & from_active_pieces_set.queens) { return QUEEN; }
+    else if (from_bitboard & from_active_pieces_set.kings)
+    {
+        if (to_bitboard & king_castling_array[from_position->white_to_move][KINGSIDE])
+        { return CASTLE_KINGSIDE; }
+        else if (to_bitboard & king_castling_array[from_position->white_to_move][QUEENSIDE])
+        { return CASTLE_QUEENSIDE; }
+        else
+        { return KING; }
+    }
+    return 0; // Invalid move type
+}
+

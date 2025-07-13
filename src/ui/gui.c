@@ -47,19 +47,19 @@ void load_piece_textures(SDL_Renderer* renderer) {
 
 int piece_char_to_index(char piece) {
     switch (piece) {
-        case 'P': return 0; // White Pawn
-        case 'N': return 1; // White Knight
-        case 'B': return 2; // White Bishop
-        case 'R': return 3; // White Rook
-        case 'Q': return 4; // White Queen
-        case 'K': return 5; // White King
-        case 'p': return 6; // Black Pawn
-        case 'n': return 7; // Black Knight
-        case 'b': return 8; // Black Bishop
-        case 'r': return 9; // Black Rook
-        case 'q': return 10; // Black Queen
-        case 'k': return 11; // Black King
-        default: return -1; // Empty square or unknown piece
+        case 'P': return 0; // white pawn
+        case 'N': return 1; // white knight
+        case 'B': return 2; // white bishop
+        case 'R': return 3; // white rook
+        case 'Q': return 4; // white queen
+        case 'K': return 5; // white king
+        case 'p': return 6; // black pawn
+        case 'n': return 7; // black knight
+        case 'b': return 8; // black bishop
+        case 'r': return 9; // black rook
+        case 'q': return 10; // black Queen
+        case 'k': return 11; // black King
+        default: return -1; // empty square or unknown piece
     }
 }
 
@@ -109,6 +109,12 @@ void render_chess_board(SDL_Renderer* renderer)
     uint8_t to_square = __builtin_ctzll(to_bitboard);
     uint8_t check_square = __builtin_ctzll(check_square_bitboard);
 
+    if (! *playing_as_white) { 
+        // Adjust for black perspective
+        from_square = 63 - from_square;
+        to_square = 63 - to_square;
+    }
+
     for (int y = 0; y < BOARD_SIZE; ++y) {
         for (int x = 0; x < BOARD_SIZE; ++x) {
             SDL_Rect square = {x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE};
@@ -145,7 +151,6 @@ void render_chess_board(SDL_Renderer* renderer)
     }
 }
 
-// Thread function for SDL GUI loop
 void* sdl_gui_loop(void* arg) 
 {
     GUI_Args_t* gui_args = (GUI_Args_t*)arg;
@@ -159,8 +164,8 @@ void* sdl_gui_loop(void* arg)
     SDL_Window* window = SDL_CreateWindow("TessMax!!",
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
-                                          WINDOW_WIDTH,
-                                          WINDOW_HEIGHT,
+                                          BOARD_WIDTH + RIGHT_BORDER_WIDTH,
+                                          BOARD_HEIGHT,
                                           SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
@@ -182,7 +187,7 @@ void* sdl_gui_loop(void* arg)
         render_chess_board(renderer);
 
         if (is_different(current_position, &previous_position)) {
-            find_difference(&previous_position, current_position, &from_bitboard, &to_bitboard);
+            find_from_to_square(&previous_position, current_position, &from_bitboard, &to_bitboard);
             previous_position = *current_position; // Update previous position
             if (is_check(current_position)) {
                 check_square_bitboard = current_position->pieces[current_position->white_to_move].kings;

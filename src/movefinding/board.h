@@ -48,6 +48,28 @@ typedef struct
 } PiecesOneColour_t;
 
 /**
+ *
+ * @brief Enum for the different piece types moves.
+ */
+typedef enum 
+{
+    PAWN,
+    KNIGHT,
+    BISHOP,
+    ROOK,
+    QUEEN,
+    KING,
+    DOUBLE_PUSH,
+    PROMOTE_QUEEN,
+    PROMOTE_ROOK,
+    PROMOTE_BISHOP,
+    PROMOTE_KNIGHT,
+    CASTLE_KINGSIDE,
+    CASTLE_QUEENSIDE,
+    EN_PASSANT_CAPTURE,
+} MoveType_t;
+
+/**
  * @brief Represents a position in the game of chess.
  * 
  * Contains information about the pieces, their positions, whose turn it is,
@@ -107,10 +129,21 @@ bool is_different(Position_t* position1, Position_t* position2);
  * @param from_bitboard Pointer to store the bitboard of pieces in the initial position.
  * @param to_bitboard Pointer to store the bitboard of pieces in the target position.
  */
-void find_difference(Position_t* from_position,
-                     Position_t* to_position,
-                     ULL* from_bitboard,
-                     ULL* to_bitboard);
+void find_from_to_square(Position_t* from_position,
+                         Position_t* to_position,
+                         ULL* from_bitboard,
+                         ULL* to_bitboard);
+
+/**
+ * @brief Finds the move type based on the from and to positions.
+ *
+ * @param from_position The initial position.
+ * @param to_position The target position.
+ * @return The type of move (e.g., PAWN, KNIGHT, etc.).
+ */
+MoveType_t find_move_type(Position_t* from_position,
+                          Position_t* to_position);
+
 
 #endif // BOARD_FORMATTER_H
 
