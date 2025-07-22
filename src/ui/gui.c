@@ -13,7 +13,7 @@
 static char board[BOARD_SIZE][BOARD_SIZE] = {0};
 static SDL_Texture* piece_textures[12] = {NULL};
 
-static char move_notation[ALL_MOVE_NOTATION_LENGTH] = {0};
+static char move_notation[MOVE_NOTATION_LENGTH * MAXIMUM_GAME_LENGTH] = {0};
 
 static bool* playing_as_white; // Default perspective for printing the board
 static ULL from_bitboard, to_bitboard;
@@ -159,12 +159,14 @@ void render_chess_board(SDL_Renderer* renderer)
 void render_moves(SDL_Renderer* renderer) 
 {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_Rect move_rect = {BOARD_WIDTH, 0, BOARD_WIDTH + RIGHT_BORDER_WIDTH, BOARD_HEIGHT + BOTTOM_BORDER_HEIGHT};
+    SDL_Rect move_rect = {BOARD_WIDTH, 0, BOARD_WIDTH + RIGHT_BORDER_WIDTH, 
+        BOARD_HEIGHT + BOTTOM_BORDER_HEIGHT};
     SDL_RenderFillRect(renderer, &move_rect);
 
     SDL_Color textColor = {0, 0, 0, 255}; // Black color
-    TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12);
-    SDL_Surface* textSurface = TTF_RenderUTF8_Blended_Wrapped(font, move_notation, textColor, move_rect.w - 20);
+    TTF_Font* font = TTF_OpenFont("../assets/font/DejaVuSansMono.ttf", 12);
+    SDL_Surface* textSurface = TTF_RenderUTF8_Blended_Wrapped(
+        font, move_notation, textColor, move_rect.w - 20);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
     SDL_Rect textRect = {move_rect.x + 10, move_rect.y + 10, textSurface->w, textSurface->h};
     SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
@@ -177,17 +179,25 @@ void update_notation_string(Position_t* current_position, Position_t* previous_p
 {
     static uint8_t move_count = 0;
 
-    if (move_count % 2 == 0) {
-        strcat(move_notation, "\n"); 
-        char move_count_str[10];
-        sprintf(move_count_str, "%d. ", move_count / 2 + 1);
-    }
-    else { strcat(move_notation, " "); }
-
-    char move[10];
-    find_from_to_square(previous_position, current_position, &from_bitboard, &to_bitboard);
+    char move[MOVE_NOTATION_LENGTH] = {0};
     get_move_notation(previous_position, current_position, move);
-    strcat(move_notation, move);
+
+    if (move_count % 2 == 0) {
+        strcat(move_notation, "\n");
+        char move_count_str[MOVE_NOTATION_LENGTH] = {0};
+        char move_number[4] = {0};
+        sprintf(move_number, "%d", (move_count / 2 + 1));
+        sprintf(move_count_str, "%-4s ", strcat(move_number, "."));
+        strcat(move_notation, move_count_str);
+    } else {
+        // Print space between white and black moves
+        strcat(move_notation, " ");
+    }
+
+    char padded_move[MOVE_NOTATION_LENGTH] = {0};
+    sprintf(padded_move, "%-6s", move);
+    strcat(move_notation, padded_move);
+
     move_count++;
 }
 
@@ -196,7 +206,8 @@ void update_square_highlighting(Position_t *current_position, Position_t previou
 
     find_from_to_square(&previous_position, current_position, &from_bitboard, &to_bitboard);
     if (is_check(current_position)) {
-        check_square_bitboard = current_position->pieces[current_position->white_to_move].kings;
+        check_square_bitboard = current_position->pieces[
+            current_position->white_to_move].kings;
     } else { check_square_bitboard = 1; /* No check */ }
 }
 
@@ -235,8 +246,7 @@ void* sdl_gui_loop(void* arg)
         while (SDL_PollEvent(&event)) { if (event.type == SDL_QUIT) { running = 0; } }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
+        SDL_RenderClear(renderer); // clear the renderer
         position_to_board_array(current_position, board);
         render_chess_board(renderer);
         render_moves(renderer);

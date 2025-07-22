@@ -22,6 +22,7 @@
 #define PADDING SQUARE_SIZE / 8
 
 #define ALL_MOVE_NOTATION_LENGTH 5000
+#define MOVE_NOTATION_LENGTH 30
 
 typedef struct {
     Position_t* position;

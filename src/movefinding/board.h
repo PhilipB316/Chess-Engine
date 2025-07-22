@@ -20,6 +20,7 @@
 
 #define MAX_CHILDREN 100
 #define FEN_LENGTH 100
+#define MAXIMUM_GAME_LENGTH 500
 
 #define WHITE_INDEX 1
 
