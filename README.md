@@ -44,7 +44,7 @@ The executable will be located in the `build` directory.
 
 ## Usage
 
-Run TessMax from the command line:
+Run TessMax from the command line from within the `build` directory:
 
 ```sh
 ./tessmax
