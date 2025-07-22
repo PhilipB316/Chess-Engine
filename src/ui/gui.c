@@ -158,13 +158,15 @@ void render_chess_board(SDL_Renderer* renderer)
 
 void render_moves(SDL_Renderer* renderer) 
 {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 220, 100, 100, 255); // Pale red background
     SDL_Rect move_rect = {BOARD_WIDTH, 0, BOARD_WIDTH + RIGHT_BORDER_WIDTH, 
         BOARD_HEIGHT + BOTTOM_BORDER_HEIGHT};
     SDL_RenderFillRect(renderer, &move_rect);
 
+    if (move_notation[0] == '\0') { return; }
+
     SDL_Color textColor = {0, 0, 0, 255}; // Black color
-    TTF_Font* font = TTF_OpenFont("../assets/font/DejaVuSansMono.ttf", 12);
+    TTF_Font* font = TTF_OpenFont("../assets/font/DejaVuSansMono.ttf", FONT_SIZE);
     SDL_Surface* textSurface = TTF_RenderUTF8_Blended_Wrapped(
         font, move_notation, textColor, move_rect.w - 20);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
@@ -184,8 +186,16 @@ void update_notation_string(Position_t* current_position, Position_t* previous_p
 
     if (move_count % 2 == 0) {
         strcat(move_notation, "\n");
+
+        // Shift the notation to keep the last MAX_NUM_MOVES_ON_GUI moves visible
+        if (move_count > MAX_NUM_MOVES_ON_GUI) {
+            memmove(move_notation, move_notation + MOVE_NOTATION_LENGTH, 
+                    (MAX_NUM_MOVES_ON_GUI - 1) * MOVE_NOTATION_LENGTH);
+            move_notation[(MAX_NUM_MOVES_ON_GUI - 1) * MOVE_NOTATION_LENGTH] = '\0';
+        }
+
         char move_count_str[MOVE_NOTATION_LENGTH] = {0};
-        char move_number[4] = {0};
+        char move_number[5] = {0};
         sprintf(move_number, "%d", (move_count / 2 + 1));
         sprintf(move_count_str, "%-4s ", strcat(move_number, "."));
         strcat(move_notation, move_count_str);
@@ -226,13 +236,13 @@ void* sdl_gui_loop(void* arg)
         exit(1);
     }
 
-    strcpy(move_notation, "-----------------\n");
+    move_notation[0] = '\0'; // Initialize move notation string
 
     SDL_Window* window = SDL_CreateWindow("TessMax!!",
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
                                           BOARD_WIDTH + RIGHT_BORDER_WIDTH,
-                                          BOARD_HEIGHT + BOTTOM_BORDER_HEIGHT,
+                                          BOARD_HEIGHT,
                                           SDL_WINDOW_RESIZABLE);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
