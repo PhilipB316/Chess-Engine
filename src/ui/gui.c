@@ -118,6 +118,7 @@ void render_chess_board(SDL_Renderer* renderer)
         // Adjust for black perspective
         from_square = 63 - from_square;
         to_square = 63 - to_square;
+        check_square = 63 - check_square;
     }
 
     for (int y = 0; y < BOARD_SIZE; ++y) {
