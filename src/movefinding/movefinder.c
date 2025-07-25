@@ -282,6 +282,9 @@ void move_finder(Position_t *position)
     register ULL rook_blockers, bishop_blockers;
     register uint16_t index;
 
+    // NOTE: movefinding for each piece type is inlined to ensure 
+    // the code is as fast as possible.
+
     // ------------------------------- QUEEN MOVES -------------------------------
     while (queen_bitboard)
     {
