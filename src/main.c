@@ -13,10 +13,9 @@
 #include "./search/search.h"
 #include "./ui/gui.h"
 #include "./ui/ui.h"
-#include "search/evaluate.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
-static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // Initial position in FEN format
+static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; 
 
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
@@ -55,8 +54,8 @@ int main(void)
 void* cli_game_loop(void* arg)
 {
     (void)arg; // Unused parameter
-    // print_name();
-    // print_welcome_message();
+    print_name();
+    print_welcome_message();
     set_time();
     set_colour(&playing_as_white);
     printf("\n");
@@ -85,10 +84,10 @@ bool play_game(Position_t* position)
     make_move_from_cli(position, &move_position);
     if (!update_game()) { return 0; /* Exit if the game is over */ }
 
-    // engine move
-    find_best_move(position, &move_position, 20, get_next_move_search_time());
-    if (!update_game()) { return 0; /* Exit if the game is over */ }
-
+    // // engine move
+    // find_best_move(position, &move_position, 20, get_next_move_search_time());
+    // if (!update_game()) { return 0; /* Exit if the game is over */ }
+    //
     return 1;
 }
 

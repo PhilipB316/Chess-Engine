@@ -14,7 +14,7 @@
 
 extern ULL zobrist_key_table[2][6][64];
 extern ULL zobrist_black_to_move;
-extern ULL zobrist_en_passant[64];
+extern ULL zobrist_en_passant[65];
 extern ULL zobrist_castling[2][2];
 
 /**

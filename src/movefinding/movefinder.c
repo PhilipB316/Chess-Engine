@@ -11,7 +11,6 @@
 #include "board.h"
 #include "memory.h"
 #include "../search/evaluate.h"
-#include "../ui/ui.h"
 
 static uint64_t num_new_positions = 0;
 
@@ -556,7 +555,7 @@ void populate_position(MoveType_t piece,
     active_pieces_set->all_pieces ^= move_bitboard;
 
     ULL zobrist_key = new_position->zobrist_key;
-    // zobrist_key ^= zobrist_en_passant[__builtin_ctzll(OLD_POSTION->en_passant_bitboard)];
+    zobrist_key ^= zobrist_en_passant[__builtin_ctzll(OLD_POSTION->en_passant_bitboard)];
     zobrist_key ^= zobrist_black_to_move;
 
     switch (piece)
@@ -600,7 +599,7 @@ void populate_position(MoveType_t piece,
         case DOUBLE_PUSH:
             active_pieces_set->pawns ^= move_bitboard;
             new_position->en_passant_bitboard = special_flags;
-            // zobrist_key ^= zobrist_en_passant[__builtin_ctzll(special_flags)];
+            zobrist_key ^= zobrist_en_passant[__builtin_ctzll(special_flags)];
             zobrist_key ^= zobrist_key_table[WHITE_TO_MOVE][PIECE_PAWN][to_square];
             zobrist_key ^= zobrist_key_table[WHITE_TO_MOVE][PIECE_PAWN][from_square];
             break;
@@ -667,8 +666,7 @@ void populate_position(MoveType_t piece,
             zobrist_key ^= zobrist_key_table[WHITE_TO_MOVE][PIECE_PAWN][from_square];
             // remove the captured pawn
             opponent_pieces_set->pawns ^= special_flags;
-            zobrist_key ^= zobrist_key_table[!WHITE_TO_MOVE][PIECE_PAWN]
-                [__builtin_ctzll(special_flags)];
+            zobrist_key ^= zobrist_key_table[!WHITE_TO_MOVE][PIECE_PAWN][__builtin_ctzll(special_flags)];
             opponent_pieces_set->all_pieces ^= special_flags;
             new_position->all_pieces ^= special_flags;
             new_position->piece_value_diff += PIECE_COLOUR * PAWN_VALUE;

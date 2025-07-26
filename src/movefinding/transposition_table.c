@@ -9,7 +9,7 @@
 
 ULL zobrist_key_table[2][6][64];
 ULL zobrist_black_to_move;
-ULL zobrist_en_passant[64];
+ULL zobrist_en_passant[65];
 ULL zobrist_castling[2][2];
 
 ULL random_64_bit(void)
@@ -29,7 +29,7 @@ void zobrist_key_init(void)
 
     for (int square = 0; square < 64; square++) {
         zobrist_en_passant[square] = random_64_bit(); }
-    zobrist_en_passant[63] = 0ULL; // No en passant on the last square
+    zobrist_en_passant[64] = 0ULL; // No en passant on the last square
     zobrist_en_passant[0] = 0ULL; // No en passant on the first square
 
     for (int colour = 0; colour < 2; colour++) {
@@ -47,7 +47,7 @@ ULL generate_zobrist_hash(Position_t *position)
     bool white_to_move = position->white_to_move;
 
     hash ^= zobrist_black_to_move * !white_to_move;
-    // hash ^= zobrist_en_passant[__builtin_ctzll(position->en_passant_bitboard)];
+    hash ^= zobrist_en_passant[__builtin_ctzll(position->en_passant_bitboard)];
 
     // Loop over both colors: 0 = white, 1 = black
     for (int colour = 0; colour < 2; colour++) {
