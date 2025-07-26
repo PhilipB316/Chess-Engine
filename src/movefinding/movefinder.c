@@ -614,12 +614,15 @@ void populate_position(MoveType_t piece,
             active_pieces_set->kings ^= move_bitboard;
             zobrist_key ^= zobrist_key_table[WHITE_TO_MOVE][PIECE_KING][to_square];
             zobrist_key ^= zobrist_key_table[WHITE_TO_MOVE][PIECE_KING][from_square];
-            if (new_position->pieces[WHITE_TO_MOVE].castle_kingside ||
-                new_position->pieces[WHITE_TO_MOVE].castle_queenside) {
-                // if the king is moved, it cannot castle anymore
+            if (new_position->pieces[WHITE_TO_MOVE].castle_kingside) {
+                // if the king is moved, it cannot castle kingside anymore
                 active_pieces_set->castle_kingside = false;
-                active_pieces_set->castle_queenside = false;
                 zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][KINGSIDE];
+
+            }
+            if (new_position->pieces[WHITE_TO_MOVE].castle_queenside) {
+                // if the king is moved, it cannot castle anymore
+                active_pieces_set->castle_queenside = false;
                 zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][QUEENSIDE];
             }
             break;

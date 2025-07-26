@@ -85,9 +85,9 @@ bool play_game(Position_t* position)
     if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     // // engine move
-    // find_best_move(position, &move_position, 20, get_next_move_search_time());
-    // if (!update_game()) { return 0; /* Exit if the game is over */ }
-    //
+    find_best_move(position, &move_position, 20, get_next_move_search_time());
+    if (!update_game()) { return 0; /* Exit if the game is over */ }
+
     return 1;
 }
 
