@@ -13,9 +13,6 @@
 
 #include "board.h"
 
-#define KINGSIDE 0
-#define QUEENSIDE 1
-
 /**
  * @brief Initialises lookup tables for move finding.
  */
@@ -99,6 +96,8 @@ bool make_notation_move(Position_t *old_position,
                         ULL to_square_bitboard, 
                         ULL from_square_bitboard, 
                         ULL special_flags);
+
+ULL calculate_attack_squares(Position_t* position, bool white_perspective);
 
 #endif // MOVEFINDER_H
 

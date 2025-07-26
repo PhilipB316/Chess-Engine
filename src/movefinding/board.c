@@ -6,9 +6,9 @@
 #include <ctype.h>
 
 #include "board.h"
-#include "movefinder.h"
 #include "lookuptables.h"
 #include "../search/evaluate.h"
+#include "transposition_table.h"
 
 char *pretty_print_moves[64] =
     {
@@ -149,6 +149,8 @@ void fen_to_board(char *fen, Position_t *fen_position)
     while (isdigit(fen[i])) { whole_move_count = whole_move_count * 10 + (fen[i++] - '0'); }
     fen_position->half_move_count = whole_move_count * 2 - 1;
     if (fen_position->white_to_move) { fen_position->half_move_count--; }
+
+    fen_position->zobrist_key = generate_zobrist_hash(fen_position);
 }
 
 bool is_different(Position_t* position1, Position_t* position2)
@@ -186,13 +188,11 @@ void find_from_to_square(Position_t* position1,
     *from_bitboard = move_bitboard & position1->pieces[white_to_move].all_pieces;
     *to_bitboard = move_bitboard & position2->pieces[white_to_move].all_pieces;
 
-    while (move_bitboard)
-    {
+    while (move_bitboard) {
         moved_piece_count++;
         move_bitboard &= ~(1ULL << __builtin_ctzll(move_bitboard));
     }
-    if (moved_piece_count > 2)
-    {
+    if (moved_piece_count > 2) {
         *from_bitboard = position1->pieces[white_to_move].kings;
         *to_bitboard = position2->pieces[white_to_move].kings;
     }

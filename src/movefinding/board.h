@@ -24,6 +24,9 @@
 
 #define WHITE_INDEX 1
 
+#define KINGSIDE 0
+#define QUEENSIDE 1
+
 #define DEBUG 1
 #define SAFE 1 // safe alerts if custom memory pool has been exhausted
 
@@ -49,6 +52,27 @@ typedef struct
 } PiecesOneColour_t;
 
 /**
+ * @brief Represents a position in the game of chess.
+ * 
+ * Contains information about the pieces, their positions, whose turn it is,
+ * the piece value difference, en passant square, and child positions.
+ */
+typedef struct Position_t
+{
+    bool white_to_move;
+    uint16_t num_children;
+    uint16_t half_move_count;
+    int64_t piece_value_diff;
+    int64_t evaluation;
+    ULL all_pieces;
+    ULL en_passant_bitboard;
+    ULL zobrist_key;
+    struct Position_t* parent_position;
+    struct Position_t* child_positions[MAX_CHILDREN];
+    PiecesOneColour_t pieces[2];
+} Position_t;
+
+/**
  *
  * @brief Enum for the different piece types moves.
  */
@@ -71,24 +95,16 @@ typedef enum
 } MoveType_t;
 
 /**
- * @brief Represents a position in the game of chess.
- * 
- * Contains information about the pieces, their positions, whose turn it is,
- * the piece value difference, en passant square, and child positions.
+ * @brief Represents the type of piece in chess.
  */
-typedef struct Position_t
-{
-    bool white_to_move;
-    uint16_t num_children;
-    uint16_t half_move_count;
-    int64_t piece_value_diff;
-    int64_t evaluation;
-    ULL all_pieces;
-    ULL en_passant_bitboard;
-    struct Position_t* parent_position;
-    struct Position_t* child_positions[MAX_CHILDREN];
-    PiecesOneColour_t pieces[2];
-} Position_t;
+typedef enum {
+    PIECE_PAWN,
+    PIECE_KNIGHT,
+    PIECE_BISHOP,
+    PIECE_ROOK,
+    PIECE_QUEEN,
+    PIECE_KING,
+} PieceType_t;
 
 /**
  * @brief Prints the bitboard.

@@ -46,6 +46,7 @@ extern ULL bishop_blocker_masks[64];
 extern ULL castling_blocker_masks[2][3];
 
 extern ULL original_rook_locations[2][2];
+extern ULL castled_rook_locations[2][2];
 
 extern ULL rook_castling_array[2][2];
 extern ULL king_castling_array[2][2];

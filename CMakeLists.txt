@@ -10,6 +10,7 @@ file(GLOB MAIN
     "./src/main.c"
     "./src/movefinding/movefinder.c"
     "./src/movefinding/lookuptables.c"
+    "./src/movefinding/transposition_table.c"
     "./src/movefinding/board.c"
     "./src/movefinding/memory.c"
     "./src/search/search.c"

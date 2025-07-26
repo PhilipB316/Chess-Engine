@@ -6,15 +6,17 @@
 #include <pthread.h>
 #include <SDL2/SDL.h>
 
+#include "./movefinding/transposition_table.h"
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
 #include "./movefinding/memory.h"
 #include "./search/search.h"
-#include "./ui/ui.h"
 #include "./ui/gui.h"
+#include "./ui/ui.h"
+#include "search/evaluate.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
-static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; // Initial position in FEN format
 
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
@@ -53,16 +55,15 @@ int main(void)
 void* cli_game_loop(void* arg)
 {
     (void)arg; // Unused parameter
-    print_name();
-    print_welcome_message();
+    // print_name();
+    // print_welcome_message();
     set_time();
     set_colour(&playing_as_white);
     printf("\n");
     start_clock(); // Start the clock for the first player
 
-    while (1) {
-        if (!play_game(&position)) { break; /* Exit the game loop if game is over */ }
-    }
+    printf("starting key: %llu\n", position.zobrist_key);
+    while (1) { if (!play_game(&position)) { break; /* Exit the game loop if game is over */ } }
 
     check_memory_leak();
     custom_memory_deinit();
@@ -97,6 +98,9 @@ bool update_game(void)
     position = move_position;
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
+    ULL zobrist_hash = generate_zobrist_hash(&move_position);
+    printf("raw hash: %llu\n", zobrist_hash);
+    printf("uptd key: %llu\n", move_position.zobrist_key);
     if (is_game_ended(&position)) { return 0; }
     return 1; // Game continues
 }
@@ -107,6 +111,7 @@ void init(void)
     gui_args.playing_as_white = &playing_as_white;
     custom_memory_init();
     move_finder_init();
+    zobrist_key_init();
     ui_init();
     fen_to_board(new, &position);
 }

@@ -9,15 +9,13 @@
 
 int64_t opening_evaluation(Position_t* position);
 int64_t midgame_evaluation(Position_t* position);
-ULL calculate_attack_squares(Position_t* position);
 
 bool is_check(Position_t* position)
 {
-    // Check if the king of the opponent is attacked by any piece of the current player
+    // Check if the king of the current player is under attack
     ULL king_square = position->pieces[position->white_to_move].kings;
-    position->white_to_move = !position->white_to_move; // Switch to opponent's perspective
-    ULL attack_squares = calculate_attack_squares(position);
-    position->white_to_move = !position->white_to_move; // Switch back to original perspective
+    bool white_perspective = !position->white_to_move;
+    ULL attack_squares = calculate_attack_squares(position, white_perspective);
     return (king_square & attack_squares);
 }
 
@@ -148,7 +146,7 @@ int64_t opening_evaluation(Position_t* position)
 int64_t midgame_evaluation(Position_t* position)
 {
     int64_t score = position->piece_value_diff * (position->white_to_move ? 1 : -1);
-    ULL attack_squares = calculate_attack_squares(position);
+    ULL attack_squares = calculate_attack_squares(position, position->white_to_move);
     score += __builtin_popcountll(attack_squares) * GENERAL_ATTACK_SQUARES_VALUE;
     return score;
 }

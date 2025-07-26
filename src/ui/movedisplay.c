@@ -32,15 +32,6 @@ static ULL file_column_masks[8] = {
     0x8080808080808080, // File h
 };
 
-typedef enum {
-    PIECE_PAWN,
-    PIECE_KNIGHT,
-    PIECE_BISHOP,
-    PIECE_ROOK,
-    PIECE_QUEEN,
-    PIECE_KING,
-} PieceType_t;
-
 static int square_index(char file, char rank) {
     if (file < 'a' || file > 'h' || rank < '1' || rank > '8') return -1;
     return ('8' - rank) * 8 + (file - 'a');

@@ -34,6 +34,7 @@ ULL magic_knight_attack_lookup_table[4096];
 ULL rook_castling_array[2][2];
 ULL king_castling_array[2][2];
 ULL original_rook_locations[2][2];
+ULL castled_rook_locations[2][2];
 
 ULL actual_bishop_magic_numbers[64] = {
     306249795545277056ULL,
@@ -764,27 +765,33 @@ void king_attack_generator(void)
 
         king_attack_lookup_table[i] = king_attack;
 
-        // move tables for rooks and kings castling
-        rook_castling_array[0][0] = 1ULL << 7 | 1ULL << 5;
-        rook_castling_array[0][1] = 1ULL << 0 | 1ULL << 3;
-        rook_castling_array[1][0] = 1ULL << 63 | 1ULL << 61;
-        rook_castling_array[1][1] = 1ULL << 56 | 1ULL << 59;
-
-        king_castling_array[0][0] = 1ULL << 6;
-        king_castling_array[0][1] = 1ULL << 2;
-        king_castling_array[1][0] = 1ULL << 62;
-        king_castling_array[1][1] = 1ULL << 58;
-
-        original_rook_locations[!WHITE_INDEX][QUEENSIDE] = 1ULL << 56;
-        original_rook_locations[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 63;
-        original_rook_locations[WHITE_INDEX][QUEENSIDE] = 1ULL << 0;
-        original_rook_locations[WHITE_INDEX][!QUEENSIDE] = 1ULL << 7;
-
-        // these masks include the king square as the king cannot be in check and castle at the same time
-        castling_blocker_masks[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 4 | 1ULL << 5 | 1ULL << 6;
-        castling_blocker_masks[!WHITE_INDEX][QUEENSIDE] = 1ULL << 1 | 1ULL << 2 | 1ULL << 3 | 1ULL << 4;
-        castling_blocker_masks[WHITE_INDEX][!QUEENSIDE] = 1ULL << 60 | 1ULL << 61 | 1ULL << 62;
-        castling_blocker_masks[WHITE_INDEX][QUEENSIDE] = 1ULL << 57 | 1ULL << 58 | 1ULL << 59 | 1ULL << 60;
-
     }
+
+    // move tables for rooks and kings castling
+    rook_castling_array[!WHITE_INDEX][KINGSIDE] = 1ULL << 7 | 1ULL << 5;
+    rook_castling_array[!WHITE_INDEX][QUEENSIDE] = 1ULL << 0 | 1ULL << 3;
+    rook_castling_array[WHITE_INDEX][KINGSIDE] = 1ULL << 63 | 1ULL << 61;
+    rook_castling_array[WHITE_INDEX][QUEENSIDE] = 1ULL << 56 | 1ULL << 59;
+
+    king_castling_array[!WHITE_INDEX][KINGSIDE] = 1ULL << 6;
+    king_castling_array[!WHITE_INDEX][QUEENSIDE] = 1ULL << 2;
+    king_castling_array[WHITE_INDEX][KINGSIDE] = 1ULL << 62;
+    king_castling_array[WHITE_INDEX][QUEENSIDE] = 1ULL << 58;
+
+    original_rook_locations[!WHITE_INDEX][QUEENSIDE] = 1ULL << 0;
+    original_rook_locations[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 7;
+    original_rook_locations[WHITE_INDEX][QUEENSIDE] = 1ULL << 56;
+    original_rook_locations[WHITE_INDEX][!QUEENSIDE] = 1ULL << 63;
+
+    castled_rook_locations[!WHITE_INDEX][QUEENSIDE] = 1ULL << 3;
+    castled_rook_locations[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 5;
+    castled_rook_locations[WHITE_INDEX][QUEENSIDE] = 1ULL << 59;
+    castled_rook_locations[WHITE_INDEX][!QUEENSIDE] = 1ULL << 61;
+
+    // these masks include the king square as the king cannot be in check and castle at the same time
+    castling_blocker_masks[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 4 | 1ULL << 5 | 1ULL << 6;
+    castling_blocker_masks[!WHITE_INDEX][QUEENSIDE] = 1ULL << 1 | 1ULL << 2 | 1ULL << 3 | 1ULL << 4;
+    castling_blocker_masks[WHITE_INDEX][!QUEENSIDE] = 1ULL << 60 | 1ULL << 61 | 1ULL << 62;
+    castling_blocker_masks[WHITE_INDEX][QUEENSIDE] = 1ULL << 57 | 1ULL << 58 | 1ULL << 59 | 1ULL << 60;
 }
+

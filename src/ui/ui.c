@@ -226,7 +226,13 @@ int make_move_from_notation(char *move_notation, Position_t *source, Position_t 
     bool is_capture = false;
     ULL special_flags = 0;
 
-    if (!parse_move_notation(move_notation, &move_type, &to_square, disambiguation, &is_capture, source, &special_flags)) {
+    if (!parse_move_notation(move_notation,
+                             &move_type,
+                             &to_square,
+                             disambiguation,
+                             &is_capture,
+                             source,
+                             &special_flags)) {
         fprintf(stderr, "Invalid move notation: %s, please try again\n", move_notation);
         return 0; // Invalid move notation
     }
