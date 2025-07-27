@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "board.h"
 #include "transposition_table.h"
@@ -12,8 +13,17 @@ ULL zobrist_black_to_move;
 ULL zobrist_en_passant[65];
 ULL zobrist_castling[2][2];
 
+// TranspositionEntry_t transposition_table[TT_SIZE];
+TranspositionEntry_t *transposition_table = NULL;
+
 ULL random_64_bit(void)
 {
+    // set unique seed:
+    static bool seeded = false;
+    if (!seeded) {
+        srand((unsigned int)time(NULL));
+        seeded = true;
+    }
     return ((ULL)rand() << 32) | rand();
 }
 
@@ -109,3 +119,22 @@ ULL generate_zobrist_hash(Position_t *position)
     return hash;
 }
 
+// void transposition_table_init(void)
+// {
+//     for (uint32_t i = 0; i < TT_SIZE; i++) {
+//         transposition_table[i].zobrist_key = 0ULL;
+//         transposition_table[i].half_move_count = EMPTY_TABLE_SLOT;
+//     }
+// }
+
+void transposition_table_init(void) {
+    transposition_table = malloc(sizeof(TranspositionEntry_t) * TT_SIZE);
+    if (!transposition_table) {
+        fprintf(stderr, "Failed to allocate transposition table\n");
+        exit(1);
+    }
+    for (uint32_t i = 0; i < TT_SIZE; i++) {
+        transposition_table[i].zobrist_key = 0ULL;
+        transposition_table[i].half_move_count = EMPTY_TABLE_SLOT;
+    }
+}

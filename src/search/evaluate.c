@@ -5,10 +5,11 @@
 #include "../movefinding/board.h"
 #include "../movefinding/lookuptables.h"
 #include "../movefinding/movefinder.h"
-#include "evaluate.h"
+#include "./evaluate.h"
 
-int64_t opening_evaluation(Position_t* position);
-int64_t midgame_evaluation(Position_t* position);
+int32_t opening_evaluation(Position_t* position);
+int32_t midgame_evaluation(Position_t* position);
+
 
 bool is_check(Position_t* position)
 {
@@ -26,7 +27,8 @@ KingStatus_t determine_king_status(Position_t* position)
     uint16_t num_children = position->num_children;
     for (uint16_t i = 0; i < num_children; i++)
     {
-        position->child_positions[i]->white_to_move = position->white_to_move; // Switch to opponent's perspective
+        // Switch to opponent's perspective
+        position->child_positions[i]->white_to_move = position->white_to_move;
         if (is_check(position->child_positions[i])) { check_count++; }
     }
     free_children_memory(position);
@@ -40,20 +42,20 @@ KingStatus_t determine_king_status(Position_t* position)
     return BORING;
 }
 
-int64_t evaluate_position(Position_t* position)
+int32_t evaluate_position(Position_t* position)
 {
     uint16_t half_move_count = position->half_move_count;
-    if (half_move_count < MID_GAME_MOVE_COUNT)
-    {
+
+    if (half_move_count < MID_GAME_MOVE_COUNT) {
         return opening_evaluation(position);
     } else {
-        return midgame_evaluation(position);
+        return  midgame_evaluation(position);
     }
 }
 
-int64_t opening_evaluation(Position_t* position)
+int32_t opening_evaluation(Position_t* position)
 {
-    int64_t score = position->piece_value_diff * (position->white_to_move ? 1 : -1);
+    int32_t score = position->piece_value_diff * (position->white_to_move ? 1 : -1);
 
     register PiecesOneColour_t *active_pieces_set = &position->pieces[position->white_to_move];
     register uint8_t from_square;
@@ -143,9 +145,9 @@ int64_t opening_evaluation(Position_t* position)
     return score;
 }
 
-int64_t midgame_evaluation(Position_t* position)
+int32_t midgame_evaluation(Position_t* position)
 {
-    int64_t score = position->piece_value_diff * (position->white_to_move ? 1 : -1);
+    int32_t score = position->piece_value_diff * (position->white_to_move ? 1 : -1);
     ULL attack_squares = calculate_attack_squares(position, position->white_to_move);
     score += __builtin_popcountll(attack_squares) * GENERAL_ATTACK_SQUARES_VALUE;
     return score;

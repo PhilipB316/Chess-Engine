@@ -17,10 +17,38 @@ extern ULL zobrist_black_to_move;
 extern ULL zobrist_en_passant[65];
 extern ULL zobrist_castling[2][2];
 
+typedef enum {
+    EXACT,
+    LOWER_BOUND,
+    UPPER_BOUND
+} NodeType_t;
+
+typedef struct {
+    ULL zobrist_key;
+    ULL best_move_zobrist_key;
+    int32_t position_evaluation;
+    uint16_t half_move_count;
+    uint8_t search_depth;
+    NodeType_t node_type;
+} TranspositionEntry_t;
+
+#define TT_SIZE_BITS 22
+#define TT_SIZE (1ULL << TT_SIZE_BITS)
+#define TT_MASK (TT_SIZE - 1)
+
+#define EMPTY_TABLE_SLOT 65535
+
+extern TranspositionEntry_t *transposition_table;
+
 /**
  * @brief Initialises the Zobrist key table with random values.
  */
 void zobrist_key_init(void);
+
+/**
+ * @brief Initialises the transposition table.
+ */
+void transposition_table_init(void);
 
 /**
  * @brief Generates a Zobrist hash for the given position.
@@ -33,6 +61,8 @@ void zobrist_key_init(void);
  * @return The generated Zobrist hash as an unsigned long long integer.
  */
 ULL generate_zobrist_hash(Position_t *position);
+
+uint32_t get_collision_count(void);
 
 #endif // TRANSPOSITION_TABLE_H
 

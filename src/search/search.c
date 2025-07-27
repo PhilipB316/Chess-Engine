@@ -4,15 +4,17 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <time.h>
+#include <string.h>
 
 #include "search.h"
 #include "evaluate.h"
 #include "../movefinding/board.h"
 #include "../movefinding/movefinder.h"
+#include "../movefinding/transposition_table.h"
 
 static ULL nodes_analysed = 0;
 static uint64_t moves_generated = 0;
-static int64_t best_eval = 0;
+static int32_t best_eval = 0;
 static uint8_t searched_depth = 0;
 static clock_t start_time = 0;
 static clock_t global_max_time = 0;
@@ -20,8 +22,8 @@ static bool time_up = false;
 static double time_spent = 0.0;
 
 void sort_children(Position_t* postion);
-int64_t negamax(Position_t* position, uint8_t depth, int64_t alpha, int64_t beta);
-int64_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_t depth);
+int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta);
+int32_t negamax_start(Position_t* position, Position_t* return_best_move, uint8_t depth);
 
 static inline bool time_is_up(void)
 {
@@ -55,21 +57,21 @@ void find_best_move(Position_t* position,
     time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
 }
 
-int64_t negamax_start(Position_t* position, 
+int32_t negamax_start(Position_t* position, 
                       Position_t* return_best_move,
                       uint8_t depth)
 {
     Position_t* best_move = NULL;
-    int64_t alpha = -INT64_MAX;
-    int64_t beta = INT64_MAX;
-    int64_t best_eval = -INT64_MAX;
+    int32_t alpha = -INT32_MAX;
+    int32_t beta = INT32_MAX;
+    int32_t best_eval = -INT32_MAX;
 
     for (uint16_t i = 0; i < position->num_children; i++)
     {
         if (time_is_up()) { return 0; }
 
         Position_t* child = position->child_positions[i];
-        int64_t eval = -negamax(child, depth - 1, -beta, -alpha);
+        int32_t eval = -negamax(child, depth - 1, -beta, -alpha);
         if (time_up) { return 0; /* Time ran out in deeper search */ }
 
         child->evaluation = eval;
@@ -89,16 +91,40 @@ int64_t negamax_start(Position_t* position,
     return best_eval;
 }
 
-int64_t negamax(Position_t* position, uint8_t depth, int64_t alpha, int64_t beta)
+int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta)
 {
     if (depth == 0) {
         nodes_analysed++;
         return evaluate_position(position);
     }
 
-    int64_t value = -INT64_MAX;
+    // --- Transposition Table Probe ---
+    ULL key = position->zobrist_key;
+    TranspositionEntry_t* entry = &transposition_table[key & TT_MASK];
+    bool tt_move_found = false;
+
+    // Probe TT for move ordering
+    if (entry->zobrist_key == key) { tt_move_found = true; }
+
+    int32_t value = -INT32_MAX;
     move_finder(position);
     moves_generated++;
+
+    // --- TT Move Ordering: swap TT move to front if found ---
+    if (tt_move_found) {
+        for (uint16_t i = 0; i < position->num_children; i++) {
+            if (position->child_positions[i]->zobrist_key == entry->best_move_zobrist_key) {
+                if (i != 0) {
+                    Position_t* tmp = position->child_positions[0];
+                    position->child_positions[0] = position->child_positions[i];
+                    position->child_positions[i] = tmp;
+                }
+                break;
+            }
+        }
+    }
+
+    int best_child_index = -1;
     for (uint16_t i = 0; i < position->num_children; i++)
     {
         if (time_is_up()) {
@@ -106,14 +132,27 @@ int64_t negamax(Position_t* position, uint8_t depth, int64_t alpha, int64_t beta
             return 0;
         }
         Position_t* child = position->child_positions[i];
-        int64_t score = -negamax(child, depth - 1, -beta, -alpha);
+        int32_t score = -negamax(child, depth - 1, -beta, -alpha);
 
-        if (score > value) { value = score; }
+        if (score > value) {
+            value = score;
+            best_child_index = i; // Track best move index for TT update
+        }
         if (value > alpha) {
             alpha = value;
             if (alpha >= beta) { break; /* Beta cutoff */ }
         }
     }
+
+    // --- Update Transposition Table with best move and score ---
+    if (best_child_index >= 0) {
+        entry->zobrist_key = key;
+        entry->position_evaluation = value;
+        entry->half_move_count = position->half_move_count;
+        entry->search_depth = depth;
+        entry->best_move_zobrist_key = position->child_positions[best_child_index]->zobrist_key;
+    }
+
     free_children_memory(position); // must free children before returning
     return value;
 }
@@ -124,7 +163,7 @@ void sort_children(Position_t* position)
 
     // Simple insertion sort based on evals (descending order)
     for (uint8_t i = 1; i < n; i++) {
-        int64_t key_eval = position->child_positions[i]->evaluation;
+        int32_t key_eval = position->child_positions[i]->evaluation;
         Position_t* key_pos = position->child_positions[i];
         int j = i - 1;
         while (j >= 0 && position->child_positions[j]->evaluation < key_eval) {
@@ -144,8 +183,8 @@ void print_stats(void)
     printf("| %-24s | %14lu |\n", "New positions generated", get_num_new_positions());
     printf("| %-24s | %14llu |\n", "Nodes analysed", nodes_analysed);
     printf("| %-24s | %14lu |\n", "Moves generated", moves_generated);
-    printf("| %-24s | %14.2f |\n", "Time spent (seconds)", time_spent);
+    printf("| %-24s | %14.4f |\n", "Time spent (seconds)", time_spent);
     printf("| %-24s | %14u |\n", "Depth", searched_depth - 1); // depth
-    // printf("| %-24s | %14ld |\n", "Best score", best_eval);
     printf("+-------------------------------------------+\n\n");
 }
+

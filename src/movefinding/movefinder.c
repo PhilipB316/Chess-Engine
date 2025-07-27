@@ -224,7 +224,7 @@ ULL calculate_attack_squares(Position_t* position, bool white_perspective)
 
 void move_finder(Position_t *position)
 {
-    int64_t value = position->piece_value_diff;
+    int32_t value = position->piece_value_diff;
     // if position is checkmate, do not generate moves
     if (value < -CHECKMATE_VALUE || value > CHECKMATE_VALUE) { return; }
 

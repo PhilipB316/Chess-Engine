@@ -53,7 +53,7 @@ typedef enum {
  * @param position The position to evaluate
  * @return The evaluation score of the position
  */
-int64_t evaluate_position(Position_t* position);
+int32_t evaluate_position(Position_t* position);
 
 /**
  * @brief Determines if the position is check.
