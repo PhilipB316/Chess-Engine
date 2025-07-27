@@ -32,11 +32,9 @@ typedef struct {
     NodeType_t node_type;
 } TranspositionEntry_t;
 
-#define TT_SIZE_BITS 22
+#define TT_SIZE_BITS 28
 #define TT_SIZE (1ULL << TT_SIZE_BITS)
 #define TT_MASK (TT_SIZE - 1)
-
-#define EMPTY_TABLE_SLOT 65535
 
 extern TranspositionEntry_t *transposition_table;
 
@@ -51,6 +49,11 @@ void zobrist_key_init(void);
 void transposition_table_init(void);
 
 /**
+ * @brief Frees the memory allocated for the transposition table.
+ */
+void transposition_table_free(void);
+
+/**
  * @brief Generates a Zobrist hash for the given position.
  *
  * The Zobrist hash is a unique identifier for the position, taking into account
@@ -61,8 +64,6 @@ void transposition_table_init(void);
  * @return The generated Zobrist hash as an unsigned long long integer.
  */
 ULL generate_zobrist_hash(Position_t *position);
-
-uint32_t get_collision_count(void);
 
 #endif // TRANSPOSITION_TABLE_H
 

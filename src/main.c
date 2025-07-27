@@ -61,11 +61,11 @@ void* cli_game_loop(void* arg)
     printf("\n");
     start_clock(); // Start the clock for the first player
 
-    printf("starting key: %llu\n", position.zobrist_key);
     while (1) { if (!play_game(&position)) { break; /* Exit the game loop if game is over */ } }
 
     check_memory_leak();
     custom_memory_deinit();
+    transposition_table_free();
     return NULL;
 }
 
@@ -87,7 +87,7 @@ bool play_game(Position_t* position)
     // // engine move
     find_best_move(position, &move_position, 20, get_next_move_search_time());
     if (!update_game()) { return 0; /* Exit if the game is over */ }
-    print_stats(); // Print the stats after each move
+    // print_stats(); // Print the stats after each move
 
     return 1;
 }
@@ -98,9 +98,6 @@ bool update_game(void)
     position = move_position;
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
-    ULL zobrist_hash = generate_zobrist_hash(&move_position);
-    // printf("raw hash: %llu\n", zobrist_hash);
-    // printf("uptd key: %llu\n", move_position.zobrist_key);
     if (is_game_ended(&position)) { return 0; }
     return 1; // Game continues
 }

@@ -12,6 +12,9 @@
 #include "../movefinding/movefinder.h"
 #include "../movefinding/transposition_table.h"
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 static ULL nodes_analysed = 0;
 static uint64_t moves_generated = 0;
 static int32_t best_eval = 0;
@@ -98,19 +101,31 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         return evaluate_position(position);
     }
 
-    // --- Transposition Table Probe ---
+    // --- transposition table lookup ---
     ULL key = position->zobrist_key;
     TranspositionEntry_t* entry = &transposition_table[key & TT_MASK];
     bool tt_move_found = false;
 
-    // Probe TT for move ordering
-    if (entry->zobrist_key == key) { tt_move_found = true; }
+    if (entry->zobrist_key == key) {
+        tt_move_found = true; 
+        if (entry->search_depth >= depth) {
+            nodes_analysed++;
+            if (entry->node_type == EXACT) {
+                return entry->position_evaluation; /* Exact match */
+            } else if (entry->node_type == LOWER_BOUND) {
+                alpha = MAX(entry->position_evaluation, alpha); // Lower bound
+            } else if (entry->node_type == UPPER_BOUND) {
+                beta = MIN(entry->position_evaluation, beta); // Upper bound
+            }
+        }
+        if (alpha >= beta) { return entry->position_evaluation; /* Cutoff */ }
+    }
 
     int32_t value = -INT32_MAX;
     move_finder(position);
     moves_generated++;
 
-    // --- TT Move Ordering: swap TT move to front if found ---
+    // --- transposition table move ordering optimisation ---
     if (tt_move_found) {
         for (uint16_t i = 0; i < position->num_children; i++) {
             if (position->child_positions[i]->zobrist_key == entry->best_move_zobrist_key) {
@@ -136,7 +151,7 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
 
         if (score > value) {
             value = score;
-            best_child_index = i; // Track best move index for TT update
+            best_child_index = i; // track best move index for tt update
         }
         if (value > alpha) {
             alpha = value;
@@ -144,12 +159,15 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         }
     }
 
-    // --- Update Transposition Table with best move and score ---
+    // --- update transposition table with best move and score ---
     if (best_child_index >= 0) {
         entry->zobrist_key = key;
         entry->position_evaluation = value;
         entry->half_move_count = position->half_move_count;
         entry->search_depth = depth;
+        if (value <= alpha) { entry->node_type = UPPER_BOUND; /* Upper bound */ } 
+        else if (value >= beta) { entry->node_type = LOWER_BOUND; /* Lower bound */ } 
+        else { entry->node_type = EXACT; /* Exact match */ }
         entry->best_move_zobrist_key = position->child_positions[best_child_index]->zobrist_key;
     }
 
