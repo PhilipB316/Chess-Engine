@@ -33,7 +33,7 @@
 #define GENERAL_ATTACK_SQUARES_VALUE 1
 
 // Evaluation thresholds
-#define MID_GAME_MOVE_COUNT 6
+#define MID_GAME_MOVE_COUNT 15
 
 // Masks
 #define CENTER_FOUR_SQUARES 0x0000001818000000

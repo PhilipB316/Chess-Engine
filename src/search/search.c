@@ -108,17 +108,18 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
 
     if (entry->zobrist_key == key) {
         tt_move_found = true; 
-        if (entry->search_depth >= depth) {
-            nodes_analysed++;
-            if (entry->node_type == EXACT) {
-                return entry->position_evaluation; /* Exact match */
-            } else if (entry->node_type == LOWER_BOUND) {
-                alpha = MAX(entry->position_evaluation, alpha); // Lower bound
-            } else if (entry->node_type == UPPER_BOUND) {
-                beta = MIN(entry->position_evaluation, beta); // Upper bound
-            }
-        }
-        if (alpha >= beta) { return entry->position_evaluation; /* Cutoff */ }
+        // // NOTE: not sure this is actually working correctly
+        // if (entry->search_depth >= depth) {
+        //     nodes_analysed++;
+        //     if (entry->node_type == EXACT) {
+        //         return entry->position_evaluation; /* Exact match */
+        //     } else if (entry->node_type == LOWER_BOUND) {
+        //         alpha = MAX(entry->position_evaluation, alpha); // Lower bound
+        //     } else if (entry->node_type == UPPER_BOUND) {
+        //         beta = MIN(entry->position_evaluation, beta); // Upper bound
+        //     }
+        // }
+        // if (alpha >= beta) { return entry->position_evaluation; /* Cutoff */ }
     }
 
     int32_t value = -INT32_MAX;

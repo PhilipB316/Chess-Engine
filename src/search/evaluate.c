@@ -124,19 +124,19 @@ int32_t opening_evaluation(Position_t* position)
     score += __builtin_popcountll(threatened_squares & BOX_SQUARES) * BOX_SQUARE_ATTACK_VALUE;
 
     // ============================== QUEENS ==============================
-    ULL queen_bitboard = active_pieces_set->queens;
-    threatened_squares = 0;
-    while (queen_bitboard)
-    {
-        from_square = __builtin_ctzll(queen_bitboard);
-        rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
-        bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
-        index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
-        threatened_squares |= rook_attack_lookup_table[from_square][index];
-        index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
-        threatened_squares |= bishop_attack_lookup_table[from_square][index];
-        queen_bitboard &= ~(1ULL << from_square);
-    }
+    // ULL queen_bitboard = active_pieces_set->queens;
+    // threatened_squares = 0;
+    // while (queen_bitboard)
+    // {
+    //     from_square = __builtin_ctzll(queen_bitboard);
+    //     rook_blockers = rook_blocker_masks[from_square] & all_pieces_bitboard;
+    //     bishop_blockers = bishop_blocker_masks[from_square] & all_pieces_bitboard;
+    //     index = (rook_blockers * actual_rook_magic_numbers[from_square]) >> offset_RBits[from_square];
+    //     threatened_squares |= rook_attack_lookup_table[from_square][index];
+    //     index = (bishop_blockers * actual_bishop_magic_numbers[from_square]) >> offset_BBits[from_square];
+    //     threatened_squares |= bishop_attack_lookup_table[from_square][index];
+    //     queen_bitboard &= ~(1ULL << from_square);
+    // }
     all_threathened_squards |= threatened_squares;
     score += __builtin_popcountll(threatened_squares & CENTER_FOUR_SQUARES) * CENTER_SQUARE_ATTACK_VALUE;
     score += __builtin_popcountll(threatened_squares & BOX_SQUARES) * BOX_SQUARE_ATTACK_VALUE;
