@@ -19,11 +19,11 @@ TranspositionEntry_t *transposition_table = NULL;
 ULL random_64_bit(void)
 {
     // set unique seed:
-    // static bool seeded = false;
-    // if (!seeded) {
-    //     srand((unsigned int)time(NULL));
-    //     seeded = true;
-    // }
+    static bool seeded = false;
+    if (!seeded) {
+        srand((unsigned int)time(NULL));
+        seeded = true;
+    }
     return ((ULL)rand() << 32) | rand();
 }
 

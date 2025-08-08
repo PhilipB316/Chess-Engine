@@ -15,7 +15,7 @@
 #include "./ui/ui.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
-static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"; 
+static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
@@ -40,13 +40,10 @@ int main(void)
     init();
 
     pthread_t cli_thread, sdl_thread;
-
     pthread_create(&cli_thread, NULL, cli_game_loop, NULL);
     pthread_create(&sdl_thread, NULL, sdl_gui_loop, &gui_args);
-
     pthread_join(cli_thread, NULL);
     pthread_join(sdl_thread, NULL);
-
     return 0;
 }
 
@@ -75,7 +72,7 @@ bool play_game(Position_t* position)
 
     if (first_move && !playing_as_white) {
         // If the user is playing as black, the engine makes the first move
-        find_best_move(position, &move_position, 20, get_next_move_search_time());
+        find_best_move(position, &move_position, 30, get_next_move_search_time());
         if (!update_game()) { return 0; /* Exit if the game is over */ }
         first_move = false;
     }
@@ -84,17 +81,15 @@ bool play_game(Position_t* position)
     make_move_from_cli(position, &move_position);
     if (!update_game()) { return 0; /* Exit if the game is over */ }
 
-    // // engine move
-    find_best_move(position, &move_position, 20, get_next_move_search_time());
+    // engine move
+    find_best_move(position, &move_position, 30, get_next_move_search_time());
     if (!update_game()) { return 0; /* Exit if the game is over */ }
-    // print_stats(); // Print the stats after each move
 
     return 1;
 }
 
 bool update_game(void)
 {
-    // clear_output_screen(15);
     position = move_position;
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
