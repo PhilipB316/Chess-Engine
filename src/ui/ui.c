@@ -130,7 +130,8 @@ bool is_game_ended(Position_t *position)
 
 void set_search_time(void)
 {
-    printf("\nPlease enter the maximum engine search time per move (in seconds): ");
+    printf("\nPlease enter the maximum engine search time per move (in seconds)");
+    printf("\n(Recommended: 1-5 seconds): ");
     if (scanf("%hu", &max_engine_search_time) != 1 || max_engine_search_time == 0) {
         fprintf(stderr, "Invalid input. ");
         clear_input_buffer();
@@ -171,6 +172,7 @@ void set_time(void)
 {
     printf("Do you want to set an engine time per move, or a match time?\n");
     printf("Enter 'e' for engine time per move, or 'm' for match time: ");
+    printf("\n(Recommended: 'e'): ");
     char choice;
     if (scanf(" %c", &choice) != 1 || (choice != 'e' && choice != 'm')) {
         fprintf(stderr, "Invalid input. Please enter 'e' or 'm'.\n");
