@@ -5,12 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "transposition_table.h"
 #include "lookuptables.h"
 #include "movefinder.h"
 #include "board.h"
 #include "memory.h"
 #include "../search/evaluate.h"
+#include "../search/hash_tables.h"
 
 static uint64_t num_new_positions = 0;
 

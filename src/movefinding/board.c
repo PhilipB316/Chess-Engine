@@ -8,7 +8,7 @@
 #include "board.h"
 #include "lookuptables.h"
 #include "../search/evaluate.h"
-#include "transposition_table.h"
+#include "../search/hash_tables.h"
 
 char *pretty_print_moves[64] =
     {

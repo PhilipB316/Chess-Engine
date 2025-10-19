@@ -36,15 +36,6 @@
 extern char *pretty_print_moves[64];
 
 /**
- * @brief Linked list entry for past move Zobrist keys.
- */
-typedef struct PastMoveListEntry_t
-{
-    ULL zobrist_key;
-    struct PastMoveListEntry_t* next;
-} PastMoveListEntry_t;
-
-/**
  * @brief bitboards and boolean representing a set of pieces
  */
 typedef struct

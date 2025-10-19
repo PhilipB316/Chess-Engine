@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include "board.h"
+#include "../movefinding/board.h"
 
 extern ULL zobrist_key_table[2][6][64];
 extern ULL zobrist_black_to_move;
@@ -32,11 +32,22 @@ typedef struct {
     NodeType_t node_type;
 } TranspositionEntry_t;
 
+typedef struct
+{
+    ULL zobrist_key;
+    bool is_taken;
+} PastMoveEntry_t;
+
 #define TT_SIZE_BITS 28
 #define TT_SIZE (1ULL << TT_SIZE_BITS)
 #define TT_MASK (TT_SIZE - 1)
 
+#define PAST_MOVE_LIST_SIZE_BITS 20
+#define PAST_MOVE_LIST_SIZE (1ULL << PAST_MOVE_LIST_SIZE_BITS)
+#define PAST_MOVE_LIST_MASK (PAST_MOVE_LIST_SIZE - 1)
+
 extern TranspositionEntry_t *transposition_table;
+extern PastMoveEntry_t* past_move_list;
 
 /**
  * @brief Initialises the Zobrist key table with random values.
@@ -44,14 +55,14 @@ extern TranspositionEntry_t *transposition_table;
 void zobrist_key_init(void);
 
 /**
- * @brief Initialises the transposition table.
+ * @brief Initialises the hash tables for transposition and past move list.
  */
-void transposition_table_init(void);
+void hash_table_init(void);
 
 /**
- * @brief Frees the memory allocated for the transposition table.
+ * @brief Frees the memory allocated for the transposition table and past move list.
  */
-void transposition_table_free(void);
+void hash_table_free(void);
 
 /**
  * @brief Generates a Zobrist hash for the given position.

@@ -6,18 +6,17 @@
 #include <pthread.h>
 #include <SDL2/SDL.h>
 
-#include "./movefinding/transposition_table.h"
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
 #include "./movefinding/memory.h"
 #include "./search/search.h"
+#include "./search/hash_tables.h"
 #include "./ui/gui.h"
 #include "./ui/ui.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
 static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-static PastMoveListEntry_t past_move_list[MAXIMUM_GAME_LENGTH];
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
 
@@ -63,7 +62,7 @@ void* cli_game_loop(void* arg)
 
     check_memory_leak();
     custom_memory_deinit();
-    transposition_table_free();
+    hash_table_free();
     return NULL;
 }
 
@@ -105,9 +104,8 @@ void init(void)
     custom_memory_init();
     move_finder_init();
     zobrist_key_init();
-    transposition_table_init();
+    hash_table_init();
     ui_init();
-    pass_movelist_pointer_to_search(past_move_list);
     fen_to_board(new, &position);
     printf("Initial half-move count: %u\n", position.half_move_count);
 }

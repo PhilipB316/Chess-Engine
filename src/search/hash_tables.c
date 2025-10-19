@@ -5,16 +5,16 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "board.h"
-#include "transposition_table.h"
+#include "../movefinding/board.h"
+#include "hash_tables.h"
 
 ULL zobrist_key_table[2][6][64];
 ULL zobrist_black_to_move;
 ULL zobrist_en_passant[65];
 ULL zobrist_castling[2][2];
 
-// TranspositionEntry_t transposition_table[TT_SIZE];
 TranspositionEntry_t *transposition_table = NULL;
+PastMoveEntry_t* past_move_list = NULL;
 
 ULL random_64_bit(void)
 {
@@ -119,16 +119,41 @@ ULL generate_zobrist_hash(Position_t *position)
     return hash;
 }
 
-void transposition_table_init(void) 
+void inset_past_move_entry(Position_t* child)
+{
+    // populate past move list using linear probing
+    int32_t index = child->zobrist_key & PAST_MOVE_LIST_MASK;
+    bool is_taken = past_move_list[index].is_taken;
+    while (is_taken) {
+        if (past_move_list[index].zobrist_key == child->zobrist_key) {
+            return; // already exists
+        } else {
+            index = (index + 1) & PAST_MOVE_LIST_MASK;
+        }
+        is_taken = past_move_list[index].is_taken;
+    }
+    past_move_list[index].is_taken = true;
+    past_move_list[index].zobrist_key = child->zobrist_key;
+}
+
+void hash_table_init(void) 
 {
     transposition_table = malloc(sizeof(TranspositionEntry_t) * TT_SIZE);
     if (!transposition_table) {
         fprintf(stderr, "Failed to allocate transposition table\n");
         exit(1);
     }
+
+    past_move_list = malloc(sizeof(PastMoveEntry_t) * PAST_MOVE_LIST_SIZE);
+    if (!past_move_list) {
+        fprintf(stderr, "Failed to allocate past move list\n");
+        exit(1);
+    }
+
 }
 
-void transposition_table_free(void) 
+void hash_table_free(void)
 {
     free(transposition_table);
+    free(past_move_list);
 }

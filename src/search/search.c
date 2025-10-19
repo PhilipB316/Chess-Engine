@@ -10,7 +10,7 @@
 #include "evaluate.h"
 #include "../movefinding/board.h"
 #include "../movefinding/movefinder.h"
-#include "../movefinding/transposition_table.h"
+#include "hash_tables.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -24,8 +24,6 @@ static clock_t start_time = 0;
 static clock_t global_max_time = 0;
 static bool time_up = false;
 static double time_spent = 0.0;
-
-static PastMoveListEntry_t* past_move_list;
 
 void sort_children(Position_t* postion);
 int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta);
@@ -218,7 +216,3 @@ void print_stats(void)
     printf("+-------------------------------------------+\n\n");
 }
 
-void pass_movelist_pointer_to_search(PastMoveListEntry_t* past_move_list_param)
-{
-    past_move_list = past_move_list_param;
-}
