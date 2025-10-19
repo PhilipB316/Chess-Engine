@@ -19,8 +19,6 @@ static bool* playing_as_white; // Default perspective for printing the board
 static ULL from_bitboard, to_bitboard;
 static ULL check_square_bitboard = 1;
 
-void cleanup_gui(SDL_Renderer* renderer, SDL_Window* window);
-
 static char* piece_files[12] = {
     "../assets/pieces/w_pawn_png_shadow_1024px.png",
     "../assets/pieces/w_knight_png_shadow_1024px.png",
@@ -35,6 +33,8 @@ static char* piece_files[12] = {
     "../assets/pieces/b_queen_png_shadow_1024px.png",
     "../assets/pieces/b_king_png_shadow_1024px.png"
 };
+
+void cleanup_gui(SDL_Renderer* renderer, SDL_Window* window);
 
 void load_piece_textures(SDL_Renderer* renderer) {
 

@@ -17,6 +17,7 @@
 static bool playing_as_white = false; // Default perspective for printing the board
 static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
+static PastMoveListEntry_t past_move_list[MAXIMUM_GAME_LENGTH];
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
 
@@ -106,6 +107,8 @@ void init(void)
     zobrist_key_init();
     transposition_table_init();
     ui_init();
+    pass_movelist_pointer_to_search(past_move_list);
     fen_to_board(new, &position);
+    printf("Initial half-move count: %u\n", position.half_move_count);
 }
 

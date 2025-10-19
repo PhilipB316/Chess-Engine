@@ -28,6 +28,12 @@ void find_best_move(Position_t* position,
                        uint8_t max_depth,
                        long long max_time);
 
+/**
+ * @brief Passes the past move list pointer to the search module.
+ *
+ * @param past_move_list Pointer to the head of the past move list.
+ */
+void pass_movelist_pointer_to_search(PastMoveListEntry_t* past_move_list);
 
 /**
  * @brief Prints the statistics of the search.

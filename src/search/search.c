@@ -19,10 +19,13 @@ static ULL nodes_analysed = 0;
 static uint64_t moves_generated = 0;
 static int32_t best_eval = 0;
 static uint8_t searched_depth = 0;
+
 static clock_t start_time = 0;
 static clock_t global_max_time = 0;
 static bool time_up = false;
 static double time_spent = 0.0;
+
+static PastMoveListEntry_t* past_move_list;
 
 void sort_children(Position_t* postion);
 int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta);
@@ -35,9 +38,9 @@ static inline bool time_is_up(void)
 }
 
 void find_best_move(Position_t* position, 
-                       Position_t* return_best_move, 
-                       uint8_t max_depth,
-                       long long max_time) // max time in milliseconds
+                    Position_t* return_best_move, 
+                    uint8_t max_depth,
+                    long long max_time) // max time in milliseconds
 {
     start_time = clock();
     global_max_time = max_time * CLOCKS_PER_SEC / 1000; // Convert milliseconds to clock ticks
@@ -215,3 +218,7 @@ void print_stats(void)
     printf("+-------------------------------------------+\n\n");
 }
 
+void pass_movelist_pointer_to_search(PastMoveListEntry_t* past_move_list_param)
+{
+    past_move_list = past_move_list_param;
+}
