@@ -115,6 +115,11 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         nodes_analysed++;
         return evaluate_position(position);
     }
+    // --- repetition detection ---
+    if (is_threefold_repetition(position)) {
+        nodes_analysed++;
+        return 0; // Draw by repetition
+    }
 
     // --- transposition table lookup ---
     ULL key = position->zobrist_key;

@@ -121,6 +121,9 @@ bool is_game_ended(Position_t *position)
         case STALEMATE:
             printf("Stalemate! Game over.\n");
             return true;
+        case THREEFOLD_REPETITION:
+            printf("Threefold repetition! Game drawn.\n");
+            return true;
         case BORING:
             return false;
         default:

@@ -44,7 +44,8 @@ typedef enum {
     BORING,
     CHECK,
     CHECKMATE,
-    STALEMATE
+    STALEMATE,
+    THREEFOLD_REPETITION
 } KingStatus_t;
 
 /**

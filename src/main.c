@@ -108,6 +108,5 @@ void init(void)
     hash_table_init();
     ui_init();
     fen_to_board(new, &position);
-    printf("Initial half-move count: %u\n", position.half_move_count);
 }
 

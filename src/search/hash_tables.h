@@ -91,5 +91,21 @@ void insert_past_move_entry(Position_t* child);
 */
 void clear_past_move_entry(Position_t* child);
 
+/**
+ * @brief Checks if the given position has occurred before.
+ * 
+ * @param position The position to check.
+ * @return true if the position has occurred before, false otherwise.
+*/
+bool is_past_move_entry_repetition(Position_t* position);
+
+/**
+ * @brief Checks if the given position has occurred at least three times.
+ * 
+ * @param position The position to check.
+ * @return true if the position has occurred at least three times, false otherwise.
+*/
+bool is_threefold_repetition(Position_t* position);
+
 #endif // TRANSPOSITION_TABLE_H
 

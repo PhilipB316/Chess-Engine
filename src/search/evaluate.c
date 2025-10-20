@@ -5,11 +5,11 @@
 #include "../movefinding/board.h"
 #include "../movefinding/lookuptables.h"
 #include "../movefinding/movefinder.h"
+#include "hash_tables.h"
 #include "./evaluate.h"
 
 int32_t opening_evaluation(Position_t* position);
 int32_t midgame_evaluation(Position_t* position);
-
 
 bool is_check(Position_t* position)
 {
@@ -22,6 +22,7 @@ bool is_check(Position_t* position)
 
 KingStatus_t determine_king_status(Position_t* position)
 {
+    if (is_threefold_repetition(position)) { return THREEFOLD_REPETITION; }
     move_finder(position);
     uint8_t check_count = 0;
     uint16_t num_children = position->num_children;
@@ -45,7 +46,6 @@ KingStatus_t determine_king_status(Position_t* position)
 int32_t evaluate_position(Position_t* position)
 {
     uint16_t half_move_count = position->half_move_count;
-
     if (half_move_count < MID_GAME_MOVE_COUNT) {
         return opening_evaluation(position);
     } else {
