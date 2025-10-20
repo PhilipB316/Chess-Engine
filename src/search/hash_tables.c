@@ -122,7 +122,11 @@ ULL generate_zobrist_hash(Position_t *position)
 void insert_past_move_entry(Position_t* child)
 {
     // populate past move list using linear probing
-    int32_t index = child->zobrist_key & PAST_MOVE_LIST_MASK;
+    ULL turn_agnositic_key = child->zobrist_key;
+    if (!child->white_to_move) {
+        turn_agnositic_key ^= zobrist_black_to_move;
+    }
+    int32_t index = turn_agnositic_key & PAST_MOVE_LIST_MASK;
     bool is_taken = past_move_list[index].is_taken;
     while (is_taken) {
         if (past_move_list[index].zobrist_key == child->zobrist_key) {
@@ -140,7 +144,11 @@ void insert_past_move_entry(Position_t* child)
 
 void clear_past_move_entry(Position_t* child)
 {
-    int32_t index = child->zobrist_key & PAST_MOVE_LIST_MASK;
+    ULL turn_agnositic_key = child->zobrist_key;
+    if (!child->white_to_move) {
+        turn_agnositic_key ^= zobrist_black_to_move;
+    }
+    int32_t index = turn_agnositic_key & PAST_MOVE_LIST_MASK;
     bool is_taken = past_move_list[index].is_taken;
     while (is_taken) {
         if (past_move_list[index].zobrist_key == child->zobrist_key) {
@@ -160,7 +168,11 @@ void clear_past_move_entry(Position_t* child)
 
 bool is_past_move_entry_repetition(Position_t* position)
 {
-    int32_t index = position->zobrist_key & PAST_MOVE_LIST_MASK;
+    ULL turn_agnositic_key = position->zobrist_key;
+    if (!position->white_to_move) {
+        turn_agnositic_key ^= zobrist_black_to_move;
+    }
+    int32_t index = turn_agnositic_key & PAST_MOVE_LIST_MASK;
     bool is_taken = past_move_list[index].is_taken;
     while (is_taken) {
         if (past_move_list[index].zobrist_key == position->zobrist_key) {
@@ -175,11 +187,15 @@ bool is_past_move_entry_repetition(Position_t* position)
 
 bool is_threefold_repetition(Position_t* position)
 {
-    int32_t index = position->zobrist_key & PAST_MOVE_LIST_MASK;
+    ULL turn_agnositic_key = position->zobrist_key;
+    if (!position->white_to_move) {
+        turn_agnositic_key ^= zobrist_black_to_move;
+    }
+    int32_t index = turn_agnositic_key & PAST_MOVE_LIST_MASK;
     bool is_taken = past_move_list[index].is_taken;
     while (is_taken) {
         if (past_move_list[index].zobrist_key == position->zobrist_key) {
-            return (past_move_list[index].occurences >= 2);
+            return (past_move_list[index].occurences >= 3);
         } else {
             index = (index + 1) & PAST_MOVE_LIST_MASK;
         }

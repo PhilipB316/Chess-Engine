@@ -16,6 +16,7 @@
 
 static bool playing_as_white = false; // Default perspective for printing the board
 static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+// static char new1[FEN_LENGTH] = "k16/3Q4/8/8/8/8/8/K7 w KQkq - 0 1";
 
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
@@ -38,7 +39,7 @@ void* cli_game_loop(void* arg);
 int main(void)
 {
     init();
-
+    // Create threads for CLI and SDL GUI
     pthread_t cli_thread, sdl_thread;
     pthread_create(&cli_thread, NULL, cli_game_loop, NULL);
     pthread_create(&sdl_thread, NULL, sdl_gui_loop, &gui_args);
@@ -94,7 +95,7 @@ bool update_game(void)
     insert_past_move_entry(&position); // Insert the new position into the past move list
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
-    if (is_game_ended(&position)) { return 0; }
+    if (is_game_ended(&position)) { return 0; } // Game over
     return 1; // Game continues
 }
 
