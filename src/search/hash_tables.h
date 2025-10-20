@@ -35,6 +35,7 @@ typedef struct {
 typedef struct
 {
     ULL zobrist_key;
+    uint8_t occurences;
     bool is_taken;
 } PastMoveEntry_t;
 
@@ -75,6 +76,20 @@ void hash_table_free(void);
  * @return The generated Zobrist hash as an unsigned long long integer.
  */
 ULL generate_zobrist_hash(Position_t *position);
+
+/**
+ * @brief Inserts a position into the past move table.
+ * 
+ * @param child The position to insert.
+*/
+void insert_past_move_entry(Position_t* child);
+
+/**
+ * @brief Clears a position from the past move table.
+ * 
+ * @param child The position to clear.
+*/
+void clear_past_move_entry(Position_t* child);
 
 #endif // TRANSPOSITION_TABLE_H
 

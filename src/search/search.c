@@ -8,9 +8,9 @@
 
 #include "search.h"
 #include "evaluate.h"
+#include "hash_tables.h"
 #include "../movefinding/board.h"
 #include "../movefinding/movefinder.h"
-#include "hash_tables.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -72,17 +72,21 @@ int32_t negamax_start(Position_t* position,
                       Position_t* return_best_move,
                       uint8_t depth)
 {
+    // --- alpha-beta negamax search initialisation ---
     Position_t* best_move = NULL;
     int32_t alpha = -INT32_MAX;
     int32_t beta = INT32_MAX;
     int32_t best_eval = -INT32_MAX;
 
+    // --- main negamax loop over child positions ---
     for (uint16_t i = 0; i < position->num_children; i++)
     {
         if (time_is_up()) { return 0; }
 
         Position_t* child = position->child_positions[i];
+        insert_past_move_entry(child);
         int32_t eval = -negamax(child, depth - 1, -beta, -alpha);
+        clear_past_move_entry(child);
         if (time_up) { return 0; /* Time ran out in deeper search */ }
 
         child->evaluation = eval;
@@ -94,16 +98,17 @@ int32_t negamax_start(Position_t* position,
     }
     clear_grandchildren_count(position);
 
-    // If no best move was found, return the original position
+    // --- return best move and evaluation ---
     if (best_move == NULL) { *return_best_move = *position; return 0; }
-    if (return_best_move == NULL) { return best_eval; /* No best move to return */ }
-
+    /* No best move to return, don't populate return_best_move */
+    if (return_best_move == NULL) { return best_eval; }
     *return_best_move = *best_move;
     return best_eval;
 }
 
 int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta)
 {
+    // --- base case ---
     if (depth == 0) {
         nodes_analysed++;
         return evaluate_position(position);
@@ -113,7 +118,6 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
     ULL key = position->zobrist_key;
     TranspositionEntry_t* entry = &transposition_table[key & TT_MASK];
     bool tt_move_found = false;
-
     if (entry->zobrist_key == key) {
         tt_move_found = true; 
         // NOTE: not sure this is actually working correctly
@@ -149,6 +153,7 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         }
     }
 
+    // --- main negamax loop ---
     int best_child_index = -1;
     for (uint16_t i = 0; i < position->num_children; i++)
     {
@@ -157,12 +162,16 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
             return 0;
         }
         Position_t* child = position->child_positions[i];
+        insert_past_move_entry(child);
         int32_t score = -negamax(child, depth - 1, -beta, -alpha);
+        clear_past_move_entry(child);
 
+        // --- track best score and move index ---
         if (score > value) {
             value = score;
-            best_child_index = i; // track best move index for tt update
+            best_child_index = i;
         }
+        // --- alpha-beta pruning ---
         if (value > alpha) {
             alpha = value;
             if (alpha >= beta) { break; /* Beta cutoff */ }
@@ -181,6 +190,7 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         entry->best_move_zobrist_key = position->child_positions[best_child_index]->zobrist_key;
     }
 
+    // --- cleanup and return ---
     free_children_memory(position); // must free children before returning
     return value;
 }

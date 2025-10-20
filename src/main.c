@@ -91,6 +91,7 @@ bool play_game(Position_t* position)
 bool update_game(void)
 {
     position = move_position;
+    insert_past_move_entry(&position); // Insert the new position into the past move list
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
     if (is_game_ended(&position)) { return 0; }

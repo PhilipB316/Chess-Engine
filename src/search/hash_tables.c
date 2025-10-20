@@ -119,14 +119,15 @@ ULL generate_zobrist_hash(Position_t *position)
     return hash;
 }
 
-void inset_past_move_entry(Position_t* child)
+void insert_past_move_entry(Position_t* child)
 {
     // populate past move list using linear probing
     int32_t index = child->zobrist_key & PAST_MOVE_LIST_MASK;
     bool is_taken = past_move_list[index].is_taken;
     while (is_taken) {
         if (past_move_list[index].zobrist_key == child->zobrist_key) {
-            return; // already exists
+            past_move_list[index].occurences++; // increment counter if already exists
+            return;
         } else {
             index = (index + 1) & PAST_MOVE_LIST_MASK;
         }
@@ -134,6 +135,57 @@ void inset_past_move_entry(Position_t* child)
     }
     past_move_list[index].is_taken = true;
     past_move_list[index].zobrist_key = child->zobrist_key;
+    past_move_list[index].occurences = 1; // first occurrence
+}
+
+void clear_past_move_entry(Position_t* child)
+{
+    int32_t index = child->zobrist_key & PAST_MOVE_LIST_MASK;
+    bool is_taken = past_move_list[index].is_taken;
+    while (is_taken) {
+        if (past_move_list[index].zobrist_key == child->zobrist_key) {
+            if (past_move_list[index].occurences > 1) {
+                past_move_list[index].occurences--; // decrement counter
+            } else {
+                past_move_list[index].is_taken = false;
+                past_move_list[index].occurences = 0;
+            }
+            return;
+        } else {
+            index = (index + 1) & PAST_MOVE_LIST_MASK;
+        }
+        is_taken = past_move_list[index].is_taken;
+    }
+}
+
+bool is_past_move_entry_repetition(Position_t* position)
+{
+    int32_t index = position->zobrist_key & PAST_MOVE_LIST_MASK;
+    bool is_taken = past_move_list[index].is_taken;
+    while (is_taken) {
+        if (past_move_list[index].zobrist_key == position->zobrist_key) {
+            return true; // found repetition
+        } else {
+            index = (index + 1) & PAST_MOVE_LIST_MASK;
+        }
+        is_taken = past_move_list[index].is_taken;
+    }
+    return false; // no repetition found
+}
+
+bool is_threefold_repetition(Position_t* position)
+{
+    int32_t index = position->zobrist_key & PAST_MOVE_LIST_MASK;
+    bool is_taken = past_move_list[index].is_taken;
+    while (is_taken) {
+        if (past_move_list[index].zobrist_key == position->zobrist_key) {
+            return (past_move_list[index].occurences >= 2);
+        } else {
+            index = (index + 1) & PAST_MOVE_LIST_MASK;
+        }
+        is_taken = past_move_list[index].is_taken;
+    }
+    return false; // no repetition found
 }
 
 void hash_table_init(void) 
