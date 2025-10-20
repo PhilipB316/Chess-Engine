@@ -84,8 +84,10 @@ int32_t negamax_start(Position_t* position,
         if (time_is_up()) { return 0; }
 
         Position_t* child = position->child_positions[i];
+        // insert into past move list for repetition detection
         insert_past_move_entry(child);
         int32_t eval = -negamax(child, depth - 1, -beta, -alpha);
+        // remove from past move list
         clear_past_move_entry(child);
         if (time_up) { return 0; /* Time ran out in deeper search */ }
 

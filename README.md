@@ -10,6 +10,8 @@ TessMax is my first chess engine. It is a bitboard engine written in C. It uses 
 - Negamax Search
 - Alpha-Beta Pruning
 - Iterative Deepening
+- Transposition Hash Table
+- Move Repetition Hash Table (with linear probing)
 
 ### User Interface Features
 
