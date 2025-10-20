@@ -55,11 +55,14 @@ void find_best_move(Position_t* position,
         searched_depth++;
     }
 
-    // if no best move is found then mate in one
-    // if mate in one then the best move is whatever is possible
+    // if no best move is found then mate is inevitable
+    // if mate is inevitable, just return the first available move
     // at a depth of 1
     if (position->zobrist_key == return_best_move->zobrist_key) {
         negamax_start(position, return_best_move, 1);
+        // wait 50 ms so gui can update properly
+        struct timespec ts = {0, 50 * 1000000}; // 50 milliseconds
+        nanosleep(&ts, NULL);
     }
 
     free_children_memory(position);
@@ -102,10 +105,7 @@ int32_t negamax_start(Position_t* position,
 
     // --- return best move and evaluation ---
     if (best_move == NULL) { *return_best_move = *position; return 0; }
-    /* No best move to return, don't populate return_best_move */
-    if (return_best_move == NULL) { return best_eval; }
-    *return_best_move = *best_move;
-    return best_eval;
+    else { *return_best_move = *best_move; return best_eval; }
 }
 
 int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta)
