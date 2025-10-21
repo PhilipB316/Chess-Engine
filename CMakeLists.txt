@@ -18,6 +18,7 @@ file(GLOB MAIN
     "./src/ui/movedisplay.c"
     "./src/ui/ui.c"
     "./src/ui/gui.c"
+    "./src/ui/log.c"
     )
 
 add_compile_options(-Wall -Wextra -O3 -std=c17)

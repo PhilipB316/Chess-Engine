@@ -13,6 +13,7 @@
 #include "./search/hash_tables.h"
 #include "./ui/gui.h"
 #include "./ui/ui.h"
+#include "./ui/log.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
 static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -38,6 +39,7 @@ void* cli_game_loop(void* arg);
 int main(void)
 {
     init();
+    touch_log_file();
 
     pthread_t cli_thread, sdl_thread;
     pthread_create(&cli_thread, NULL, cli_game_loop, NULL);

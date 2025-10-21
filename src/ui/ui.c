@@ -24,9 +24,27 @@ static uint16_t half_move_count = 0;
 static LL user_time_remaining = 0;
 static LL engine_time_remaining = 0;
 static LL current_player_start_time = 0;
-static bool playing_with_clock = false; // Flag to indicate if the game is played with a clock
-
+// Flag to indicate if the game is played with a clock:
+static bool playing_with_clock = false; 
 static bool engine_thinking = false;
+
+char header[HEADER_LENGTH];
+
+const char *header_fmt =
+    "==================================================|\n"
+    "|     _______            __  __ ------------------|   \n"
+    "|    |__   __|          |  \\/  | -----------------|  \n"
+    "|       | | ___  ___ ___| \\  / | __ ___  __ ------|     \n"
+    "|       | |/ _ \\/ __/ __| |\\/| |/ _` \\ \\/ / ------|     \n"
+    "|       | |  __/\\__ \\__ \\ |  | | (_| |>  < -------|     \n"
+    "|       |_|\\___||___/___/_|  |_|\\__,_/_/\\_\\ ------|     \n"
+    "|                                                 |\n"
+    "|=================================================|\n"
+    "|                   PHILIP BRAND                  |\n"
+    "|                    %s                   |\n"
+    "|                   Version %d.%d.%d                 | \n"
+    "|==================================================\n"
+    "\n";
 
 LL get_monotonic_ms(void) {
     struct timespec ts;
@@ -36,6 +54,13 @@ LL get_monotonic_ms(void) {
 
 void ui_init(void)
 {
+    time_t now = time(NULL);
+    struct tm *local = localtime(&now);
+    char date_string[20];
+    strftime(date_string, sizeof(date_string), "%Y-%m-%d", local);
+    snprintf(header, sizeof(header), header_fmt, DATE_STRING,
+             VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+
     printf(COLOUR_BOLD "\n" COLOUR_RESET);
 }
 
@@ -55,9 +80,7 @@ void clear_output_screen(uint8_t x)
 }
 
 void start_clock(void)
-{
-    current_player_start_time = get_monotonic_ms();
-}
+{ current_player_start_time = get_monotonic_ms(); }
 
 LL get_next_move_search_time(void)
 {
@@ -94,7 +117,6 @@ void update_time_display(void)
     if (!playing_with_clock) { return; }
     if (user_time_remaining < 0) { user_time_remaining = 0; }
     if (engine_time_remaining < 0) { engine_time_remaining = 0; }
-    // printf("\033[2A");
     printf("User time remaining: %.1f seconds\n", (float)user_time_remaining / MILLISECONDS_IN_SECOND);
     printf("Engine time remaining: %.1f seconds\n", (float)engine_time_remaining / MILLISECONDS_IN_SECOND);
 }
@@ -274,21 +296,7 @@ void make_move_from_cli(Position_t *position, Position_t *move_position)
 
 void print_name(void)
 {
-    printf("==================================================|\n");
-    printf("|     _______            __  __ ------------------|   \n");
-    printf("|    |__   __|          |  \\/  | -----------------|  \n");
-    printf("|       | | ___  ___ ___| \\  / | __ ___  __ ------|     \n");
-    printf("|       | |/ _ \\/ __/ __| |\\/| |/ _` \\ \\/ / ------|     \n");
-    printf("|       | |  __/\\__ \\__ \\ |  | | (_| |>  < -------|     \n");
-    printf("|       |_|\\___||___/___/_|  |_|\\__,_/_/\\_\\ ------|     \n");
-    printf("|                                                 |\n");
-
-    printf("|=================================================|\n");
-    printf("|                   PHILIP BRAND                  |\n");
-    printf("|                    09-07-2025                   |\n");
-    printf("|                   Version  2.0                  | \n");
-    printf("|==================================================\n");
-    printf("\n");
+    printf("%s", header);
 }
 
 void print_welcome_message(void)
