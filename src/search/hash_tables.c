@@ -61,40 +61,23 @@ ULL generate_zobrist_hash(Position_t *position)
 
     // Loop over both colors: 0 = white, 1 = black
     for (int colour = 0; colour < 2; colour++) {
-        // Pawns
-        ULL bitboard = position->pieces[colour].pawns;
-        while (bitboard) {
-            uint8_t square = __builtin_ctzll(bitboard);
-            hash ^= zobrist_key_table[colour][PIECE_PAWN][square];
-            bitboard &= bitboard - 1;
-        }
-        // Knights
-        bitboard = position->pieces[colour].knights;
-        while (bitboard) {
-            uint8_t square = __builtin_ctzll(bitboard);
-            hash ^= zobrist_key_table[colour][PIECE_KNIGHT][square];
-            bitboard &= bitboard - 1;
-        }
-        // Bishops
-        bitboard = position->pieces[colour].bishops;
-        while (bitboard) {
-            uint8_t square = __builtin_ctzll(bitboard);
-            hash ^= zobrist_key_table[colour][PIECE_BISHOP][square];
-            bitboard &= bitboard - 1;
-        }
-        // Rooks
-        bitboard = position->pieces[colour].rooks;
-        while (bitboard) {
-            uint8_t square = __builtin_ctzll(bitboard);
-            hash ^= zobrist_key_table[colour][PIECE_ROOK][square];
-            bitboard &= bitboard - 1;
-        }
-        // Queens
-        bitboard = position->pieces[colour].queens;
-        while (bitboard) {
-            uint8_t square = __builtin_ctzll(bitboard);
-            hash ^= zobrist_key_table[colour][PIECE_QUEEN][square];
-            bitboard &= bitboard - 1;
+        PieceType_t piece_types[] = {
+            PIECE_PAWN, PIECE_KNIGHT, PIECE_BISHOP, PIECE_ROOK, PIECE_QUEEN
+        };
+        ULL* bitboards[] = {
+            &position->pieces[colour].pawns,
+            &position->pieces[colour].knights,
+            &position->pieces[colour].bishops,
+            &position->pieces[colour].rooks,
+            &position->pieces[colour].queens
+        };
+        for (int i = 0; i < 5; ++i) {
+            ULL bitboard = *bitboards[i];
+            while (bitboard) {
+                uint8_t square = __builtin_ctzll(bitboard);
+                hash ^= zobrist_key_table[colour][piece_types[i]][square];
+                bitboard &= bitboard - 1;
+            }
         }
         // King (assume only one king per color)
         if (position->pieces[colour].kings) {
