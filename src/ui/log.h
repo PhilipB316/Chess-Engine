@@ -15,4 +15,10 @@
  */
 bool touch_log_file(void);
 
+/**
+ * @brief Appends a message to the log file
+ * @param message The message to log
+ */
+void log_message(const char* message);
+
 #endif // LOG_H

@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "gui.h"
+#include "log.h"
 #include "../movefinding/board.h"
 #include "../ui/movedisplay.h"
 #include "../search/evaluate.h"
@@ -18,6 +19,13 @@ static char move_notation[MOVE_NOTATION_LENGTH * MAXIMUM_GAME_LENGTH] = {0};
 static bool* playing_as_white; // Default perspective for printing the board
 static ULL from_bitboard, to_bitboard;
 static ULL check_square_bitboard = 1;
+
+static SDL_Color light = {240, 217, 181, 255};        // Standard light squares
+static SDL_Color dark = {181, 136, 99, 255};          // Standard dark squares
+static SDL_Color to = {210, 180, 140, 255};    // Tan for dark "from"
+static SDL_Color from = {147, 112, 219, 255};      // Medium slate blue for dark "to"
+static SDL_Color check = {255, 0, 0, 255}; // Red for check square
+
 
 static char* piece_files[12] = {
     "../assets/pieces/w_pawn_png_shadow_1024px.png",
@@ -104,12 +112,6 @@ void position_to_board_array(Position_t* position, char board[BOARD_SIZE][BOARD_
 void render_chess_board(SDL_Renderer* renderer)
 {
 
-    SDL_Color light = {240, 217, 181, 255};        // Standard light squares
-    SDL_Color dark = {181, 136, 99, 255};          // Standard dark squares
-    SDL_Color to = {210, 180, 140, 255};    // Tan for dark "from"
-    SDL_Color from = {147, 112, 219, 255};      // Medium slate blue for dark "to"
-    SDL_Color check = {255, 0, 0, 255}; // Red for check square
-
     uint8_t from_square = __builtin_ctzll(from_bitboard);
     uint8_t to_square = __builtin_ctzll(to_bitboard);
     uint8_t check_square = __builtin_ctzll(check_square_bitboard);
@@ -181,34 +183,38 @@ void render_moves(SDL_Renderer* renderer)
 void update_notation_string(Position_t* current_position, Position_t* previous_position) 
 {
     static uint8_t move_count = 0;
-
+    static char last_white_move[MOVE_NOTATION_LENGTH] = {0};
+    static char last_black_move[MOVE_NOTATION_LENGTH] = {0};
     char move[MOVE_NOTATION_LENGTH] = {0};
     get_move_notation(previous_position, current_position, move);
 
-    if (move_count % 2 == 0) {
+    if (move_count % 2 == 0) { // whites move
         strcat(move_notation, "\n");
-
-        // Shift the notation to keep the last MAX_NUM_MOVES_ON_GUI moves visible
+        // Shift moves if exceeding max display limit
         if (move_count > MAX_NUM_MOVES_ON_GUI) {
             memmove(move_notation, move_notation + MOVE_NOTATION_LENGTH, 
                     (MAX_NUM_MOVES_ON_GUI - 1) * MOVE_NOTATION_LENGTH);
             move_notation[(MAX_NUM_MOVES_ON_GUI - 1) * MOVE_NOTATION_LENGTH] = '\0';
         }
-
-        char move_count_str[MOVE_NOTATION_LENGTH] = {0};
-        char move_number[5] = {0};
-        sprintf(move_number, "%d", (move_count / 2 + 1));
-        sprintf(move_count_str, "%-4s ", strcat(move_number, "."));
+        // Add move number
+        char move_count_str[8];
+        sprintf(move_count_str, "%d.  ", (move_count / 2 + 1));
         strcat(move_notation, move_count_str);
-    } else {
-        // Print space between white and black moves
+        // Store last white move
+        strncpy(last_white_move, move, MOVE_NOTATION_LENGTH);
+        last_white_move[MOVE_NOTATION_LENGTH - 1] = '\0';
+    } else { // blacks move
         strcat(move_notation, " ");
+        strncpy(last_black_move, move, MOVE_NOTATION_LENGTH);
+        last_black_move[MOVE_NOTATION_LENGTH - 1] = '\0';
+        // write entire move line to log file
+        char log_msg[2 * MOVE_NOTATION_LENGTH + 17];
+        sprintf(log_msg, "%d. %s %s\n", (move_count / 2 + 1), last_white_move, last_black_move);
+        log_message(log_msg);
     }
-
-    char padded_move[MOVE_NOTATION_LENGTH] = {0};
+    char padded_move[8];
     sprintf(padded_move, "%-6s", move);
     strcat(move_notation, padded_move);
-
     move_count++;
 }
 

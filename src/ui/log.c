@@ -30,10 +30,16 @@ bool touch_log_file(void) {
     char readable_timestamp[30];
     strftime(readable_timestamp, sizeof(readable_timestamp), "%Y-%m-%d %H:%M:%S", local);
     fprintf(file, "Log created at %s\n", readable_timestamp);
-    fprintf(file, "Hello from C!\n");
-
     fclose(file);
-    printf("File created: %s\n", filename);
     return 0;
 }
 
+void log_message(const char* message) {
+    file = fopen(filename, "a");
+    if (file == NULL) {
+        perror("Error opening file for appending");
+        return;
+    }
+    fputs(message, file);
+    fclose(file);
+}
