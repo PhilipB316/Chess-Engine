@@ -215,9 +215,11 @@ MoveType_t find_move_type(Position_t *from_position, Position_t *to_position)
     else if (from_bitboard & from_active_pieces_set.queens) { return QUEEN; }
     else if (from_bitboard & from_active_pieces_set.kings)
     {
-        if (to_bitboard & king_castling_array[from_position->white_to_move][KINGSIDE])
+        if ((to_bitboard & king_castling_array[from_position->white_to_move][KINGSIDE])
+            && from_position->pieces[from_position->white_to_move].castle_kingside)
         { return CASTLE_KINGSIDE; }
-        else if (to_bitboard & king_castling_array[from_position->white_to_move][QUEENSIDE])
+        else if ((to_bitboard & king_castling_array[from_position->white_to_move][QUEENSIDE])
+                    && from_position->pieces[from_position->white_to_move].castle_queenside)
         { return CASTLE_QUEENSIDE; }
         else
         { return KING; }

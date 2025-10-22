@@ -8,6 +8,7 @@
 #include <time.h>
 
 #include "movedisplay.h"
+#include "log.h"
 #include "../search/evaluate.h"
 #include "../movefinding/movefinder.h"
 
@@ -18,8 +19,9 @@ static bool white_perspective = true; // Default perspective for printing the bo
 static uint16_t max_engine_search_time = 5;
 static uint16_t user_time_increment = 0;
 static uint16_t game_length_per_side = 0;
-
 static uint16_t half_move_count = 0;
+
+static bool colour_set = false;
 
 static LL user_time_remaining = 0;
 static LL engine_time_remaining = 0;
@@ -32,17 +34,17 @@ char header[HEADER_LENGTH];
 
 const char *header_fmt =
     "==================================================|\n"
-    "|     _______            __  __ ------------------|   \n"
-    "|    |__   __|          |  \\/  | -----------------|  \n"
-    "|       | | ___  ___ ___| \\  / | __ ___  __ ------|     \n"
-    "|       | |/ _ \\/ __/ __| |\\/| |/ _` \\ \\/ / ------|     \n"
-    "|       | |  __/\\__ \\__ \\ |  | | (_| |>  < -------|     \n"
-    "|       |_|\\___||___/___/_|  |_|\\__,_/_/\\_\\ ------|     \n"
+    "|     _______            __  __ ------------------|\n"
+    "|    |__   __|          |  \\/  | -----------------|\n"
+    "|       | | ___  ___ ___| \\  / | __ ___  __ ------|\n"
+    "|       | |/ _ \\/ __/ __| |\\/| |/ _` \\ \\/ / ------|\n"
+    "|       | |  __/\\__ \\__ \\ |  | | (_| |>  < -------|\n"
+    "|       |_|\\___||___/___/_|  |_|\\__,_/_/\\_\\ ------|\n"
     "|                                                 |\n"
     "|=================================================|\n"
     "|                   PHILIP BRAND                  |\n"
     "|                    %s                   |\n"
-    "|                   Version %d.%d.%d                 | \n"
+    "|                   Version %d.%d.%d                 |\n"
     "|==================================================\n"
     "\n";
 
@@ -137,14 +139,21 @@ bool is_game_ended(Position_t *position)
         case CHECK:
             return false;
         case CHECKMATE:
-            if (position->white_to_move) { printf("Black wins by checkmate! Game over.\n"); } 
-            else { printf("White wins by checkmate! Game over.\n"); }
+            if (position->white_to_move) {
+                printf("Black wins by checkmate! Game over.\n");
+                write_result_to_log(0);
+            } else {
+                printf("White wins by checkmate! Game over.\n");
+                write_result_to_log(1);
+            }
             return true;
         case STALEMATE:
             printf("Stalemate! Game over.\n");
+            write_result_to_log(2);
             return true;
         case THREEFOLD_REPETITION:
             printf("Threefold repetition! Game drawn.\n");
+            write_result_to_log(2);
             return true;
         case BORING:
             return false;
@@ -238,11 +247,9 @@ void set_colour(bool* playing_as_white)
     }
     white_perspective = *playing_as_white; // Set the perspective based on the player's choice
 
-    if (white_perspective) {
-        engine_thinking = false;
-    } else {
-        engine_thinking = true; // If playing as black, the engine will think first
-    }
+    if (white_perspective) { engine_thinking = false; }
+    else { engine_thinking = true; /* If playing as black, the engine will think first */ }
+    colour_set = true; // Colour has been set
 }
 
 int make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination) 
@@ -351,3 +358,5 @@ void print_position(Position_t* position)
     }
 }
 
+bool is_colour_set(void)
+{ return colour_set; }

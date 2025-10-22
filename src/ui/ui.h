@@ -118,4 +118,12 @@ void start_clock(void);
  */
 void clear_output_screen(uint8_t x);
 
+
+/**
+ * @brief Checks if the colour has been set.
+ * 
+ * @return true if the colour has been set, false otherwise.
+ */
+bool is_colour_set(void);
+
 #endif // UI_H

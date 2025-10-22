@@ -57,6 +57,7 @@ void* cli_game_loop(void* arg)
     print_welcome_message();
     set_time();
     set_colour(&playing_as_white);
+    write_log_pgn_header(playing_as_white);
     printf("\n");
     start_clock(); // Start the clock for the first player
 

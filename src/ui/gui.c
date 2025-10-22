@@ -198,7 +198,7 @@ void update_notation_string(Position_t* current_position, Position_t* previous_p
         }
         // Add move number
         char move_count_str[8];
-        sprintf(move_count_str, "%d.  ", (move_count / 2 + 1));
+        sprintf(move_count_str, "%2d.   ", (move_count / 2 + 1));
         strcat(move_notation, move_count_str);
         // Store last white move
         strncpy(last_white_move, move, MOVE_NOTATION_LENGTH);
