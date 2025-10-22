@@ -53,22 +53,10 @@ void print_bitboard(uint64_t bitboard)
 {
     for (uint8_t i = 0; i < 64; i++)
     {
-        if (i % 8 == 0)
-        {
-            // pretty printing for the ranks:
-            printf("\n");
-            printf("%u   ", 8 - i / 8);
-        }
-        if (bitboard & (1ULL << i))
-        {
-            printf("1 ");
-        }
-        else
-        {
-            printf(". ");
-        }
+        if (i % 8 == 0) { printf("\n%u   ", 8 - i / 8); }
+        if (bitboard & (1ULL << i)) { printf("1 "); }
+        else { printf(". "); }
     }
-    // pretty printing for the files:
     printf("\n\n    a b c d e f g h\n\n");
 }
 

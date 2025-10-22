@@ -212,10 +212,10 @@ int parse_move_notation(char *move_notation,
     return 0;
 }
 
-ULL determine_from_square_bitboard(Position_t *position, 
-                                   MoveType_t move_type, 
-                                   uint8_t to_square, 
-                                   char *disambiguation) 
+ULL determine_from_square_bitboard(Position_t *position,
+                                   MoveType_t move_type,
+                                   uint8_t to_square,
+                                   char *disambiguation)
 {
     PieceType_t piece_type = get_piece_type_from_move_type(move_type);
     bool white_to_move = position->white_to_move;
@@ -223,66 +223,85 @@ ULL determine_from_square_bitboard(Position_t *position,
     uint8_t from_square = 0;
     ULL disambiguation_mask = filter_disambiguation(disambiguation);
 
-    switch (piece_type) {
+    // Function pointer for move generation
+    ULL (*find_moves)(Position_t*, uint8_t) = NULL;
 
+    switch (piece_type) {
         case PIECE_PAWN:
             relevant_bitboard = position->pieces[white_to_move].pawns & disambiguation_mask;
-            while (relevant_bitboard) {
-                from_square = __builtin_ctzll(relevant_bitboard);
-                ULL pawn_moves = find_pawn_moves(position, from_square);
-                if (pawn_moves & (1ULL << to_square)) { return 1ULL << from_square; }
-                relevant_bitboard &= ~(1ULL << from_square);
-            }
-            return 0; // No valid from square found for pawn
-
+            find_moves = find_pawn_moves;
+            break;
         case PIECE_KNIGHT:
             relevant_bitboard = position->pieces[white_to_move].knights & disambiguation_mask;
-            while (relevant_bitboard) {
-                from_square = __builtin_ctzll(relevant_bitboard);
-                ULL knight_moves = find_knight_moves(position, from_square);
-                if (knight_moves & (1ULL << to_square)) { return 1ULL << from_square; }
-                relevant_bitboard &= ~(1ULL << from_square);
-            }
-            return 0; // No valid from square found for knight
-
+            find_moves = find_knight_moves;
+            break;
         case PIECE_BISHOP:
             relevant_bitboard = position->pieces[white_to_move].bishops & disambiguation_mask;
-            while (relevant_bitboard) {
-                from_square = __builtin_ctzll(relevant_bitboard);
-                ULL bishop_moves = find_bishop_moves(position, from_square);
-                if (bishop_moves & (1ULL << to_square)) { return 1ULL << from_square; }
-                relevant_bitboard &= ~(1ULL << from_square);
-            }
-            return 0; // No valid from square found for bishop
-
+            find_moves = find_bishop_moves;
+            break;
         case PIECE_ROOK:
             relevant_bitboard = position->pieces[white_to_move].rooks & disambiguation_mask;
-            while (relevant_bitboard) {
-                from_square = __builtin_ctzll(relevant_bitboard);
-                ULL rook_moves = find_rook_moves(position, from_square);
-                if (rook_moves & (1ULL << to_square)) { return 1ULL << from_square; }
-                relevant_bitboard &= ~(1ULL << from_square);
-            }
-            return 0; // No valid from square found for rook
-
+            find_moves = find_rook_moves;
+            break;
         case PIECE_QUEEN:
             relevant_bitboard = position->pieces[white_to_move].queens & disambiguation_mask;
-            while (relevant_bitboard) {
-                from_square = __builtin_ctzll(relevant_bitboard);
-                ULL queen_moves = find_queen_moves(position, from_square);
-                if (queen_moves & (1ULL << to_square)) { return 1ULL << from_square; }
-                relevant_bitboard &= ~(1ULL << from_square);
-            }
-            return 0; // No valid from square found for queen
-
+            find_moves = find_queen_moves;
+            break;
         case PIECE_KING:
             relevant_bitboard = position->pieces[white_to_move].kings & disambiguation_mask;
-            from_square = __builtin_ctzll(relevant_bitboard);
-            ULL king_moves = find_king_moves(position, from_square);
-            if (king_moves & (1ULL << to_square)) { return 1ULL << from_square; }
+            find_moves = find_king_moves;
+            break;
+        default:
             return 0;
     }
+
+    while (relevant_bitboard) {
+        from_square = __builtin_ctzll(relevant_bitboard);
+        ULL moves = find_moves(position, from_square);
+        if (moves & (1ULL << to_square)) {
+            return 1ULL << from_square;
+        }
+        relevant_bitboard &= ~(1ULL << from_square);
+    }
     return 0; // No valid from square found
+}
+
+bool is_ambiguous_move(Position_t* previous_position, MoveType_t move_type, uint8_t to_square)
+{
+    ULL piece_bitboard = 0;
+    ULL (*find_moves)(Position_t*, uint8_t) = NULL;
+
+    switch (move_type) {
+        case KNIGHT:
+            piece_bitboard = previous_position->pieces[previous_position->white_to_move].knights;
+            find_moves = find_knight_moves;
+            break;
+        case BISHOP:
+            piece_bitboard = previous_position->pieces[previous_position->white_to_move].bishops;
+            find_moves = find_bishop_moves;
+            break;
+        case ROOK:
+            piece_bitboard = previous_position->pieces[previous_position->white_to_move].rooks;
+            find_moves = find_rook_moves;
+            break;
+        case QUEEN:
+            piece_bitboard = previous_position->pieces[previous_position->white_to_move].queens;
+            find_moves = find_queen_moves;
+            break;
+        default:
+            return false;
+    }
+
+    uint8_t ambiguous_count = 0;
+    while (piece_bitboard) {
+        uint8_t from_square = __builtin_ctzll(piece_bitboard);
+        ULL moves = find_moves(previous_position, from_square);
+        if (moves & (1ULL << to_square)) {
+            ambiguous_count++;
+        }
+        piece_bitboard &= ~(1ULL << from_square);
+    }
+    return ambiguous_count > 1;
 }
 
 void get_move_notation(Position_t* previous_position, Position_t* new_position, char* notation)
@@ -291,11 +310,13 @@ void get_move_notation(Position_t* previous_position, Position_t* new_position, 
 
     ULL from_bitboard, to_bitboard;
     find_from_to_square(previous_position, new_position, &from_bitboard, &to_bitboard);
+    bool is_ambiguous = is_ambiguous_move(previous_position, move_type, __builtin_ctzll(to_bitboard));
 
     uint8_t to_square = __builtin_ctzll(to_bitboard);
     uint8_t from_square = __builtin_ctzll(from_bitboard);
 
     char from_square_file[2] = {'a' + (from_square % 8), '\0'};
+    char from_square_rank[2] = {'1' + (7 - from_square / 8), '\0'};
     char to_square_file[2] = {'a' + (to_square % 8), '\0'};
     char to_square_rank[2] = {'1' + (7 - to_square / 8), '\0'};
 
@@ -312,24 +333,40 @@ void get_move_notation(Position_t* previous_position, Position_t* new_position, 
             break;
         case KNIGHT:
             strcat(notation, "N");
+            if (is_ambiguous) {
+                strcat(notation, from_square_file);
+                strcat(notation, from_square_rank);
+            }
             if (value_change) { strcat(notation, "x"); }
             strcat(notation, to_square_file);
             strcat(notation, to_square_rank);
             break;
         case BISHOP:
             strcat(notation, "B");
+            if (is_ambiguous) {
+                strcat(notation, from_square_file);
+                strcat(notation, from_square_rank);
+            }
             if (value_change) { strcat(notation, "x"); }
             strcat(notation, to_square_file);
             strcat(notation, to_square_rank);
             break;
         case ROOK:
             strcat(notation, "R");
+            if (is_ambiguous) {
+                strcat(notation, from_square_file);
+                strcat(notation, from_square_rank);
+            }
             if (value_change) { strcat(notation, "x"); }
             strcat(notation, to_square_file);
             strcat(notation, to_square_rank);
             break;
         case QUEEN:
             strcat(notation, "Q");
+            if (is_ambiguous) {
+                strcat(notation, from_square_file);
+                strcat(notation, from_square_rank);
+            }
             if (value_change) { strcat(notation, "x"); }
             strcat(notation, to_square_file);
             strcat(notation, to_square_rank);
@@ -341,31 +378,34 @@ void get_move_notation(Position_t* previous_position, Position_t* new_position, 
             strcat(notation, to_square_rank);
             break;
         case PROMOTE_QUEEN:
-            strcat(notation, "Q=");
-            if (value_change) { strcat(notation, "x"); }
             strcat(notation, to_square_file);
             strcat(notation, to_square_rank);
+            strcat(notation, "=Q");
             break;
         case PROMOTE_ROOK:
-            strcat(notation, "R=");
             strcat(notation, to_square_file);
             strcat(notation, to_square_rank);
+            strcat(notation, "=R");
             break;
         case PROMOTE_BISHOP:
-            strcat(notation, "B=");
             strcat(notation, to_square_file);
             strcat(notation, to_square_rank);
+            strcat(notation, "=B");
             break;
         case PROMOTE_KNIGHT:
-            strcat(notation, "N=");
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
+            strcat(notation, "=N");
+            break;
+        case DOUBLE_PUSH:
             strcat(notation, to_square_file);
             strcat(notation, to_square_rank);
             break;
-        case DOUBLE_PUSH:
-            // should not happen
-            break;
         case EN_PASSANT_CAPTURE:
-            // should not happen
+            strcat(notation, from_square_file);
+            strcat(notation, "x");
+            strcat(notation, to_square_file);
+            strcat(notation, to_square_rank);
             break;
         case CASTLE_KINGSIDE:
             strcat(notation, "O-O");
