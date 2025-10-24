@@ -35,17 +35,18 @@ static inline bool time_is_up(void)
     return time_up;
 }
 
-void find_best_move(Position_t* position, 
-                    Position_t* return_best_move, 
-                    uint8_t max_depth,
-                    long long max_time) // max time in milliseconds
+int32_t find_best_move(Position_t* position, 
+                       Position_t* return_best_move, 
+                       uint8_t max_depth,
+                       long long max_time)
 {
     start_time = clock();
-    global_max_time = max_time * CLOCKS_PER_SEC / 1000; // Convert milliseconds to clock ticks
+    global_max_time = max_time * CLOCKS_PER_SEC / 1000;
     nodes_analysed = 0;
     moves_generated = 0;
     searched_depth = 1;
-
+    best_eval = 0;
+    
     move_finder(position);
 
     while (!time_is_up() && searched_depth < max_depth)
@@ -69,6 +70,7 @@ void find_best_move(Position_t* position,
 
     clock_t end_time = clock();
     time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    return best_eval;
 }
 
 int32_t negamax_start(Position_t* position, 
@@ -125,21 +127,23 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
     ULL key = position->zobrist_key;
     TranspositionEntry_t* entry = &transposition_table[key & TT_MASK];
     bool tt_move_found = false;
-    if (entry->zobrist_key == key) {
-        tt_move_found = true; 
-        // NOTE: not sure this is actually working correctly
+    int32_t orig_alpha = alpha; // preserve for TT node-type classification
 
-        if (entry->search_depth == depth) {
+    if (entry->zobrist_key == key) {
+        tt_move_found = true;
+        if (entry->search_depth >= depth) {
             nodes_analysed++;
             if (entry->node_type == EXACT) {
-                return entry->position_evaluation; /* Exact match */
+                return entry->position_evaluation;
             } else if (entry->node_type == LOWER_BOUND) {
-                alpha = entry->position_evaluation; // Lower bound
+                alpha = MAX(alpha, entry->position_evaluation);
             } else if (entry->node_type == UPPER_BOUND) {
-                beta = entry->position_evaluation; // Upper bound
+                beta = MIN(beta, entry->position_evaluation);
+            }
+            if (alpha >= beta) {
+                return entry->position_evaluation; // cutoff from TT bounds
             }
         }
-        // if (alpha >= beta) { return entry->position_evaluation; /* Cutoff */ }
     }
 
     int32_t value = -INT32_MAX;
@@ -160,30 +164,57 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         }
     }
 
-    // --- main negamax loop ---
     int best_child_index = -1;
+    // uint16_t legal_count = 0;
+
+    // --- main negamax loop ---
     for (uint16_t i = 0; i < position->num_children; i++)
     {
         if (time_is_up()) {
             free_children_memory(position); // must free children before returning
             return 0;
         }
+
         Position_t* child = position->child_positions[i];
+
+        // // Filter illegal moves: mover’s king must not be in check in the child
+        // bool saved_stm = child->white_to_move;
+        // child->white_to_move = position->white_to_move; // set to mover for is_check()
+        // bool illegal = is_check(child);
+        // child->white_to_move = saved_stm;
+        // if (illegal) { continue; }
+        //
+        // legal_count++;
+
         insert_past_move_entry(child);
         int32_t score = -negamax(child, depth - 1, -beta, -alpha);
         clear_past_move_entry(child);
+        if (time_up) {
+            free_children_memory(position); // must free children before returning
+            return 0; /* Time ran out in deeper search */
+        }
 
-        // --- track best score and move index ---
         if (score > value) {
             value = score;
-            best_child_index = i;
+            best_child_index = i; // track best move index for TT update
         }
-        // --- alpha-beta pruning ---
         if (value > alpha) {
             alpha = value;
             if (alpha >= beta) { break; /* Beta cutoff */ }
         }
     }
+
+    // // --- terminal: no legal moves (mate or stalemate) ---
+    // if (legal_count == 0) {
+    //     nodes_analysed++;
+    //     free_children_memory(position);
+    //     if (is_check(position)) {
+    //         return -MATE_SCORE + depth;
+    //     } else {
+    //         // Stalemate: draw
+    //         return 0;
+    //     }
+    // }
 
     // --- update transposition table with best move and score ---
     if (best_child_index >= 0) {
@@ -191,13 +222,17 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         entry->position_evaluation = value;
         entry->half_move_count = position->half_move_count;
         entry->search_depth = depth;
-        if (value <= alpha) { entry->node_type = UPPER_BOUND; /* Upper bound */ } 
-        else if (value >= beta) { entry->node_type = LOWER_BOUND; /* Lower bound */ } 
-        else { entry->node_type = EXACT; /* Exact match */ }
+        // Classify node using original alpha
+        if (value <= orig_alpha) {
+            entry->node_type = UPPER_BOUND;  // fail-low
+        } else if (value >= beta) {
+            entry->node_type = LOWER_BOUND;  // fail-high
+        } else {
+            entry->node_type = EXACT;
+        }
         entry->best_move_zobrist_key = position->child_positions[best_child_index]->zobrist_key;
     }
 
-    // --- cleanup and return ---
     free_children_memory(position); // must free children before returning
     return value;
 }

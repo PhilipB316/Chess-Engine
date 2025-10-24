@@ -21,7 +21,7 @@
 #define LL long long
 
 #define VERSION_MAJOR 2
-#define VERSION_MINOR 0
+#define VERSION_MINOR 1
 #define VERSION_PATCH 0
 #define DATE_STRING "2025-10-22"
 

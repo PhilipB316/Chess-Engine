@@ -13,30 +13,44 @@ int32_t midgame_evaluation(Position_t* position);
 
 bool is_check(Position_t* position)
 {
-    // Check if the king of the current player is under attack
-    ULL king_square = position->pieces[position->white_to_move].kings;
-    bool white_perspective = !position->white_to_move;
-    ULL attack_squares = calculate_attack_squares(position, white_perspective);
-    return (king_square & attack_squares);
+    // side to move’s king under attack?
+    bool stm = position->white_to_move;
+    ULL king_bb = position->pieces[stm].kings;
+    if (!king_bb) return false;
+    uint8_t king_sq = __builtin_ctzll(king_bb);
+
+    // squares attacked by opponent
+    ULL attacks = calculate_attack_squares(position, !stm);
+    return (attacks & (1ULL << king_sq)) != 0;
 }
 
 KingStatus_t determine_king_status(Position_t* position)
 {
     if (is_threefold_repetition(position)) { return THREEFOLD_REPETITION; }
+
     move_finder(position);
-    uint8_t check_count = 0;
+
     uint16_t num_children = position->num_children;
+    uint16_t legal_count = 0;
+
     for (uint16_t i = 0; i < num_children; i++)
     {
-        // Switch to opponent's perspective
-        position->child_positions[i]->white_to_move = position->white_to_move;
-        if (is_check(position->child_positions[i])) { check_count++; }
+        Position_t* child = position->child_positions[i];
+
+        // A move is legal iff the mover’s king is not in check in the child
+        bool saved_stm = child->white_to_move;
+        child->white_to_move = position->white_to_move; // set to mover for is_check()
+        bool illegal = is_check(child);
+        child->white_to_move = saved_stm;
+
+        if (!illegal) { legal_count++; }
     }
+
     free_children_memory(position);
     clear_children_count(position);
 
-    if (check_count == num_children) {
-        if (is_check(position)) { return CHECKMATE; } 
+    if (legal_count == 0) {
+        if (is_check(position)) { return CHECKMATE; }
         else { return STALEMATE; }
     }
     if (is_check(position)) { return CHECK; }

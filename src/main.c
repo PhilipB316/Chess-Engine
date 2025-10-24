@@ -16,7 +16,8 @@
 #include "./ui/log.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
-static char new[FEN_LENGTH] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+#define new "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+// #define new "3kq3/8/8/8/8/8/3K4/8 w - - 0 1"
 
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
@@ -71,6 +72,11 @@ void* cli_game_loop(void* arg)
 
 bool play_game(Position_t* position)
 {
+    // int32_t evl = find_best_move(position, &move_position, 6, 5000);
+    // printf("Engine evaluation: %d\n", evl);
+    // print_stats();
+    // if (!update_game()) { return 0; /* Exit if the game is over */ }
+
     static bool first_move = true;
 
     if (first_move && !playing_as_white) {

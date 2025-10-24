@@ -23,7 +23,7 @@
  * @param max_depth The maximum depth to search.
  * @param max_time The maximum time allowed for the search.
  */
-void find_best_move(Position_t* position, 
+int32_t find_best_move(Position_t* position, 
                        Position_t* return_best_move, 
                        uint8_t max_depth,
                        long long max_time);
@@ -32,5 +32,8 @@ void find_best_move(Position_t* position,
  * @brief Prints the statistics of the search.
  */
 void print_stats(void);
+
+#define MATE_SCORE 1000000
+#define MATE_IN_MAX_PLY (MATE_SCORE - 1000)
 
 #endif // SEARCH_H

@@ -176,7 +176,7 @@ ULL calculate_attack_squares(Position_t* position, bool white_perspective)
     while (pawn_bitboard)
     {
         from_square = __builtin_ctzll(pawn_bitboard);
-        threatened_squares |= pawn_attack_lookup_table[position->white_to_move][from_square];
+        threatened_squares |= pawn_attack_lookup_table[white_perspective][from_square];
         pawn_bitboard &= ~(1ULL << from_square);
     }
 
@@ -408,7 +408,7 @@ void move_finder(Position_t *position)
     while (opponent_knights)
     {
         from_square = __builtin_ctzll(opponent_knights);
-        threatened_squares |= knight_attack_lookup_table[__builtin_ctzll(opponent_knights)];
+        threatened_squares |= knight_attack_lookup_table[from_square];
         opponent_knights &= ~(1ULL << from_square);
     }
     ULL opponent_pawns = opponent_pieces_set->pawns;
@@ -516,9 +516,8 @@ void generate_new_positions(MoveType_t piece,
 
         Position_t *new_position = custom_alloc();
         memcpy(new_position, OLD_POSTION, sizeof(Position_t));
-        num_new_positions++;
-        OLD_POSTION->child_positions[OLD_POSTION->num_children++] = new_position;
 
+        // Build the child in-place
         populate_position(piece,
                           new_position,
                           to_square,
@@ -527,6 +526,23 @@ void generate_new_positions(MoveType_t piece,
                           from_square_bitboard,
                           move_bitboard,
                           special_flags);
+
+        // // Legality: mover’s king must not be in check in the resulting position
+        // bool mover = OLD_POSTION->white_to_move;
+        // bool saved_stm = new_position->white_to_move; // populate_position flips stm
+        // new_position->white_to_move = mover;
+        // bool illegal = is_check(new_position);
+        // new_position->white_to_move = saved_stm;
+
+        // if (illegal) {
+        //     // Discard allocation for illegal move
+        //     custom_free();
+        // } else {
+        //     // Keep only legal children
+            OLD_POSTION->child_positions[OLD_POSTION->num_children++] = new_position;
+            num_new_positions++;
+        // }
+
         possible_moves_bitboard &= ~to_square_bitboard;
     }
 }
