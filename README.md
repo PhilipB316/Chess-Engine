@@ -1,5 +1,7 @@
 # TessMax
 
+[![GitHub release](https://img.shields.io/github/release/PhilipB316/Chess-Engine.svg)](https://github.com/PhilipB316/Chess-Engine/releases/latest)
+
 TessMax is my first chess engine. It is a bitboard engine written in C. It uses a CLI for move input, and displays the position in a simple GUI.
 
 ## Features
