@@ -311,7 +311,7 @@ void print_welcome_message(void)
     printf("Welcom to TessMax!\n");
     printf("When prompted, please enter your move.\n");
     printf("BE AWARE: Mistakes in your input can lead to unexpected behavior!\n");
-    printf("To terminate the game, press ctrl + C.\n\n");
+    printf("To terminate the game, press ctrl + C twice.\n\n");
 }
 
 void print_position(Position_t* position)

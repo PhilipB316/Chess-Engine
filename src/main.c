@@ -53,6 +53,11 @@ int main(void)
 // Thread function for CLI game loop
 void* cli_game_loop(void* arg)
 {
+    // int32_t evl = find_best_move(&position, &move_position, 6, 5000);
+    // printf("Engine evaluation: %d\n", evl);
+    // print_stats();
+    // return NULL;
+
     (void)arg; // Unused parameter
     print_name();
     print_welcome_message();
@@ -72,9 +77,6 @@ void* cli_game_loop(void* arg)
 
 bool play_game(Position_t* position)
 {
-    // int32_t evl = find_best_move(position, &move_position, 6, 5000);
-    // printf("Engine evaluation: %d\n", evl);
-    // print_stats();
     // if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     static bool first_move = true;
@@ -87,11 +89,12 @@ bool play_game(Position_t* position)
     }
 
     // user move
-    make_move_from_cli(position, &move_position);
-    if (!update_game()) { return 0; /* Exit if the game is over */ }
+    // make_move_from_cli(position, &move_position);
+    // if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     // engine move
     find_best_move(position, &move_position, 30, get_next_move_search_time());
+    print_stats();
     if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     return 1;

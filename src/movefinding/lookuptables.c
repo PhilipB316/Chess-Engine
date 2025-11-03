@@ -268,7 +268,7 @@ void generate_lookup_tables(void)
     bishop_attack_generator();
 }
 
-uint16_t random(void)
+uint16_t custom_random(void)
 {
     // This function should return a random number.
     // For simplicity, we can use rand() from stdlib.h.
@@ -289,10 +289,10 @@ ULL random_ULL(void)
 {
     ULL u1, u2, u3, u4;
     // srand(time(NULL));
-    u1 = (ULL)(random()) & 0xFFFF;
-    u2 = (ULL)(random()) & 0xFFFF;
-    u3 = (ULL)(random()) & 0xFFFF;
-    u4 = (ULL)(random()) & 0xFFFF;
+    u1 = (ULL)(custom_random()) & 0xFFFF;
+    u2 = (ULL)(custom_random()) & 0xFFFF;
+    u3 = (ULL)(custom_random()) & 0xFFFF;
+    u4 = (ULL)(custom_random()) & 0xFFFF;
     return u1 | (u2 << 16) | (u3 << 32) | (u4 << 48);
 }
 

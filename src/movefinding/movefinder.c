@@ -470,7 +470,6 @@ bool make_notation_move(Position_t *old_position,
     num_new_positions++;
 
     if (piece == CASTLE_KINGSIDE || piece == CASTLE_QUEENSIDE) {
-        // Castling moves require special handling
         from_square_bitboard = new_position->pieces[white_to_move].kings;
         move_bitboard = king_castling_array[white_to_move]
             [piece == CASTLE_KINGSIDE ? KINGSIDE : QUEENSIDE] | from_square_bitboard;
@@ -527,21 +526,8 @@ void generate_new_positions(MoveType_t piece,
                           move_bitboard,
                           special_flags);
 
-        // // Legality: mover’s king must not be in check in the resulting position
-        // bool mover = OLD_POSTION->white_to_move;
-        // bool saved_stm = new_position->white_to_move; // populate_position flips stm
-        // new_position->white_to_move = mover;
-        // bool illegal = is_check(new_position);
-        // new_position->white_to_move = saved_stm;
-
-        // if (illegal) {
-        //     // Discard allocation for illegal move
-        //     custom_free();
-        // } else {
-        //     // Keep only legal children
-            OLD_POSTION->child_positions[OLD_POSTION->num_children++] = new_position;
-            num_new_positions++;
-        // }
+        OLD_POSTION->child_positions[OLD_POSTION->num_children++] = new_position;
+        num_new_positions++;
 
         possible_moves_bitboard &= ~to_square_bitboard;
     }

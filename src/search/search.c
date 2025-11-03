@@ -46,7 +46,7 @@ int32_t find_best_move(Position_t* position,
     moves_generated = 0;
     searched_depth = 1;
     best_eval = 0;
-    
+
     move_finder(position);
 
     while (!time_is_up() && searched_depth < max_depth)
