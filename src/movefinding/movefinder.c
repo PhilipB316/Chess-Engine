@@ -165,8 +165,10 @@ inline ULL find_king_moves(Position_t *position, uint8_t king_square)
     return king_attack_lookup_table[king_square] | king_castling_array[white_to_move][QUEENSIDE] | king_castling_array[white_to_move][KINGSIDE];
 }
 
-ULL calculate_attack_squares(Position_t* position, bool white_perspective)
+ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white)
 {
+    bool white_perspective = squares_belong_to_white;
+
     register PiecesOneColour_t *active_pieces_set = &position->pieces[white_perspective];
     register uint8_t from_square;
     register ULL threatened_squares = 0;
@@ -493,10 +495,10 @@ bool make_notation_move(Position_t *old_position,
                       special_flags);
 
 
-    new_position->white_to_move = white_to_move;
-    if (is_check(new_position)) { return 0; }
-    new_position->white_to_move = !white_to_move;
-
+    if (is_check(new_position, white_to_move)) {
+        // illegal move, leaves king in check
+        return 0;
+    }
     return 1;
 }
 

@@ -134,7 +134,7 @@ bool is_game_ended(Position_t *position)
             return true;
         }
     }
-    switch (determine_king_status(position))
+    switch (determine_king_status(position, position->white_to_move))
     {
         case CHECK:
             return false;
@@ -259,6 +259,7 @@ int make_move_from_notation(char *move_notation, Position_t *source, Position_t 
     char disambiguation[2] = "\0";
     bool is_capture = false;
     ULL special_flags = 0;
+    ULL own_pieces = source->pieces[source->white_to_move].all_pieces;
 
     if (!parse_move_notation(move_notation,
                              &move_type,
@@ -271,11 +272,11 @@ int make_move_from_notation(char *move_notation, Position_t *source, Position_t 
         return 0; // Invalid move notation
     }
     ULL from_square_bitboard = determine_from_square_bitboard(source, move_type, to_square, disambiguation);
-    if (from_square_bitboard == 0) {
+    ULL to_square_bitboard = 1ULL << to_square;
+    if (from_square_bitboard == 0 || (to_square_bitboard & own_pieces)) {
         fprintf(stderr, "This move is illegal: %s, please try again.\n", move_notation);
         return 0; // No valid from square found
     }
-    ULL to_square_bitboard = 1ULL << to_square;
     if (!make_notation_move(source, 
                             destination, 
                             move_type, 

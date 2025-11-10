@@ -222,7 +222,7 @@ void update_square_highlighting(Position_t *current_position, Position_t previou
 {
 
     find_from_to_square(&previous_position, current_position, &from_bitboard, &to_bitboard);
-    if (is_check(current_position)) {
+    if (is_check(current_position, current_position->white_to_move)) {
         check_square_bitboard = current_position->pieces[
             current_position->white_to_move].kings;
     } else { check_square_bitboard = 1; /* No check */ }

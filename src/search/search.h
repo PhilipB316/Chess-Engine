@@ -12,6 +12,8 @@
 
 #include "../movefinding/board.h"
 
+#define RAN_OUT_OF_TIME -9997799
+
 /**
  * @brief Negamax search algorithm for a given position and depth.
  * 
@@ -32,8 +34,5 @@ int32_t find_best_move(Position_t* position,
  * @brief Prints the statistics of the search.
  */
 void print_stats(void);
-
-#define MATE_SCORE 1000000
-#define MATE_IN_MAX_PLY (MATE_SCORE - 1000)
 
 #endif // SEARCH_H

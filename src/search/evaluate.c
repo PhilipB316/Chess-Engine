@@ -11,20 +11,19 @@
 int32_t opening_evaluation(Position_t* position);
 int32_t midgame_evaluation(Position_t* position);
 
-bool is_check(Position_t* position)
+bool is_check(Position_t* position, bool for_white)
 {
     // side to move’s king under attack?
-    bool stm = position->white_to_move;
-    ULL king_bb = position->pieces[stm].kings;
+    ULL king_bb = position->pieces[for_white].kings;
     if (!king_bb) return false;
     uint8_t king_sq = __builtin_ctzll(king_bb);
 
     // squares attacked by opponent
-    ULL attacks = calculate_attack_squares(position, !stm);
-    return (attacks & (1ULL << king_sq)) != 0;
+    ULL attacks = calculate_attack_squares(position, !for_white);
+    return (attacks & (1ULL << king_sq));
 }
 
-KingStatus_t determine_king_status(Position_t* position)
+KingStatus_t determine_king_status(Position_t* position, bool for_white)
 {
     if (is_threefold_repetition(position)) { return THREEFOLD_REPETITION; }
 
@@ -36,13 +35,8 @@ KingStatus_t determine_king_status(Position_t* position)
     for (uint16_t i = 0; i < num_children; i++)
     {
         Position_t* child = position->child_positions[i];
-
-        // A move is legal iff the mover’s king is not in check in the child
-        bool saved_stm = child->white_to_move;
-        child->white_to_move = position->white_to_move; // set to mover for is_check()
-        bool illegal = is_check(child);
-        child->white_to_move = saved_stm;
-
+        // A move is legal if the mover’s king is not in check in the child
+        bool illegal = is_check(child, for_white);
         if (!illegal) { legal_count++; }
     }
 
@@ -50,10 +44,10 @@ KingStatus_t determine_king_status(Position_t* position)
     clear_children_count(position);
 
     if (legal_count == 0) {
-        if (is_check(position)) { return CHECKMATE; }
+        if (is_check(position, for_white)) { return CHECKMATE; }
         else { return STALEMATE; }
     }
-    if (is_check(position)) { return CHECK; }
+    if (is_check(position, for_white)) { return CHECK; }
     return BORING;
 }
 

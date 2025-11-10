@@ -16,7 +16,6 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 static ULL nodes_analysed = 0;
-static uint64_t moves_generated = 0;
 static int32_t best_eval = 0;
 static uint8_t searched_depth = 0;
 
@@ -43,7 +42,6 @@ int32_t find_best_move(Position_t* position,
     start_time = clock();
     global_max_time = max_time * CLOCKS_PER_SEC / 1000;
     nodes_analysed = 0;
-    moves_generated = 0;
     searched_depth = 1;
     best_eval = 0;
 
@@ -52,7 +50,10 @@ int32_t find_best_move(Position_t* position,
     while (!time_is_up() && searched_depth < max_depth)
     {
         sort_children(position);
-        best_eval = negamax_start(position, return_best_move, searched_depth);
+        int32_t eval = negamax_start(position, return_best_move, searched_depth);
+        if (eval != RAN_OUT_OF_TIME) {
+            best_eval = eval;
+        }
         searched_depth++;
     }
 
@@ -86,7 +87,7 @@ int32_t negamax_start(Position_t* position,
     // --- main negamax loop over child positions ---
     for (uint16_t i = 0; i < position->num_children; i++)
     {
-        if (time_is_up()) { return 0; }
+        if (time_is_up()) { return RAN_OUT_OF_TIME; }
 
         Position_t* child = position->child_positions[i];
         // insert into past move list for repetition detection
@@ -94,7 +95,6 @@ int32_t negamax_start(Position_t* position,
         int32_t eval = -negamax(child, depth - 1, -beta, -alpha);
         // remove from past move list
         clear_past_move_entry(child);
-        if (time_up) { return 0; /* Time ran out in deeper search */ }
 
         child->evaluation = eval;
         if (eval > best_eval) {
@@ -127,8 +127,9 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
     ULL key = position->zobrist_key;
     TranspositionEntry_t* entry = &transposition_table[key & TT_MASK];
     bool tt_move_found = false;
-    int32_t orig_alpha = alpha; // preserve for TT node-type classification
 
+    // --- alpha-beta cutoffs from TT ---
+    int32_t orig_alpha = alpha; // preserve for TT node-type classification
     if (entry->zobrist_key == key) {
         tt_move_found = true;
         if (entry->search_depth >= depth) {
@@ -146,9 +147,21 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         }
     }
 
-    int32_t value = -INT32_MAX;
     move_finder(position);
-    moves_generated++;
+
+    // --- terminal: no legal moves (mate or stalemate) ---
+    if (position->num_children == 0) {
+        KingStatus_t king_status = determine_king_status(position, position->white_to_move);
+        if (king_status == CHECKMATE) {
+            nodes_analysed++;
+            free_children_memory(position);
+            return -CHECKMATE_VALUE + (searched_depth - depth); // Loss by checkmate
+        } else if (king_status == STALEMATE) {
+            nodes_analysed++;
+            free_children_memory(position);
+            return 0; // Draw by stalemate
+        }
+    }
 
     // --- transposition table move ordering optimisation ---
     if (tt_move_found) {
@@ -164,34 +177,24 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         }
     }
 
-    int best_child_index = -1;
-    // uint16_t legal_count = 0;
-
     // --- main negamax loop ---
+    int32_t value = -INT32_MAX + 1;
+    int best_child_index = -1;
     for (uint16_t i = 0; i < position->num_children; i++)
     {
         if (time_is_up()) {
             free_children_memory(position); // must free children before returning
-            return 0;
+            return RAN_OUT_OF_TIME;
         }
 
         Position_t* child = position->child_positions[i];
-
-        // // Filter illegal moves: mover’s king must not be in check in the child
-        // bool saved_stm = child->white_to_move;
-        // child->white_to_move = position->white_to_move; // set to mover for is_check()
-        // bool illegal = is_check(child);
-        // child->white_to_move = saved_stm;
-        // if (illegal) { continue; }
-        //
-        // legal_count++;
 
         insert_past_move_entry(child);
         int32_t score = -negamax(child, depth - 1, -beta, -alpha);
         clear_past_move_entry(child);
         if (time_up) {
             free_children_memory(position); // must free children before returning
-            return 0; /* Time ran out in deeper search */
+            return RAN_OUT_OF_TIME; /* Time ran out in deeper search */
         }
 
         if (score > value) {
@@ -203,18 +206,6 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
             if (alpha >= beta) { break; /* Beta cutoff */ }
         }
     }
-
-    // // --- terminal: no legal moves (mate or stalemate) ---
-    // if (legal_count == 0) {
-    //     nodes_analysed++;
-    //     free_children_memory(position);
-    //     if (is_check(position)) {
-    //         return -MATE_SCORE + depth;
-    //     } else {
-    //         // Stalemate: draw
-    //         return 0;
-    //     }
-    // }
 
     // --- update transposition table with best move and score ---
     if (best_child_index >= 0) {
@@ -262,7 +253,6 @@ void print_stats(void)
     printf("+-------------------------------------------+\n");
     printf("| %-24s | %14lu |\n", "New positions generated", get_num_new_positions());
     printf("| %-24s | %14llu |\n", "Nodes analysed", nodes_analysed);
-    printf("| %-24s | %14lu |\n", "Moves generated", moves_generated);
     printf("| %-24s | %14.4f |\n", "Time spent (seconds)", time_spent);
     printf("| %-24s | %14u |\n", "Depth", searched_depth - 1); // depth
     printf("+-------------------------------------------+\n\n");

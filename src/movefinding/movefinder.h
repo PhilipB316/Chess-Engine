@@ -97,7 +97,7 @@ bool make_notation_move(Position_t *old_position,
                         ULL from_square_bitboard, 
                         ULL special_flags);
 
-ULL calculate_attack_squares(Position_t* position, bool white_perspective);
+ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white);
 
 #endif // MOVEFINDER_H
 

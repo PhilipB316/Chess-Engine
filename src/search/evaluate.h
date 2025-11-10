@@ -60,16 +60,18 @@ int32_t evaluate_position(Position_t* position);
  * @brief Determines if the position is check.
  *
  * @param position The position to check
+ * @param for_white true to check if white is in check, false for black
  * @return true if the position is check, false otherwise
  */
-bool is_check(Position_t* position);
+bool is_check(Position_t* position, bool for_white);
 
 /**
  * @brief Determines the status of the king in the position.
  *
  * @param position The position to check
+ * @param for_white true to check the white king, false for black king
  * @return The status of the king (CHECK, CHECKMATE, STALEMATE, or BORING)
  */
-KingStatus_t determine_king_status(Position_t* position);
+KingStatus_t determine_king_status(Position_t* position, bool for_white);
 
 #endif // EVALUATE_H
