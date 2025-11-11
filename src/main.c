@@ -14,11 +14,10 @@
 #include "./ui/gui.h"
 #include "./ui/ui.h"
 #include "./ui/log.h"
-#include "search/evaluate.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
 #define new "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-#define new "3kq3/8/8/8/8/8/3K4/8 w - - 0 1"
+#define new "3kq3/8/8/8/8/8/3K4/8 w - - 20 21"
 // #define new "8/7K/5k2/8/8/6q1/8/8 w - - 0 1"
 
 static Position_t position; // Current position of the game
@@ -97,7 +96,7 @@ bool play_game(Position_t* position)
     // engine move
     int32_t score = find_best_move(position, &move_position, 99, get_next_move_search_time());
     printf("Engine evaluation: %d\n", score);
-    print_stats();
+    // print_stats();
     if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     return 1;
@@ -109,14 +108,6 @@ bool update_game(void)
     insert_past_move_entry(&position); // Insert the new position into the past move list
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
-    KingStatus_t king_status = determine_king_status(&position, position.white_to_move);
-    if (king_status == CHECK) {
-        printf("Check!\n");
-    } else if (king_status == STALEMATE) {
-        printf("Game ends in stalemate! Game over.\n");
-    } else if (king_status == THREEFOLD_REPETITION) {
-        printf("Game ends in a draw by threefold repetition! Game over.\n");
-    }
     if (is_game_ended(&position)) { return 0; }
     return 1; // Game continues
 }

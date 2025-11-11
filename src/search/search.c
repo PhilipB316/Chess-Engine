@@ -11,6 +11,7 @@
 #include "hash_tables.h"
 #include "../movefinding/board.h"
 #include "../movefinding/movefinder.h"
+#include "../ui/ui.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -93,6 +94,8 @@ int32_t negamax_start(Position_t* position,
         // insert into past move list for repetition detection
         insert_past_move_entry(child);
         int32_t eval = -negamax(child, depth - 1, -beta, -alpha);
+        // print_position(child);
+        // printf("Evaluation at depth %u: %d\n", depth, eval);
         // remove from past move list
         clear_past_move_entry(child);
 

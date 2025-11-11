@@ -226,9 +226,9 @@ ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white)
 
 void move_finder(Position_t *position)
 {
-    int32_t value = position->piece_value_diff;
+    // int32_t value = position->piece_value_diff;
     // if position is checkmate, do not generate moves
-    if (value < -CHECKMATE_VALUE || value > CHECKMATE_VALUE) { return; }
+    // if (value < -CHECKMATE_VALUE || value > CHECKMATE_VALUE) { return; }
 
     OLD_POSTION = position;
     WHITE_TO_MOVE = position->white_to_move;

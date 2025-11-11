@@ -47,7 +47,9 @@ KingStatus_t determine_king_status(Position_t* position, bool for_white)
         if (is_check(position, for_white)) { return CHECKMATE; }
         else { return STALEMATE; }
     }
-    if (is_check(position, for_white)) { return CHECK; }
+    if (is_check(position, for_white)) {
+        return CHECK;
+    }
     return BORING;
 }
 
