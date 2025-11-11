@@ -93,8 +93,6 @@ int32_t negamax_start(Position_t* position,
         // insert into past move list for repetition detection
         insert_past_move_entry(child);
         int32_t eval = -negamax(child, depth - 1, -beta, -alpha);
-        // print_position(child);
-        // printf("Evaluation at depth %u: %d\n", depth, eval);
         // remove from past move list
         clear_past_move_entry(child);
 
@@ -153,7 +151,8 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
 
     // --- terminal: no legal moves (mate or stalemate) ---
     if (position->num_children == 0) {
-        KingStatus_t king_status = determine_king_status(position, position->white_to_move);
+        KingStatus_t king_status = 
+            determine_king_status(position, position->white_to_move);
         free_children_memory(position);
         if (king_status == CHECKMATE) {
             nodes_analysed++;
@@ -167,7 +166,8 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
     // --- transposition table move ordering optimisation ---
     if (tt_move_found) {
         for (uint16_t i = 0; i < position->num_children; i++) {
-            if (position->child_positions[i]->zobrist_key == entry->best_move_zobrist_key) {
+            if (position->child_positions[i]->zobrist_key == 
+                entry->best_move_zobrist_key) {
                 if (i != 0) {
                     Position_t* tmp = position->child_positions[0];
                     position->child_positions[0] = position->child_positions[i];
@@ -184,7 +184,8 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
     for (uint16_t i = 0; i < position->num_children; i++)
     {
         if (time_is_up()) {
-            free_children_memory(position); // must free children before returning
+            // must free children before returning
+            free_children_memory(position); 
             return RAN_OUT_OF_TIME;
         }
 
@@ -218,7 +219,8 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         } else {
             entry->node_type = EXACT;
         }
-        entry->best_move_zobrist_key = position->child_positions[best_child_index]->zobrist_key;
+        entry->best_move_zobrist_key = 
+            position->child_positions[best_child_index]->zobrist_key;
     }
 
     free_children_memory(position); // must free children before returning
@@ -235,7 +237,8 @@ void sort_children(Position_t* position)
         Position_t* key_pos = position->child_positions[i];
         int j = i - 1;
         while (j >= 0 && position->child_positions[j]->evaluation < key_eval) {
-            position->child_positions[j+1]->evaluation = position->child_positions[j]->evaluation;
+            position->child_positions[j+1]->evaluation = 
+                position->child_positions[j]->evaluation;
             position->child_positions[j + 1] = position->child_positions[j];
             j--;
         }
@@ -248,7 +251,8 @@ void sort_children(Position_t* position)
 void print_stats(void)
 {
     printf("+-------------------------------------------+\n");
-    printf("| %-24s | %14lu |\n", "New positions generated", get_num_new_positions());
+    printf("| %-24s | %14lu |\n", "New positions generated", 
+           get_num_new_positions());
     printf("| %-24s | %14llu |\n", "Nodes analysed", nodes_analysed);
     printf("| %-24s | %14.4f |\n", "Time spent (seconds)", time_spent);
     printf("| %-24s | %14u |\n", "Depth", searched_depth - 1); // depth
