@@ -17,7 +17,7 @@
 
 static bool playing_as_white = false; // Default perspective for printing the board
 #define new "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-#define new "3kq3/8/8/8/8/8/3K4/8 w - - 20 21"
+#define new "3krr2/8/8/8/8/8/3K4/8 w - - 20 21"
 // #define new "8/7K/5k2/8/8/6q1/8/8 w - - 0 1"
 
 static Position_t position; // Current position of the game
@@ -96,7 +96,7 @@ bool play_game(Position_t* position)
     // engine move
     int32_t score = find_best_move(position, &move_position, 99, get_next_move_search_time());
     printf("Engine evaluation: %d\n", score);
-    // print_stats();
+    print_stats();
     if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     return 1;

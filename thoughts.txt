@@ -1,0 +1,9 @@
+engine search depth 14
+
+best position searched first, and finds fastest mate, gives score of 99993
+the score for this best position is 99993, and has a search depth of 14
+
+later positions are not as good. at a depth of 6 in one of these not as good positions, the engine comes across the same position as the current 'best position'.
+it looks up the TT table, and discovers that exact position analysed at a depth of 14.
+it takes that good score and returns it, failing to identify that doing so will result in mate (eventually),
+but this will either require chance to end up in a position of mate in one, or will require exhausting every other possible move

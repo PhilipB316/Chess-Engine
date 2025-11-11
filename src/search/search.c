@@ -11,7 +11,6 @@
 #include "hash_tables.h"
 #include "../movefinding/board.h"
 #include "../movefinding/movefinder.h"
-#include "../ui/ui.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
@@ -155,13 +154,12 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
     // --- terminal: no legal moves (mate or stalemate) ---
     if (position->num_children == 0) {
         KingStatus_t king_status = determine_king_status(position, position->white_to_move);
+        free_children_memory(position);
         if (king_status == CHECKMATE) {
             nodes_analysed++;
-            free_children_memory(position);
             return -CHECKMATE_VALUE + (searched_depth - depth); // Loss by checkmate
         } else if (king_status == STALEMATE) {
             nodes_analysed++;
-            free_children_memory(position);
             return 0; // Draw by stalemate
         }
     }
@@ -195,10 +193,6 @@ int32_t negamax(Position_t* position, uint8_t depth, int32_t alpha, int32_t beta
         insert_past_move_entry(child);
         int32_t score = -negamax(child, depth - 1, -beta, -alpha);
         clear_past_move_entry(child);
-        if (time_up) {
-            free_children_memory(position); // must free children before returning
-            return RAN_OUT_OF_TIME; /* Time ran out in deeper search */
-        }
 
         if (score > value) {
             value = score;
