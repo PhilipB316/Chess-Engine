@@ -76,7 +76,8 @@ int piece_char_to_index(char piece) {
     }
 }
 
-void position_to_board_array(Position_t* position, char board[BOARD_SIZE][BOARD_SIZE]) 
+void position_to_board_array(Position_t* position, 
+                             char board[BOARD_SIZE][BOARD_SIZE]) 
 {
     // clear the board array
     for (int y = 0; y < BOARD_SIZE; y++) {
@@ -94,18 +95,30 @@ void position_to_board_array(Position_t* position, char board[BOARD_SIZE][BOARD_
         int display_rank = *playing_as_white ? rank : (BOARD_SIZE - 1 - rank);
         int display_file = *playing_as_white ? file : (BOARD_SIZE - 1 - file);
 
-        if (white_pieces.pawns & (1ULL << i)) { board[display_rank][display_file] = 'P'; }
-        else if (white_pieces.knights & (1ULL << i)) { board[display_rank][display_file] = 'N'; }
-        else if (white_pieces.bishops & (1ULL << i)) { board[display_rank][display_file] = 'B'; }
-        else if (white_pieces.rooks & (1ULL << i)) { board[display_rank][display_file] = 'R'; }
-        else if (white_pieces.queens & (1ULL << i)) { board[display_rank][display_file] = 'Q'; }
-        else if (white_pieces.kings & (1ULL << i)) { board[display_rank][display_file] = 'K'; }
-        else if (black_pieces.pawns & (1ULL << i)) { board[display_rank][display_file] = 'p'; }
-        else if (black_pieces.knights & (1ULL << i)) { board[display_rank][display_file] = 'n'; }
-        else if (black_pieces.bishops & (1ULL << i)) { board[display_rank][display_file] = 'b'; }
-        else if (black_pieces.rooks & (1ULL << i)) { board[display_rank][display_file] = 'r'; }
-        else if (black_pieces.queens & (1ULL << i)) { board[display_rank][display_file] = 'q'; }
-        else if (black_pieces.kings & (1ULL << i)) { board[display_rank][display_file] = 'k'; }
+        if (white_pieces.pawns & (1ULL << i)) 
+            { board[display_rank][display_file] = 'P'; }
+        else if (white_pieces.knights & (1ULL << i)) 
+            { board[display_rank][display_file] = 'N'; }
+        else if (white_pieces.bishops & (1ULL << i)) 
+            { board[display_rank][display_file] = 'B'; }
+        else if (white_pieces.rooks & (1ULL << i)) 
+            { board[display_rank][display_file] = 'R'; }
+        else if (white_pieces.queens & (1ULL << i)) 
+            { board[display_rank][display_file] = 'Q'; }
+        else if (white_pieces.kings & (1ULL << i)) 
+            { board[display_rank][display_file] = 'K'; }
+        else if (black_pieces.pawns & (1ULL << i)) 
+            { board[display_rank][display_file] = 'p'; }
+        else if (black_pieces.knights & (1ULL << i)) 
+            { board[display_rank][display_file] = 'n'; }
+        else if (black_pieces.bishops & (1ULL << i)) 
+            { board[display_rank][display_file] = 'b'; }
+        else if (black_pieces.rooks & (1ULL << i)) 
+            { board[display_rank][display_file] = 'r'; }
+        else if (black_pieces.queens & (1ULL << i)) 
+            { board[display_rank][display_file] = 'q'; }
+        else if (black_pieces.kings & (1ULL << i)) 
+            { board[display_rank][display_file] = 'k'; }
     }
 }
 
@@ -125,7 +138,8 @@ void render_chess_board(SDL_Renderer* renderer)
 
     for (int y = 0; y < BOARD_SIZE; ++y) {
         for (int x = 0; x < BOARD_SIZE; ++x) {
-            SDL_Rect square = {x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE};
+            SDL_Rect square = {x * SQUARE_SIZE, y * SQUARE_SIZE, 
+                SQUARE_SIZE, SQUARE_SIZE};
 
             // Draw square background
             if ((x + y) % 2 == 0) { 
@@ -153,7 +167,8 @@ void render_chess_board(SDL_Renderer* renderer)
                     SQUARE_SIZE - (2 * PADDING),
                     SQUARE_SIZE - (2 * PADDING)
                 };
-                SDL_RenderCopy(renderer, piece_textures[texture_index], NULL, &piece_rect);
+                SDL_RenderCopy(renderer, piece_textures[texture_index], 
+                               NULL, &piece_rect);
             }
         }
     }
@@ -173,7 +188,8 @@ void render_moves(SDL_Renderer* renderer)
     SDL_Surface* textSurface = TTF_RenderUTF8_Blended_Wrapped(
         font, move_notation, textColor, move_rect.w - 20);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-    SDL_Rect textRect = {move_rect.x + 10, move_rect.y + 10, textSurface->w, textSurface->h};
+    SDL_Rect textRect = {move_rect.x + 10, move_rect.y + 10, 
+        textSurface->w, textSurface->h};
     SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
     SDL_DestroyTexture(textTexture);
     SDL_FreeSurface(textSurface);
@@ -209,7 +225,8 @@ void update_notation_string(Position_t* current_position, Position_t* previous_p
         last_black_move[MOVE_NOTATION_LENGTH - 1] = '\0';
         // write entire move line to log file
         char log_msg[2 * MOVE_NOTATION_LENGTH + 17];
-        sprintf(log_msg, "%d. %s %s\n", (move_count / 2 + 1), last_white_move, last_black_move);
+        sprintf(log_msg, "%d. %s %s\n", (move_count / 2 + 1), 
+                last_white_move, last_black_move);
         log_message(log_msg);
     }
     char padded_move[8];
@@ -218,10 +235,12 @@ void update_notation_string(Position_t* current_position, Position_t* previous_p
     move_count++;
 }
 
-void update_square_highlighting(Position_t *current_position, Position_t previous_position)
+void update_square_highlighting(Position_t *current_position, 
+                                Position_t previous_position)
 {
 
-    find_from_to_square(&previous_position, current_position, &from_bitboard, &to_bitboard);
+    find_from_to_square(&previous_position, current_position, 
+                        &from_bitboard, &to_bitboard);
     if (is_check(current_position, current_position->white_to_move)) {
         check_square_bitboard = current_position->pieces[
             current_position->white_to_move].kings;
