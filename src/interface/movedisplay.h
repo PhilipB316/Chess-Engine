@@ -12,18 +12,6 @@
 #include <stdbool.h>
 
 #include "../movefinding/board.h"
-#include "../movefinding/movefinder.h"
-
-/**
- * @brief Determines the move notation for a move from old_position to new_position.
- *
- * The move notation is stored in the provided move_notation buffer.
- *
- * @param old_position The position before the move.
- * @param new_position The position after the move.
- * @param move_notation Buffer to store the generated move notation.
- */
-void determine_move_notation(Position_t *old_position, Position_t *new_position, char *move_notation);
 
 /**
  * @brief Determines the from square bitboard for a given move type and destination square.

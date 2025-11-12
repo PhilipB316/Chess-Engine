@@ -17,10 +17,10 @@ file(GLOB MAIN
     "./src/search/search.c"
     "./src/search/evaluate.c"
     "./src/search/hash_tables.c"
-    "./src/ui/movedisplay.c"
-    "./src/ui/ui.c"
-    "./src/ui/gui.c"
-    "./src/ui/log.c"
+    "./src/interface/movedisplay.c"
+    "./src/interface/ui.c"
+    "./src/gui/gui.c"
+    "./src/interface/log.c"
     )
 
 add_executable(tessmax ${MAIN})

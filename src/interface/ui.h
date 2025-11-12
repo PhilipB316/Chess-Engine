@@ -60,9 +60,9 @@ void make_move_from_cli(Position_t *position, Position_t *move_position);
  */
 bool is_game_ended(Position_t *position);
 
-/*
+/**
  * @brief Prints the name and version of the chess engine.
- * 
+ *
  * Displays the name, author, and version information of the chess engine.
  */
 void print_name(void);

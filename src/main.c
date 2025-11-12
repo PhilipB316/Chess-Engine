@@ -11,9 +11,9 @@
 #include "./movefinding/memory.h"
 #include "./search/search.h"
 #include "./search/hash_tables.h"
-#include "./ui/gui.h"
-#include "./ui/ui.h"
-#include "./ui/log.h"
+#include "./gui/gui.h"
+#include "./interface/ui.h"
+#include "./interface/log.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
 #define new "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

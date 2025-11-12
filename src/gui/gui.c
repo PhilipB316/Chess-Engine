@@ -6,9 +6,9 @@
 #include <stdio.h>
 
 #include "gui.h"
-#include "log.h"
+#include "../interface/log.h"
 #include "../movefinding/board.h"
-#include "../ui/movedisplay.h"
+#include "../interface/movedisplay.h"
 #include "../search/evaluate.h"
 
 static char board[BOARD_SIZE][BOARD_SIZE] = {0};
