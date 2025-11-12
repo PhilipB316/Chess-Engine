@@ -22,8 +22,8 @@
 
 #define VERSION_MAJOR 2
 #define VERSION_MINOR 1
-#define VERSION_PATCH 0
-#define DATE_STRING "2025-10-22"
+#define VERSION_PATCH 1
+#define DATE_STRING "2025-11-13"
 
 extern char header[HEADER_LENGTH];
 
