@@ -14,6 +14,9 @@
 
 #define RAN_OUT_OF_TIME -9997799
 
+#define FULL_ASPIRATION_WINDOW_DEPTH 20
+#define ASPIRATION_WINDOW 50
+
 /**
  * @brief Negamax search algorithm for a given position and depth.
  * 
