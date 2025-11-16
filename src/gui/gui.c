@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #include "gui.h"
-#include "../interface/log.h"
+#include "log.h"
 #include "../movefinding/board.h"
 #include "../interface/movedisplay.h"
 #include "../search/evaluate.h"

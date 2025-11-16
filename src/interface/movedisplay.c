@@ -1,9 +1,9 @@
 // File: movedisplay.c
 
-#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "../movefinding/board.h"
 #include "../movefinding/lookuptables.h"
@@ -103,7 +103,7 @@ ULL filter_disambiguation(char *disambiguation)
     return 0; // Invalid disambiguation
 }
 
-int parse_move_notation(char *move_notation, 
+int parse_move_notation(const char *move_notation, 
                         MoveType_t *move_type,
                         uint8_t* to_square, 
                         char *disambiguation, 

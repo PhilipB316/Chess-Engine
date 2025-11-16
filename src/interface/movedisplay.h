@@ -38,7 +38,7 @@ ULL determine_from_square_bitboard(Position_t *position,
  * @param is_capture Pointer to store whether the move is a capture.
  * @param position Pointer to the current position to check for en passant and double push
  */
-int parse_move_notation(char *move_notation,
+int parse_move_notation(const char *move_notation,
                         MoveType_t *move_type,
                         uint8_t* to_square,
                         char *disambiguation,

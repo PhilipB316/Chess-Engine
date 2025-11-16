@@ -10,6 +10,12 @@
 #include "../search/evaluate.h"
 #include "../search/hash_tables.h"
 
+#ifdef WEB_BUILD
+const bool web_build = true;
+#else
+const bool web_build = false;
+#endif
+
 char *pretty_print_moves[64] =
     {
         "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",

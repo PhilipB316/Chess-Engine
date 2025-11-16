@@ -1,4 +1,10 @@
-// main.c
+/**
+ * @file local_main.c
+ * @author Philip Brand
+ * @brief Main file for local chess game between user and engine
+ * @version 2.1.1
+ * @date 2025-11-16
+ */
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -13,7 +19,7 @@
 #include "./search/hash_tables.h"
 #include "./gui/gui.h"
 #include "./interface/ui.h"
-#include "./interface/log.h"
+#include "./gui/log.h"
 
 static bool playing_as_white = false; // Default perspective for printing the board
 #define new "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"

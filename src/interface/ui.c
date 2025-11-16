@@ -8,9 +8,10 @@
 #include <time.h>
 
 #include "movedisplay.h"
-#include "log.h"
+#include "../interface/ui.h"
 #include "../search/evaluate.h"
 #include "../movefinding/movefinder.h"
+#include "../gui/log.h"
 
 #define MILLISECONDS_IN_SECOND 1000
 
@@ -252,7 +253,7 @@ void set_colour(bool* playing_as_white)
     colour_set = true; // Colour has been set
 }
 
-int make_move_from_notation(char *move_notation, Position_t *source, Position_t *destination) 
+int make_move_from_san(Position_t *source, Position_t *destination, const char* move_notation)
 {
     MoveType_t move_type;
     uint8_t to_square = 0;
@@ -268,13 +269,16 @@ int make_move_from_notation(char *move_notation, Position_t *source, Position_t 
                              &is_capture,
                              source,
                              &special_flags)) {
-        fprintf(stderr, "Invalid move notation: %s, please try again\n", move_notation);
+        if (!web_build) 
+        { fprintf(stderr, "Invalid move notation: %s, please try again\n", move_notation); }
         return 0; // Invalid move notation
+            //
     }
     ULL from_square_bitboard = determine_from_square_bitboard(source, move_type, to_square, disambiguation);
     ULL to_square_bitboard = 1ULL << to_square;
     if (from_square_bitboard == 0 || (to_square_bitboard & own_pieces)) {
-        fprintf(stderr, "This move is illegal: %s, please try again.\n", move_notation);
+        if (!web_build)
+        { fprintf(stderr, "This move is illegal: %s, please try again.\n", move_notation); }
         return 0; // No valid from square found
     }
     if (!make_notation_move(source, 
@@ -283,7 +287,8 @@ int make_move_from_notation(char *move_notation, Position_t *source, Position_t 
                             to_square_bitboard, 
                             from_square_bitboard, 
                             special_flags)) {
-        printf("Your king is not healthy with this move!! - please try again.\n");
+        if (!web_build) 
+        { printf("Your king is not healthy with this move!! - please try again.\n"); }
         return 0; // Move could not be made
     }
 
@@ -298,7 +303,7 @@ void make_move_from_cli(Position_t *position, Position_t *move_position)
         printf("Enter move: ");
         if (fgets(move_notation, MOVE_LENGTH, stdin) == NULL) { }
         move_notation[strcspn(move_notation, "\n")] = 0; // Remove newline character
-        finished = make_move_from_notation(move_notation, position, move_position);
+        finished = make_move_from_san(position, move_position, move_notation);
     }
 }
 
@@ -361,3 +366,35 @@ void print_position(Position_t* position)
 
 bool is_colour_set(void)
 { return colour_set; }
+
+
+bool read_fen_from_stdin(char *fen_string)
+{
+    printf("Enter FEN string: ");
+    if (!fgets(fen_string, FEN_LENGTH, stdin)) { return false; }
+    size_t len = FEN_LENGTH;
+    if (len > 0 && fen_string[len - 1] == '\n') {
+        fen_string[len - 1] = '\0';
+    }
+    return true;
+}
+
+void pad_fen_to_full_length(char *fen_string)
+{
+    size_t len = strlen(fen_string);
+    if (len > 0 && fen_string[len - 1] == '\n') {
+        len--;
+    }
+    fen_string[len] = ' ';
+    fen_string[len + 1] = 'w';
+    fen_string[len + 2] = ' ';
+    fen_string[len + 3] = '-';
+    fen_string[len + 4] = ' ';
+    fen_string[len + 5] = '-';
+    fen_string[len + 6] = ' ';
+    fen_string[len + 7] = '0';
+    fen_string[len + 8] = ' ';
+    fen_string[len + 9] = '1';
+    fen_string[len + 10] = '\0';
+}
+

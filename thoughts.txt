@@ -7,3 +7,7 @@ later positions are not as good. at a depth of 6 in one of these not as good pos
 it looks up the TT table, and discovers that exact position analysed at a depth of 14.
 it takes that good score and returns it, failing to identify that doing so will result in mate (eventually),
 but this will either require chance to end up in a position of mate in one, or will require exhausting every other possible move
+
+rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1
+rnbqkbnr/ppppp1pp/8/5p2/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c3 0 2
+

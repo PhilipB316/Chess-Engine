@@ -53,6 +53,15 @@ void print_position(Position_t* position);
 void make_move_from_cli(Position_t *position, Position_t *move_position);
 
 /**
+ * @brief Makes a move from SAN notation.
+ * 
+ * @param position Pointer to the current position.
+ * @param move_position Pointer to the position where the move will be applied.
+ * @param san_move The move in Standard Algebraic Notation (SAN).
+ */
+int make_move_from_san(Position_t *position, Position_t *move_position, const char* san_move);
+
+/**
  * @brief Prints the game status based on the current position.
  * 
  * @param position Pointer to the current position.
@@ -118,12 +127,27 @@ void start_clock(void);
  */
 void clear_output_screen(uint8_t x);
 
-
 /**
  * @brief Checks if the colour has been set.
  * 
  * @return true if the colour has been set, false otherwise.
  */
 bool is_colour_set(void);
+
+/**
+ * @brief Reads a FEN string from standard input.
+ * 
+ * @param fen_string Buffer to store the FEN string.
+ * @param max_length Maximum length of the FEN string.
+ * @return true if the FEN string was read successfully, false otherwise.
+ */
+bool read_fen_from_stdin(char *fen_string);
+
+/**
+ * @brief Pads a FEN with default values to ensure it has the full length.
+ * 
+ * @param fen_string The FEN string to be padded.
+ */
+void pad_fen_to_full_length(char *fen_string);
 
 #endif // UI_H

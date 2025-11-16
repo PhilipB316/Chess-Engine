@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "log.h"
-#include "ui.h"
+#include "../interface/ui.h"
 
 static char filename[50];
 static FILE* file;

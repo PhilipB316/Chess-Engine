@@ -18,6 +18,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef WEB_BUILD
+extern const bool web_build;
+#else
+extern const bool web_build;
+#endif
+
 #define MAX_CHILDREN 100
 #define FEN_LENGTH 100
 #define MAXIMUM_GAME_LENGTH 500
