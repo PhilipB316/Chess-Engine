@@ -2,7 +2,6 @@
  * @file web_main.c
  * @author Philip Brand
  * @brief Main file for building the web interface version of the chess engine
- * @version 2.1.1
  * @date 2025-11-16
  */
 
@@ -20,7 +19,6 @@
 #include "./gui/gui.h"
 #include "./interface/ui.h"
 #include "./interface/movedisplay.h"
-#include "./gui/log.h"
 
 #define new "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 // #define new "3krr2/8/8/8/8/8/3K4/8 w - - 20 21"

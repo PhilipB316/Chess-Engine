@@ -36,6 +36,11 @@ extern const bool web_build;
 #define DEBUG 1
 #define SAFE 1 // safe alerts if custom memory pool has been exhausted
 
+#define VERSION_MAJOR 2
+#define VERSION_MINOR 2
+#define VERSION_PATCH 0
+#define DATE_STRING "2025-11-13"
+
 #define ULL unsigned long long
 
 // Square names (a1, b1, ..., h8) for each square
