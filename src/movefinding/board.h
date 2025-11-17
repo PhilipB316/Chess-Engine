@@ -133,7 +133,15 @@ void print_bitboard(uint64_t bitboard);
  * @param fen The FEN string representing the position.
  * @param position The position to be populated.
  */
-void fen_to_board(char fen[], Position_t *position);
+void fen_to_board(char* fen, Position_t *position);
+
+/**
+ * @brief Converts a position represented as bitboards to a FEN string.
+ *
+ * @param position The position to be converted.
+ * @param fen The FEN string to be populated.
+ */
+void board_to_fen(Position_t* position, char* fen);
 
 /**
  * @brief Calculates the difference in piece values between the two players.

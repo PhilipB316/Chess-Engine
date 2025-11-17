@@ -8,8 +8,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <pthread.h>
-#include <SDL2/SDL.h>
 
 #include "./movefinding/movefinder.h"
 #include "./movefinding/board.h"
@@ -99,9 +97,9 @@ bool play_game(Position_t* position)
 
     // engine move
     find_best_move(position, &new_position, 20, get_next_move_search_time());
-    // printf("Engine evaluation: %d\n", score);
-    print_stats();
     if (!update_game()) { return 0; /* Exit if the game is over */ }
+    board_to_fen(&old_position, fen_string);
+    printf("%s\n", fen_string);
 
     return 1;
 }
@@ -112,7 +110,7 @@ bool update_game(void)
     insert_past_move_entry(&old_position); // Insert the new position into the past move list
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
-    print_position(&old_position);
+    // print_position(&old_position);
     if (is_game_ended(&old_position)) { return 0; }
     return 1; // Game continues
 }

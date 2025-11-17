@@ -147,6 +147,110 @@ void fen_to_board(char *fen, Position_t *fen_position)
     fen_position->zobrist_key = generate_zobrist_hash(fen_position);
 }
 
+void board_to_fen(Position_t* position, char* fen)
+{
+    size_t fen_index = 0;
+
+    // ========================= PIECES =========================
+    for (int rank = 0; rank < 8; rank++)
+    {
+        int empty_square_count = 0;
+        for (int file = 0; file < 8; file++)
+        {
+            uint8_t square = rank * 8 + file;
+            char piece_char = '\0';
+
+            for (int color = 0; color < 2; color++)
+            {
+                PiecesOneColour_t* pieces = &position->pieces[color];
+                if (pieces->pawns & (1ULL << square)) { piece_char = color == WHITE_INDEX ? 'P' : 'p'; }
+                else if (pieces->knights & (1ULL << square)) { piece_char = color == WHITE_INDEX ? 'N' : 'n'; }
+                else if (pieces->bishops & (1ULL << square)) { piece_char = color == WHITE_INDEX ? 'B' : 'b'; }
+                else if (pieces->rooks & (1ULL << square)) { piece_char = color == WHITE_INDEX ? 'R' : 'r'; }
+                else if (pieces->queens & (1ULL << square)) { piece_char = color == WHITE_INDEX ? 'Q' : 'q'; }
+                else if (pieces->kings & (1ULL << square)) { piece_char = color == WHITE_INDEX ? 'K' : 'k'; }
+            }
+
+            if (piece_char != '\0')
+            {
+                if (empty_square_count > 0)
+                {
+                    fen[fen_index++] = '0' + empty_square_count;
+                    empty_square_count = 0;
+                }
+                fen[fen_index++] = piece_char;
+            }
+            else
+            {
+                empty_square_count++;
+            }
+        }
+        if (empty_square_count > 0)
+        {
+            fen[fen_index++] = '0' + empty_square_count;
+        }
+        if (rank < 7)
+        {
+            fen[fen_index++] = '/';
+        }
+    }
+
+    // ========================= WHOSE TURN =========================
+    fen[fen_index++] = ' ';
+    fen[fen_index++] = position->white_to_move ? 'w' : 'b';
+
+    // ========================= CASTLING =========================
+    fen[fen_index++] = ' ';
+    bool any_castling_rights = false;
+    if (position->pieces[WHITE_INDEX].castle_kingside)
+    {
+        fen[fen_index++] = 'K';
+        any_castling_rights = true;
+    }
+    if (position->pieces[WHITE_INDEX].castle_queenside)
+    {
+        fen[fen_index++] = 'Q';
+        any_castling_rights = true;
+    }
+    if (position->pieces[!WHITE_INDEX].castle_kingside)
+    {
+        fen[fen_index++] = 'k';
+        any_castling_rights = true;
+    }
+    if (position->pieces[!WHITE_INDEX].castle_queenside)
+    {
+        fen[fen_index++] = 'q';
+        any_castling_rights = true;
+    }
+    if (!any_castling_rights)
+    {
+        fen[fen_index++] = '-';
+    }
+    // ========================= EN PASSANT =========================
+    fen[fen_index++] = ' ';
+    if (position->en_passant_bitboard != 0)
+    {
+        uint8_t en_passant_square = __builtin_ctzll(position->en_passant_bitboard);
+        uint8_t file = en_passant_square % 8;
+        uint8_t rank = en_passant_square / 8;
+        fen[fen_index++] = 'a' + file;
+        fen[fen_index++] = '1' + (7 - rank);
+    }
+    else
+    {
+        fen[fen_index++] = '-';
+    }
+    // ========================== HALF MOVE COUNT =========================
+    fen[fen_index++] = ' ';
+    fen_index += sprintf(&fen[fen_index], "%u", position->half_move_count);
+    // ========================= WHOLE MOVES =========================
+    fen[fen_index++] = ' ';
+    uint8_t whole_move_count = (position->half_move_count / 2) + 1;
+    fen_index += sprintf(&fen[fen_index], "%u", whole_move_count);
+    fen[fen_index] = '\0'; // Null-terminate the string
+}
+
+
 bool is_different(Position_t* position1, Position_t* position2)
 {
     if (position1->white_to_move != position2->white_to_move) return true;
