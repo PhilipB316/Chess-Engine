@@ -386,9 +386,8 @@ bool is_colour_set(void)
 
 bool read_fen_from_stdin(char *fen_string)
 {
-    // printf("Enter FEN string: ");
     if (!fgets(fen_string, FEN_LENGTH, stdin)) { return false; }
-    size_t len = FEN_LENGTH;
+    size_t len = strlen(fen_string);
     if (len > 0 && fen_string[len - 1] == '\n') {
         fen_string[len - 1] = '\0';
     }

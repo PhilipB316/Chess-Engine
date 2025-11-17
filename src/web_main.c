@@ -80,7 +80,8 @@ bool play_game(Position_t* position)
         get_move_notation(position, &new_position, move_notation);
         bool success2 = make_move_from_san(position, &new_position, move_notation);
         success = success1 && success2;
-        if (!success) {printf("Invalid move. Please try again.\n");}
+        if (!success) 
+            {printf("Invalid move. Please try again.\n"); fflush(stdout); }
     }
 
     if (!update_game()) { return 0; /* Exit if the game is over */ }
@@ -90,6 +91,7 @@ bool play_game(Position_t* position)
     if (!update_game()) { return 0; /* Exit if the game is over */ }
     board_to_fen(&old_position, fen_string);
     printf("%s\n", fen_string);
+    fflush(stdout);
 
     return 1;
 }
