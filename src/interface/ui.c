@@ -64,7 +64,9 @@ void ui_init(void)
     snprintf(header, sizeof(header), header_fmt, DATE_STRING,
              VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
-    printf(COLOUR_BOLD "\n" COLOUR_RESET);
+    if (!web_build) {
+        printf(COLOUR_BOLD "\n" COLOUR_RESET);
+    }
 }
 
 void clear_input_buffer(void)
@@ -203,8 +205,14 @@ void set_time_control(void)
     }
 }
 
-void set_time(void)
+void set_time(uint32_t time)
 {
+    if (time != 0) {
+        playing_with_clock = false;
+        max_engine_search_time = time * MILLISECONDS_IN_SECOND;
+        return;
+    }
+
     printf("Do you want to set an engine time per move, or a match time?\n");
     printf("Enter 'e' for engine time per move, or 'm' for match time: ");
     printf("\n(Recommended: 'e'): ");
@@ -212,7 +220,7 @@ void set_time(void)
     if (scanf(" %c", &choice) != 1 || (choice != 'e' && choice != 'm')) {
         fprintf(stderr, "Invalid input. Please enter 'e' or 'm'.\n");
         clear_input_buffer();
-        set_time(); // Retry if input is invalid
+        set_time(0); // Retry if input is invalid
         return;
     }
     if (choice == 'e') {
@@ -228,6 +236,14 @@ void set_time(void)
 
 void set_colour(bool* playing_as_white)
 {
+    if (web_build) {
+        *playing_as_white = true;
+        white_perspective = true;
+        colour_set = true;
+        engine_thinking = false;
+        return;
+    }
+
     char input[10];
     printf("Do you want to play as white or black? (w/b): ");
     if (fgets(input, sizeof(input), stdin) != NULL) {

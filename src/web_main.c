@@ -30,14 +30,6 @@ static Position_t new_position; // Position after the last move
 static char previous_fen_string[FEN_LENGTH] = {0};
 static char fen_string[FEN_LENGTH] = {0};
 
-/**
-    * TODO:
-    * - display principal variation
-    * - implement multi-threading
-    * - improve position evaluation
-    * - implement quiescence search
-*/
-
 bool play_game(Position_t* position);
 bool update_game(void);
 void init(void);
@@ -54,15 +46,13 @@ int main(void)
 void cli_game_loop(void* arg)
 {
     (void)arg; // Unused parameter
-    set_time();
+    set_time(1);
     set_colour(&playing_as_white);
-    printf("\n");
     start_clock(); // Start the clock for the first player
 
     while (1) { if (!play_game(&old_position)) 
         { break; /* Exit the game loop if game is over */ } }
 
-    check_memory_leak();
     custom_memory_deinit();
     hash_table_free();
 }
@@ -110,7 +100,6 @@ bool update_game(void)
     insert_past_move_entry(&old_position); // Insert the new position into the past move list
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
-    // print_position(&old_position);
     if (is_game_ended(&old_position)) { return 0; }
     return 1; // Game continues
 }

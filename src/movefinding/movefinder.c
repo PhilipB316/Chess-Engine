@@ -41,7 +41,7 @@ uint64_t get_num_new_positions(void)
 void move_finder_init(void)
 {
     generate_lookup_tables();
-    if (DEBUG) { printf("---lookup-tables-generated---\n"); }
+    if (DEBUG && !web_build) { printf("---lookup-tables-generated---\n"); }
 }
 
 void depth_move_finder(Position_t* position, uint8_t depth)

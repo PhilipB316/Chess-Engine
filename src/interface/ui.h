@@ -87,8 +87,12 @@ void set_colour(bool* playing_as_white);
 
 /**
  * @brief Sets either the game length per side or the engine search time
+ *
+ * @param time The time in milliseconds to set. If zero, the user is
+ * prompted to choose between engine time per move or match time, and 
+ * to chose the time control accordingly.
  */
-void set_time(void);
+void set_time(uint32_t time);
 
 /**
  * @brief Gets the next move search time.

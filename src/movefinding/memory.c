@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "memory.h"
+#include "board.h"
 
 static Position_t *memory_pool[POOL_SIZE];
 static size_t pool_index = 0;
@@ -26,7 +27,7 @@ void custom_memory_deinit(void)
 
 Position_t* custom_alloc(void) 
 {
-    if (SAFE) 
+    if (SAFE && !web_build)
     {
         if (pool_index < POOL_SIZE) {
             return memory_pool[pool_index++];
