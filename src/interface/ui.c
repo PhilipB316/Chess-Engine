@@ -143,20 +143,28 @@ bool is_game_ended(Position_t *position)
             return false;
         case CHECKMATE:
             if (position->white_to_move) {
+                if (!web_build) {
                 printf("Black wins by checkmate! Game over.\n");
                 write_result_to_log(0);
+                }
             } else {
+                if (!web_build) {
                 printf("White wins by checkmate! Game over.\n");
                 write_result_to_log(1);
+                }
             }
             return true;
         case STALEMATE:
+            if (!web_build) {
             printf("Stalemate! Game over.\n");
             write_result_to_log(2);
+            }
             return true;
         case THREEFOLD_REPETITION:
+            if (!web_build) {
             printf("Threefold repetition! Game drawn.\n");
             write_result_to_log(2);
+            }
             return true;
         case BORING:
             return false;
