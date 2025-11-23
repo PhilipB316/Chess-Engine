@@ -80,8 +80,9 @@ bool play_game(Position_t* position)
         get_move_notation(position, &new_position, move_notation);
         bool success2 = make_move_from_san(position, &new_position, move_notation);
         success = success1 && success2;
-        if (!success) 
-            {printf("\nILLEGAL\n"); fflush(stdout); }
+        if (!success) {
+            printf("%s\n", previous_fen_string); fflush(stdout);
+            printf("ILLEGAL\n"); fflush(stdout); }
     }
 
     if (!update_game()) { return 0; /* Exit if the game is over */ }
@@ -89,6 +90,7 @@ bool play_game(Position_t* position)
     // engine move
     find_best_move(position, &new_position, 20, get_next_move_search_time());
     board_to_fen(&new_position, fen_string);
+    memcpy(previous_fen_string, fen_string, FEN_LENGTH);
     printf("%s\n", fen_string); fflush(stdout);
 
     if (!update_game()) { 
