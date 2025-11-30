@@ -143,6 +143,17 @@ bool is_colour_set(void);
 bool read_fen_from_stdin(char *fen_string);
 
 /**
+ * @brief Extracts the search time from a FEN string.
+ * 
+ * The search time is expected to be specified before a comma in the FEN string.
+ * If no time is specified, a default of 2 seconds is returned.
+ * 
+ * @param fen_string The FEN string containing the search time.
+ * @return The extracted search time in seconds.
+ */
+uint16_t extract_search_time_from_fen(char *fen_string);
+
+/**
  * @brief Pads a FEN with default values to ensure it has the full length.
  * 
  * @param fen_string The FEN string to be padded.

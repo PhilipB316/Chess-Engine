@@ -22,6 +22,8 @@
 // #define new "3krr2/8/8/8/8/8/3K4/8 w - - 20 21"
 // #define new "r2q1rk1/1pp1nppp/8/p1b1p3/2PpP1n1/PP1P2N1/2Q2PPP/RNB2RK1 w - - 0 13"
 // #define new "8/7K/5k2/8/8/6q1/8/8 w - - 0 1"
+// position that allows white to promote to queen next move:
+// #define new "7K/8/8/8/8/4P3/8/7k w - - 0 1"
 
 static bool playing_as_white = false; // Default perspective for printing the board
 static Position_t old_position; // Current position of the game
@@ -46,7 +48,7 @@ int main(void)
 void cli_game_loop(void* arg)
 {
     (void)arg; // Unused parameter
-    set_time(1);
+    set_time(1000);
     set_colour(&playing_as_white);
     start_clock(); // Start the clock for the first player
 
@@ -74,6 +76,8 @@ bool play_game(Position_t* position)
     bool success = 0;
     while (!success) {
         bool success1 = read_fen_from_stdin(fen_string);
+        uint16_t search_time = extract_search_time_from_fen(fen_string);
+        set_time(search_time);
         pad_fen_to_full_length(fen_string);
         fen_to_board(fen_string, &new_position);
         char move_notation[MOVE_NOTATION_LENGTH] = {0};

@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "movedisplay.h"
 #include "../interface/ui.h"
@@ -217,7 +218,7 @@ void set_time(uint32_t time)
 {
     if (time != 0) {
         playing_with_clock = false;
-        max_engine_search_time = time * MILLISECONDS_IN_SECOND;
+        max_engine_search_time = time;
         return;
     }
 
@@ -400,6 +401,18 @@ bool read_fen_from_stdin(char *fen_string)
         fen_string[len - 1] = '\0';
     }
     return true;
+}
+
+uint16_t extract_search_time_from_fen(char *fen_string)
+{
+    char *comma_pos = strchr(fen_string, ',');
+    if (comma_pos == NULL) {
+        return 2000;
+    }
+    char time_string[16] = {0};
+    strncpy(time_string, fen_string, comma_pos - fen_string);
+    memmove(fen_string, comma_pos + 2, strlen(comma_pos + 2) + 1);
+    return (uint16_t)atoi(time_string);
 }
 
 void pad_fen_to_full_length(char *fen_string)
