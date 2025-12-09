@@ -69,7 +69,7 @@ void* cli_game_loop(void* arg)
     (void)arg; // Unused parameter
     print_name();
     print_welcome_message();
-    set_time();
+    set_time(0);
     set_colour(&playing_as_white);
     write_log_pgn_header(playing_as_white);
     printf("\n");
