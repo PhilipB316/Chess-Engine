@@ -58,7 +58,9 @@ int32_t find_best_move(Position_t* position,
 {
     start_time = clock();
     global_max_time = max_time * CLOCKS_PER_SEC / 1000;
+    #if DEBUG
     nodes_analysed = 0;
+    #endif
     searched_depth = 1;
     best_eval = 0;
     prev_eval = 0;
@@ -175,12 +177,16 @@ int32_t negamax(Position_t* position,
 {
     // --- base case ---
     if (depth == 0) {
+        #if DEBUG
         nodes_analysed++;
+        #endif
         return evaluate_position(position);
     }
     // --- repetition detection ---
     if (is_threefold_repetition(position)) {
+        #if DEBUG
         nodes_analysed++;
+        #endif
         return 0; // Draw by repetition
     }
 
@@ -195,7 +201,9 @@ int32_t negamax(Position_t* position,
     if (entry->zobrist_key == key) {
         tt_move_found = true;
         if (entry->search_depth >= depth) {
+            #if DEBUG
             nodes_analysed++;
+            #endif
             if (entry->node_type == EXACT) {
                 return entry->position_evaluation;
             } else if (entry->node_type == LOWER_BOUND) {
@@ -217,11 +225,15 @@ int32_t negamax(Position_t* position,
             determine_king_status(position, position->white_to_move);
         free_children_memory(position);
         if (king_status == CHECKMATE) {
+            #if DEBUG
             nodes_analysed++;
+            #endif
             // Loss by checkmate
             return -CHECKMATE_VALUE + (searched_depth - depth); 
         } else if (king_status == STALEMATE) {
+            #if DEBUG
             nodes_analysed++;
+            #endif
             return 0; // Draw by stalemate
         }
     }
@@ -292,7 +304,8 @@ int32_t negamax(Position_t* position,
 
 void print_stats(void)
 {
-    printf("Depth: %u | Time: %.4fs | Positions: %lu | Eval: %d\n",
-           searched_depth - 1, time_spent, get_num_new_positions(), best_eval);
+    printf("Depth: %u | Time: %.4fs | Positions: %lu | Nodes: %llu |Eval: %d\n",
+           searched_depth - 1, time_spent, get_num_new_positions(), 
+           nodes_analysed, best_eval);
 }
 

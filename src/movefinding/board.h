@@ -33,7 +33,7 @@ extern const bool web_build;
 #define KINGSIDE 0
 #define QUEENSIDE 1
 
-#define DEBUG 0
+#define DEBUG 1
 #define SAFE 0 // safe alerts if custom memory pool has been exhausted
 
 #define VERSION_MAJOR 2
