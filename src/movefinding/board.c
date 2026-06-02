@@ -106,12 +106,17 @@ void fen_to_board(char *fen, Position_t *fen_position)
     // ========================= CASTLING =========================
     i++; // skip space
     character = fen[i++];
-    while (character != ' ')
-    {
-        if (character == 'K') { fen_position->pieces[WHITE_INDEX].castle_kingside = true; }
-        else if (character == 'Q') { fen_position->pieces[WHITE_INDEX].castle_queenside = true; }
-        else if (character == 'k') { fen_position->pieces[!WHITE_INDEX].castle_kingside = true; }
-        else if (character == 'q') { fen_position->pieces[!WHITE_INDEX].castle_queenside = true; }
+
+    while (character != ' ') {
+        if (character == 'K') 
+        { fen_position->pieces[WHITE_INDEX].castle_kingside = true; }
+        else if (character == 'Q') 
+        { fen_position->pieces[WHITE_INDEX].castle_queenside = true; }
+        else if (character == 'k') 
+        { fen_position->pieces[!WHITE_INDEX].castle_kingside = true; }
+        else if (character == 'q') 
+        { fen_position->pieces[!WHITE_INDEX].castle_queenside = true; }
+
         character = fen[i++];
     }
 

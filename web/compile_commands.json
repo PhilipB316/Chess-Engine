@@ -1,0 +1,74 @@
+[
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/web_main.c.o -c /home/philip/Projects/Chess-Engine/src/web_main.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/web_main.c",
+  "output": "CMakeFiles/tessmax.dir/src/web_main.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/gui/gui.c.o -c /home/philip/Projects/Chess-Engine/src/gui/gui.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/gui/gui.c",
+  "output": "CMakeFiles/tessmax.dir/src/gui/gui.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/gui/log.c.o -c /home/philip/Projects/Chess-Engine/src/gui/log.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/gui/log.c",
+  "output": "CMakeFiles/tessmax.dir/src/gui/log.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/interface/movedisplay.c.o -c /home/philip/Projects/Chess-Engine/src/interface/movedisplay.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/interface/movedisplay.c",
+  "output": "CMakeFiles/tessmax.dir/src/interface/movedisplay.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/interface/ui.c.o -c /home/philip/Projects/Chess-Engine/src/interface/ui.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/interface/ui.c",
+  "output": "CMakeFiles/tessmax.dir/src/interface/ui.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/movefinding/board.c.o -c /home/philip/Projects/Chess-Engine/src/movefinding/board.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/movefinding/board.c",
+  "output": "CMakeFiles/tessmax.dir/src/movefinding/board.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/movefinding/lookuptables.c.o -c /home/philip/Projects/Chess-Engine/src/movefinding/lookuptables.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/movefinding/lookuptables.c",
+  "output": "CMakeFiles/tessmax.dir/src/movefinding/lookuptables.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/movefinding/memory.c.o -c /home/philip/Projects/Chess-Engine/src/movefinding/memory.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/movefinding/memory.c",
+  "output": "CMakeFiles/tessmax.dir/src/movefinding/memory.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/movefinding/movefinder.c.o -c /home/philip/Projects/Chess-Engine/src/movefinding/movefinder.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/movefinding/movefinder.c",
+  "output": "CMakeFiles/tessmax.dir/src/movefinding/movefinder.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/search/evaluate.c.o -c /home/philip/Projects/Chess-Engine/src/search/evaluate.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/search/evaluate.c",
+  "output": "CMakeFiles/tessmax.dir/src/search/evaluate.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/search/hash_tables.c.o -c /home/philip/Projects/Chess-Engine/src/search/hash_tables.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/search/hash_tables.c",
+  "output": "CMakeFiles/tessmax.dir/src/search/hash_tables.c.o"
+},
+{
+  "directory": "/home/philip/Projects/Chess-Engine/web",
+  "command": "/usr/bin/cc -DWEB_BUILD=1 -I/home/philip/Projects/Chess-Engine/HEADER_FILES -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/rav1e -I/usr/include/svt-av1 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/sysprof-6 -I/usr/include/freetype2  -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer -std=gnu17 -o CMakeFiles/tessmax.dir/src/search/search.c.o -c /home/philip/Projects/Chess-Engine/src/search/search.c",
+  "file": "/home/philip/Projects/Chess-Engine/src/search/search.c",
+  "output": "CMakeFiles/tessmax.dir/src/search/search.c.o"
+}
+]

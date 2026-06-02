@@ -304,13 +304,18 @@ bool is_ambiguous_move(Position_t* previous_position, MoveType_t move_type, uint
     return ambiguous_count > 1;
 }
 
-void get_move_notation(Position_t* previous_position, Position_t* new_position, char* notation)
+void get_move_notation(Position_t* previous_position,
+                       Position_t* new_position,
+                       char* notation)
 {
     MoveType_t move_type = find_move_type(previous_position, new_position);
 
     ULL from_bitboard, to_bitboard;
     find_from_to_square(previous_position, new_position, &from_bitboard, &to_bitboard);
-    bool is_ambiguous = is_ambiguous_move(previous_position, move_type, __builtin_ctzll(to_bitboard));
+
+    bool is_ambiguous = is_ambiguous_move(previous_position, 
+                                          move_type, 
+                                          __builtin_ctzll(to_bitboard));
 
     uint8_t to_square = __builtin_ctzll(to_bitboard);
     uint8_t from_square = __builtin_ctzll(from_bitboard);
@@ -320,7 +325,8 @@ void get_move_notation(Position_t* previous_position, Position_t* new_position, 
     char to_square_file[2] = {'a' + (to_square % 8), '\0'};
     char to_square_rank[2] = {'1' + (7 - to_square / 8), '\0'};
 
-    bool value_change = (new_position->piece_value_diff != previous_position->piece_value_diff);
+    bool value_change = (new_position->piece_value_diff != 
+        previous_position->piece_value_diff);
 
     switch (move_type) {
         case PAWN:

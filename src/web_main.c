@@ -74,6 +74,10 @@ bool play_game(Position_t* position)
     bool success = 0;
     while (!success) {
         bool success1 = read_fen_from_stdin(fen_string);
+
+        char *time = strrchr(fen_string, ',');
+        *time++ = '\0';
+        set_time(atoi(time));
         pad_fen_to_full_length(fen_string);
         fen_to_board(fen_string, &new_position);
         char move_notation[MOVE_NOTATION_LENGTH] = {0};
@@ -104,7 +108,8 @@ bool play_game(Position_t* position)
 bool update_game(void)
 {
     old_position = new_position;
-    insert_past_move_entry(&old_position); // Insert the new position into the past move list
+    // Insert the new position into the past move list:
+    insert_past_move_entry(&old_position); 
     switch_time_decrement(); // Switch the time decrement between user and engine
     update_time_display(); // Update the time display for both players
     if (is_game_ended(&old_position)) { return 0; }
