@@ -1,4 +1,4 @@
-// evaluate.c
+
 
 #include <stdint.h>
 
@@ -13,15 +13,32 @@ int32_t midgame_evaluation(Position_t* position);
 
 bool is_check(Position_t* position, bool for_white)
 {
-    // side to move’s king under attack?
     ULL king_bb = position->pieces[for_white].kings;
     if (!king_bb) return false;
     uint8_t king_sq = __builtin_ctzll(king_bb);
 
-    // squares attacked by opponent
-    ULL attacks = calculate_attack_squares(position, !for_white);
-    return (attacks & (1ULL << king_sq));
+    PiecesOneColour_t* opp = &position->pieces[!for_white];
+    ULL all = position->all_pieces;
+
+    ULL rook_blockers = rook_blocker_masks[king_sq] & all;
+    uint16_t idx = (rook_blockers * actual_rook_magic_numbers[king_sq])
+                    >> offset_RBits[king_sq];
+    if (rook_attack_lookup_table[king_sq][idx] & (opp->rooks | opp->queens))
+        return true;
+
+    ULL bishop_blockers = bishop_blocker_masks[king_sq] & all;
+    idx = (bishop_blockers * actual_bishop_magic_numbers[king_sq])
+           >> offset_BBits[king_sq];
+    if (bishop_attack_lookup_table[king_sq][idx] & (opp->bishops | opp->queens))
+        return true;
+
+    if (knight_attack_lookup_table[king_sq] & opp->knights) return true;
+    if (pawn_attack_lookup_table[for_white][king_sq] & opp->pawns) return true;
+    if (king_attack_lookup_table[king_sq] & opp->kings) return true;
+
+    return false;
 }
+
 
 KingStatus_t determine_king_status(Position_t* position, bool for_white)
 {

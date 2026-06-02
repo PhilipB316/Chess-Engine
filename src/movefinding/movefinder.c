@@ -162,7 +162,8 @@ inline ULL find_king_moves(Position_t *position, uint8_t king_square)
 {
     bool white_to_move = position->white_to_move;
     (void)position; // Unused parameter, but required for function signature
-    return king_attack_lookup_table[king_square] | king_castling_array[white_to_move][QUEENSIDE] | king_castling_array[white_to_move][KINGSIDE];
+    return king_attack_lookup_table[king_square] 
+    | king_castling_array[white_to_move][QUEENSIDE] | king_castling_array[white_to_move][KINGSIDE];
 }
 
 ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white)
@@ -226,15 +227,12 @@ ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white)
 
 void move_finder(Position_t *position)
 {
-    // int32_t value = position->piece_value_diff;
-    // if position is checkmate, do not generate moves
-    // if (value < -CHECKMATE_VALUE || value > CHECKMATE_VALUE) { return; }
-
     OLD_POSTION = position;
     WHITE_TO_MOVE = position->white_to_move;
     ULL all_pieces_bitboard = position->all_pieces;
     ULL opponent_pieces_bitboard = position->pieces[!WHITE_TO_MOVE].all_pieces;
     PiecesOneColour_t *active_pieces_set = &position->pieces[WHITE_TO_MOVE];
+    if (!active_pieces_set->kings ) { return; } // no king present, do not generate moves
     PiecesOneColour_t *opponent_pieces_set = &position->pieces[!WHITE_TO_MOVE];
     uint8_t start_rank, seventh_rank, en_passant_rank;
     int direction;
@@ -528,7 +526,12 @@ void generate_new_positions(MoveType_t piece,
                           move_bitboard,
                           special_flags);
 
-        OLD_POSTION->child_positions[OLD_POSTION->num_children++] = new_position;
+        if (!is_check(new_position, WHITE_TO_MOVE)) {
+            OLD_POSTION->child_positions[OLD_POSTION->num_children++] = new_position;
+        } else {
+            custom_free();
+        }
+
         num_new_positions++;
 
         possible_moves_bitboard &= ~to_square_bitboard;
