@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/philip/Projects/Chess-Engine/web/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

@@ -1,3 +1,0 @@
-/home/philip/Projects/Chess-Engine/web/CMakeFiles/tessmax.dir
-/home/philip/Projects/Chess-Engine/web/CMakeFiles/edit_cache.dir
-/home/philip/Projects/Chess-Engine/web/CMakeFiles/rebuild_cache.dir
