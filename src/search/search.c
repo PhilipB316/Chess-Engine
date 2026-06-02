@@ -1,4 +1,4 @@
-// search.c
+
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -292,6 +292,7 @@ int32_t negamax(Position_t* position,
 
 void print_stats(void)
 {
-    printf("Depth: %u | Time: %.4fs | Eval: %d\n",
-           searched_depth - 1, time_spent, best_eval);
+    printf("Depth: %u | Time: %.4fs | Positions: %lu | Eval: %d\n",
+           searched_depth - 1, time_spent, get_num_new_positions(), best_eval);
 }
+

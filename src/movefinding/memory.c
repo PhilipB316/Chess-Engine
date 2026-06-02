@@ -58,6 +58,14 @@ void custom_free(void)
     }
 }
 
+void custom_free_n(uint16_t n) {
+    if (SAFE) {
+        pool_index = (pool_index >= n) ? pool_index - n : 0;
+    } else {
+        pool_index -= n;
+    }
+}
+
 void check_memory_leak(void) 
 {
     if (pool_index > 0) {

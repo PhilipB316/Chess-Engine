@@ -33,13 +33,13 @@ extern const bool web_build;
 #define KINGSIDE 0
 #define QUEENSIDE 1
 
-#define DEBUG 1
-#define SAFE 1 // safe alerts if custom memory pool has been exhausted
+#define DEBUG 0
+#define SAFE 0 // safe alerts if custom memory pool has been exhausted
 
 #define VERSION_MAJOR 2
 #define VERSION_MINOR 2
-#define VERSION_PATCH 0
-#define DATE_STRING "2025-11-13"
+#define VERSION_PATCH 1
+#define DATE_STRING "2026-06-02"
 
 #define ULL unsigned long long
 
@@ -70,8 +70,8 @@ typedef struct
  */
 typedef struct Position_t
 {
+    // --- game state --
     bool white_to_move;
-    uint16_t num_children;
     uint16_t half_move_count;
     int32_t piece_value_diff;
     int32_t evaluation;
@@ -79,10 +79,13 @@ typedef struct Position_t
     ULL en_passant_bitboard;
     ULL zobrist_key;
     struct Position_t* parent_position;
-    struct Position_t* child_positions[MAX_CHILDREN];
     struct PastMoveListEntry_t* move_list_entry;
     PiecesOneColour_t pieces[2];
+    // --- search state --
+    uint16_t num_children;
+    struct Position_t* child_positions[MAX_CHILDREN];
 } Position_t;
+
 
 /**
  *

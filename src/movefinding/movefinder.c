@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <stddef.h>
 
 #include "lookuptables.h"
 #include "movefinder.h"
@@ -53,14 +54,11 @@ void depth_move_finder(Position_t* position, uint8_t depth)
     { depth_move_finder(position->child_positions[i], depth - 1); }
 }
 
-void free_children_memory(Position_t *position)
+void free_children_memory(Position_t *position) 
 {
-    for (uint16_t i = 0; i < position->num_children; i++)
-    {
-        // free(position->child_positions[i]);
-        custom_free();
-    }
+    custom_free_n(position->num_children);
 }
+
 
 void free_depth_memory(Position_t* position, uint8_t depth)
 {
@@ -514,7 +512,9 @@ void generate_new_positions(MoveType_t piece,
         register ULL move_bitboard = from_square_bitboard | to_square_bitboard;
 
         Position_t *new_position = custom_alloc();
-        memcpy(new_position, OLD_POSTION, sizeof(Position_t));
+
+        memcpy(new_position, OLD_POSTION, offsetof(Position_t, num_children));
+        new_position->num_children = 0;
 
         // Build the child in-place
         populate_position(piece,
@@ -532,7 +532,9 @@ void generate_new_positions(MoveType_t piece,
             custom_free();
         }
 
+        #if DEBUG
         num_new_positions++;
+        #endif
 
         possible_moves_bitboard &= ~to_square_bitboard;
     }

@@ -37,6 +37,11 @@ Position_t* custom_alloc(void);
 void custom_free(void);
 
 /**
+ * @brief Frees the last n allocated Position_t from the custom memory pool.
+ */
+void custom_free_n(uint16_t n);
+
+/**
  * @brief Checks for memory leaks in the custom memory pool.
  *
  * Prints a message if there are any positions that were not freed.
