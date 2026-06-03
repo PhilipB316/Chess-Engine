@@ -307,8 +307,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         clear_past_move_entry(child);
 
         /*
-         * CRITICAL: check for timeout BEFORE negating.
-         * RAN_OUT_OF_TIME == -9997799; negating it gives +9997799 which
+         * check for timeout BEFORE negating. negating it gives +9997799 which
          * looks like a brilliant move and would corrupt the result.
          */
         if (score == RAN_OUT_OF_TIME) {
