@@ -120,7 +120,7 @@ int32_t opening_evaluation(Position_t* position)
 
     ULL rook_blockers, bishop_blockers;
 
-    // ============================== BISHOPS ==============================
+    // ============================== ROOKS ==============================
     ULL rook_bitboard = active_pieces_set->rooks;
     threatened_squares = 0;
     while (rook_bitboard)
@@ -135,7 +135,7 @@ int32_t opening_evaluation(Position_t* position)
     score += __builtin_popcountll(threatened_squares & CENTER_FOUR_SQUARES) * CENTER_SQUARE_ATTACK_VALUE;
     score += __builtin_popcountll(threatened_squares & BOX_SQUARES) * BOX_SQUARE_ATTACK_VALUE;
 
-    // ============================== ROOKS ==============================
+    // ============================== BISHOPS ==============================
     ULL bishop_bitboard = active_pieces_set->bishops;
     threatened_squares = 0;
     while (bishop_bitboard)
@@ -164,9 +164,9 @@ int32_t opening_evaluation(Position_t* position)
     //     threatened_squares |= bishop_attack_lookup_table[from_square][index];
     //     queen_bitboard &= ~(1ULL << from_square);
     // }
-    all_threathened_squards |= threatened_squares;
-    score += __builtin_popcountll(threatened_squares & CENTER_FOUR_SQUARES) * CENTER_SQUARE_ATTACK_VALUE;
-    score += __builtin_popcountll(threatened_squares & BOX_SQUARES) * BOX_SQUARE_ATTACK_VALUE;
+    // all_threathened_squards |= threatened_squares;
+    // score += __builtin_popcountll(threatened_squares & CENTER_FOUR_SQUARES) * CENTER_SQUARE_ATTACK_VALUE;
+    // score += __builtin_popcountll(threatened_squares & BOX_SQUARES) * BOX_SQUARE_ATTACK_VALUE;
 
     score += __builtin_popcountll(all_threathened_squards) * GENERAL_ATTACK_SQUARES_VALUE;
     return score;
