@@ -24,6 +24,12 @@ static clock_t global_max_time = 0;
 static bool time_up = false;
 static double time_spent = 0.0;
 
+static uint32_t aspiration_attempts = 0;
+static uint32_t aspiration_failures = 0;
+static uint8_t completed_depth = 0;
+
+
+
 /*
  * Unified negamax.
  *
@@ -46,7 +52,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
                        int32_t alpha, int32_t beta,
                        Position_t *return_best_move);
 
-int compare_positions_desc(const void *a, const void *b)
+static inline int compare_positions_desc(const void *a, const void *b)
 {
     const Position_t *pa = *(const Position_t **)a;
     const Position_t *pb = *(const Position_t **)b;
@@ -82,17 +88,11 @@ int32_t find_best_move(Position_t *position,
     searched_depth = 1;
     best_eval = 0;
     prev_eval = 0;
+    aspiration_attempts = 0;
+    aspiration_failures  = 0;
+    completed_depth = 0;
     move_finder(position);
 
-    /*
-     * saved_best_move tracks the result of the last *fully completed* depth.
-     * We only commit to it when a search finishes cleanly (not on timeout or
-     * inside a re-search loop), so return_best_move is never left in a
-     * partially-searched state.
-     *
-     * Initialised to *position as a safe fallback; the "no move found" check
-     * at the end detects this via zobrist key comparison.
-     */
     Position_t saved_best_move = *position;
 
     /* ------------------------------------------------------------------ */
@@ -106,9 +106,10 @@ int32_t find_best_move(Position_t *position,
         int32_t eval = negamax(position, searched_depth,
                                -INT32_MAX, INT32_MAX, return_best_move);
         if (eval == RAN_OUT_OF_TIME) { break; }
-        saved_best_move = *return_best_move;   /* commit completed depth */
+        saved_best_move = *return_best_move;
         best_eval = eval;
         prev_eval = eval;
+        completed_depth = searched_depth;   /* this depth finished cleanly */
         searched_depth++;
     }
 
@@ -122,34 +123,42 @@ int32_t find_best_move(Position_t *position,
         int32_t alpha = prev_eval - ASPIRATION_WINDOW;
         int32_t beta  = prev_eval + ASPIRATION_WINDOW;
         int32_t eval;
+        bool depth_failed = false;   /* did this depth need a retry? */
+
+        aspiration_attempts++;       /* one attempt per depth */
 
         while (1) {
             eval = negamax(position, searched_depth, alpha, beta, return_best_move);
 
-            if (eval == RAN_OUT_OF_TIME) { break; }
+            if (eval == RAN_OUT_OF_TIME) { break; }  /* check timeout first */
 
             if (eval <= alpha) {
-                /* Fail-low: widen window downward, do NOT commit */
+                depth_failed = true;
                 alpha -= 5 * ASPIRATION_WINDOW;
 
             } else if (eval >= beta) {
-                /* Fail-high: widen window upward, do NOT commit */
+                depth_failed = true;
                 beta += 5 * ASPIRATION_WINDOW;
 
             } else {
                 /* Fully inside window — commit */
                 best_eval = eval;
                 saved_best_move = *return_best_move;
+                completed_depth = searched_depth;
                 break;
             }
 
-            /* Window has grown too wide; fall back to full-width search */
-            if (alpha < -12000 || beta > 12000) {
+            /* fall back to full-width if window is huge,
+             * or if we saw a positive mate (fail-high) */
+            if (alpha < -12000 || beta > 12000 ||
+                (eval > CHECKMATE_VALUE - 1000 && eval >= beta)) {
                 eval = negamax(position, searched_depth,
                                -INT32_MAX, INT32_MAX, return_best_move);
                 if (eval != RAN_OUT_OF_TIME) {
                     best_eval = eval;
                     saved_best_move = *return_best_move;
+                    prev_eval = eval;
+                    completed_depth = searched_depth;
                 }
                 break;
             }
@@ -159,24 +168,22 @@ int32_t find_best_move(Position_t *position,
                 best_eval = eval;
                 prev_eval = eval;
                 saved_best_move = *return_best_move;
+                completed_depth = searched_depth;
                 break;
             }
         }
+
+        if (depth_failed) { aspiration_failures++; }  /* one failure per depth */
+
         prev_eval = best_eval;
         searched_depth++;
     }
 
-    /* Always restore the last cleanly-committed result */
     *return_best_move = saved_best_move;
 
-    /*
-     * If no move was ever committed (mate is inevitable from the root),
-     * do a bare depth-1 search just to return a legal move.
-     */
     if (position->zobrist_key == return_best_move->zobrist_key) {
         negamax(position, 1, -INT32_MAX, INT32_MAX, return_best_move);
-        /* Small pause so the GUI can finish its current frame */
-        struct timespec ts = {0, 50 * 1000000}; /* 50 ms */
+        struct timespec ts = {0, 50 * 1000000};
         nanosleep(&ts, NULL);
     }
 
@@ -194,7 +201,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
     const bool is_root = (return_best_move != NULL);
 
     /* ------------------------------------------------------------------ */
-    /* Base case                                                           */
+    /* Base case - if we are at a leaf                                    */
     /* ------------------------------------------------------------------ */
     if (depth == 0) {
 #if DEBUG
@@ -222,36 +229,44 @@ static int32_t negamax(Position_t *position, uint8_t depth,
     bool tt_move_found = false;
     int32_t orig_alpha = alpha;
 
-    if (entry->zobrist_key == key) {
+    ULL entry_key = entry->zobrist_key;
+    if (__builtin_expect(entry_key == key, 0)) {
         tt_move_found = true;
         /*
          * At the root we use the TT only for move ordering.
          * Applying alpha/beta cutoffs here would suppress the best-move
          * output even when the TT score is stale from a narrower window.
          */
-        if (!is_root && entry->search_depth >= depth) {
+        if (__builtin_expect(!is_root, 1)) {
+            int32_t entry_depth = entry->search_depth;
+            if (entry_depth >= depth) {
 #if DEBUG
-            nodes_analysed++;
+                nodes_analysed++;
 #endif
-            if (entry->node_type == EXACT) {
-                return entry->position_evaluation;
-            } else if (entry->node_type == LOWER_BOUND) {
-                alpha = MAX(alpha, entry->position_evaluation);
-            } else if (entry->node_type == UPPER_BOUND) {
-                beta  = MIN(beta,  entry->position_evaluation);
-            }
-            if (alpha >= beta) {
-                return entry->position_evaluation;
+                int32_t entry_eval = entry->position_evaluation;
+                switch (entry->node_type) {
+                    case EXACT:
+                        return entry_eval;
+                    case LOWER_BOUND:
+                        if (entry_eval > alpha) alpha = entry_eval;
+                        break;
+                    case UPPER_BOUND:
+                        if (entry_eval < beta)  beta  = entry_eval;
+                        break;
+                    default:
+                        break;
+                }
+                if (alpha >= beta) {
+                    return entry_eval;
+                }
             }
         }
     }
 
     /* ------------------------------------------------------------------ */
     /* Move generation                                                     */
-    /* Root children were already generated by find_best_move; calling    */
-    /* move_finder again would double-append to num_children.             */
     /* ------------------------------------------------------------------ */
-    if (!is_root) { move_finder(position); }
+    if (__builtin_expect(!is_root, 1)) { move_finder(position); }
 
     /* ------------------------------------------------------------------ */
     /* Terminal node: no legal moves                                       */
@@ -263,10 +278,10 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         /*
          * We already know num_children == 0; is_check is sufficient.
          */
-        if (!is_root) { free_children_memory(position); }
+        if (__builtin_expect(!is_root, 1)) { free_children_memory(position); }
+
         return is_check(position, position->white_to_move)
-                   ? -CHECKMATE_VALUE + (searched_depth - depth)
-                   : 0; /* stalemate */
+                   ? -CHECKMATE_VALUE + (searched_depth - depth) : 0; /* stalemate */
     }
 
     /* ------------------------------------------------------------------ */
@@ -296,7 +311,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
     {
         /* Check clock periodically — every child is cheap enough */
         if (time_is_up()) {
-            if (!is_root) { free_children_memory(position); }
+            if (__builtin_expect(!is_root, 1)) { free_children_memory(position); }
             return RAN_OUT_OF_TIME;
         }
 
@@ -368,8 +383,8 @@ static int32_t negamax(Position_t *position, uint8_t depth,
 
 void print_stats(void)
 {
-    printf("Depth: %u | Time: %.4fs | Positions: %lu | Nodes: %llu | Eval: %d\n",
-           searched_depth - 1, time_spent, get_num_new_positions(),
-           nodes_analysed, best_eval);
+    printf("Depth: %u | Time: %.4fs | Positions: %lu | Nodes: %llu | Eval: %d | A. atmps: %d | A. fails: %d\n",
+           completed_depth, time_spent, get_num_new_positions(),
+           nodes_analysed, best_eval, aspiration_attempts, aspiration_failures);
 }
 

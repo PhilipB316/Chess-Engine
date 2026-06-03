@@ -13,7 +13,7 @@ static size_t pool_index = 0;
 void custom_memory_init(void) 
 {
     for (size_t i = 0; i < POOL_SIZE; i++) {
-        memory_pool[i] = malloc(sizeof(Position_t));
+        memory_pool[i] = calloc(1, sizeof(Position_t));
     }
 }
 

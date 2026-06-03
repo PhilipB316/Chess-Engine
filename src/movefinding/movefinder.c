@@ -225,6 +225,7 @@ ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white)
 
 void move_finder(Position_t *position)
 {
+    position->num_children = 0; // claer children count from any previous calls - ensures not-stacked 
     OLD_POSTION = position;
     WHITE_TO_MOVE = position->white_to_move;
     ULL all_pieces_bitboard = position->all_pieces;

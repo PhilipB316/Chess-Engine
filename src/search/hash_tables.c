@@ -57,7 +57,11 @@ ULL generate_zobrist_hash(Position_t *position)
     bool white_to_move = position->white_to_move;
 
     hash ^= zobrist_black_to_move * !white_to_move;
-    hash ^= zobrist_en_passant[__builtin_ctzll(position->en_passant_bitboard)];
+
+    ULL bitboard = position->en_passant_bitboard;
+    if (__builtin_expect(bitboard, 0)) {
+        hash ^= zobrist_en_passant[__builtin_ctzll(bitboard)];
+    }
 
     // Loop over both colors: 0 = white, 1 = black
     for (int colour = 0; colour < 2; colour++) {
@@ -175,27 +179,27 @@ bool is_threefold_repetition(Position_t* position)
         turn_agnositic_key ^= zobrist_black_to_move;
     }
     int32_t index = turn_agnositic_key & PAST_MOVE_LIST_MASK;
-    bool is_taken = past_move_list[index].is_taken;
-    while (is_taken) {
-        if (past_move_list[index].zobrist_key == position->zobrist_key) {
-            return (past_move_list[index].occurences >= 3);
-        } else {
-            index = (index + 1) & PAST_MOVE_LIST_MASK;
+
+    for (;;) {
+        PastMoveEntry_t *entry = &past_move_list[index];
+
+        if (!entry->is_taken) { return false; }
+        if (entry->zobrist_key == position->zobrist_key) {
+            return (entry->occurences >= 3);
         }
-        is_taken = past_move_list[index].is_taken;
+        index = (index + 1) & PAST_MOVE_LIST_MASK;
     }
-    return false; // no repetition found
 }
 
 void hash_table_init(void) 
 {
-    transposition_table = malloc(sizeof(TranspositionEntry_t) * TT_SIZE);
+    transposition_table = calloc(1, sizeof(TranspositionEntry_t) * TT_SIZE);
     if (!transposition_table) {
         fprintf(stderr, "Failed to allocate transposition table\n");
         exit(1);
     }
 
-    past_move_list = malloc(sizeof(PastMoveEntry_t) * PAST_MOVE_LIST_SIZE);
+    past_move_list = calloc(1, sizeof(PastMoveEntry_t) * PAST_MOVE_LIST_SIZE);
     if (!past_move_list) {
         fprintf(stderr, "Failed to allocate past move list\n");
         exit(1);
