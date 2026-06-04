@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <sys/types.h>
+#include <stdio.h>
 #include <time.h>
 #include <string.h>
 
@@ -13,6 +13,7 @@
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX_QUIESCENCE_DEPTH 5
 
 static ULL nodes_analysed = 0;
 static int32_t best_eval = 0;
@@ -51,6 +52,9 @@ static uint8_t completed_depth = 0;
 static int32_t negamax(Position_t *position, uint8_t depth,
                        int32_t alpha, int32_t beta,
                        Position_t *return_best_move);
+
+static int32_t quiescence(Position_t *position, int32_t alpha, int32_t beta,
+                          uint8_t qdepth);
 
 static inline int compare_positions_desc(const void *a, const void *b)
 {
@@ -124,13 +128,12 @@ int32_t find_best_move(Position_t *position,
         int32_t beta  = prev_eval + ASPIRATION_WINDOW;
         int32_t eval;
         bool depth_failed = false;   /* did this depth need a retry? */
-
         aspiration_attempts++;       /* one attempt per depth */
 
         while (1) {
             eval = negamax(position, searched_depth, alpha, beta, return_best_move);
 
-            if (eval == RAN_OUT_OF_TIME) { break; }  /* check timeout first */
+            if (eval == RAN_OUT_OF_TIME) { break; } /* check timeout first */
 
             if (eval <= alpha) {
                 depth_failed = true;
@@ -141,7 +144,7 @@ int32_t find_best_move(Position_t *position,
                 beta += 5 * ASPIRATION_WINDOW;
 
             } else {
-                /* Fully inside window — commit */
+                // Fully inside window — commit
                 best_eval = eval;
                 saved_best_move = *return_best_move;
                 completed_depth = searched_depth;
@@ -163,7 +166,7 @@ int32_t find_best_move(Position_t *position,
                 break;
             }
 
-            /* Mate score detected — no point widening further */
+            // Mate score detected — no point widening further
             if (eval > CHECKMATE_VALUE - 1000 || eval < -CHECKMATE_VALUE + 1000) {
                 best_eval = eval;
                 prev_eval = eval;
@@ -173,7 +176,7 @@ int32_t find_best_move(Position_t *position,
             }
         }
 
-        if (depth_failed) { aspiration_failures++; }  /* one failure per depth */
+        if (depth_failed) { aspiration_failures++; }  // one failure per depth
 
         prev_eval = best_eval;
         searched_depth++;
@@ -201,19 +204,17 @@ static int32_t negamax(Position_t *position, uint8_t depth,
     const bool is_root = (return_best_move != NULL);
 
     /* ------------------------------------------------------------------ */
-    /* Base case - if we are at a leaf                                    */
+    /* Base case — hand off to quiescence search instead of evaluating    */
+    /* statically, so captures beyond the horizon are not missed.         */
     /* ------------------------------------------------------------------ */
     if (depth == 0) {
-#if DEBUG
-        nodes_analysed++;
-#endif
-        return evaluate_position(position);
+        return quiescence(position, alpha, beta, MAX_QUIESCENCE_DEPTH);
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Threefold-repetition draw (skip at root — root position is already  */
-    /* in the past-move list; we don't want an instant draw evaluation)    */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------
+    // Threefold-repetition draw (skip at root — root position is already
+    // in the past-move list; we don't want an instant draw evaluation)
+    // ------------------------------------------------------------------
     if (!is_root && is_threefold_repetition(position)) {
 #if DEBUG
         nodes_analysed++;
@@ -221,9 +222,9 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         return 0;
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Transposition table                                                 */
-    /* ------------------------------------------------------------------ */
+    // -------------------------------------------------------------
+    // Transposition table
+    // ---------------------------------------------------------------
     const ULL key = position->zobrist_key;
     TranspositionEntry_t *entry = &transposition_table[key & TT_MASK];
     bool tt_move_found = false;
@@ -263,30 +264,28 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         }
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Move generation                                                     */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------
+    // Move generation
+    // ------------------------------------------------------------------
     if (__builtin_expect(!is_root, 1)) { move_finder(position); }
 
-    /* ------------------------------------------------------------------ */
-    /* Terminal node: no legal moves                                       */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------
+    // Terminal node: no legal moves
+    // ------------------------------------------------------------------
     if (position->num_children == 0) {
 #if DEBUG
         nodes_analysed++;
 #endif
-        /*
-         * We already know num_children == 0; is_check is sufficient.
-         */
+        // We already know num_children == 0; is_check is sufficient.
         if (__builtin_expect(!is_root, 1)) { free_children_memory(position); }
 
         return is_check(position, position->white_to_move)
-                   ? -CHECKMATE_VALUE + (searched_depth - depth) : 0; /* stalemate */
+                   ? -CHECKMATE_VALUE + (searched_depth - depth) : 0; // stalemate
     }
 
-    /* ------------------------------------------------------------------ */
-    /* TT move ordering: move the TT best-move to the front               */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------
+    // TT move ordering: move the TT best-move to the front
+    // ------------------------------------------------------------------
     if (tt_move_found) {
         for (uint16_t i = 0; i < position->num_children; i++) {
             if (position->child_positions[i]->zobrist_key
@@ -301,15 +300,15 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         }
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Main negamax loop                                                   */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------
+    // Main negamax loop
+    // ------------------------------------------------------------------
     int32_t value = -INT32_MAX + 1;
     int best_child_idx = -1;
 
     for (uint16_t i = 0; i < position->num_children; i++)
     {
-        /* Check clock periodically — every child is cheap enough */
+        // Check clock periodically — every child is cheap enough
         if (time_is_up()) {
             if (__builtin_expect(!is_root, 1)) { free_children_memory(position); }
             return RAN_OUT_OF_TIME;
@@ -321,17 +320,15 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         int32_t score = negamax(child, depth - 1, -beta, -alpha, NULL);
         clear_past_move_entry(child);
 
-        /*
-         * check for timeout BEFORE negating. negating it gives +9997799 which
-         * looks like a brilliant move and would corrupt the result.
-         */
+        // check for timeout BEFORE negating. negating it gives +9997799 which
+        // looks like a brilliant move and would corrupt the result.
         if (score == RAN_OUT_OF_TIME) {
             if (!is_root) { free_children_memory(position); }
             return RAN_OUT_OF_TIME;
         }
         score = -score;
 
-        /* Store score on child for move-ordering in the next iteration */
+        // Store score on child for move-ordering in the next iteration
         child->evaluation = score;
 
         if (score > value) {
@@ -344,9 +341,9 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         }
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Root return: write best move and skip TT store                     */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------
+    // Root return: write best move and skip TT store
+    // ------------------------------------------------------------------
     if (is_root) {
         clear_grandchildren_count(position);
         if (best_child_idx >= 0) {
@@ -357,9 +354,9 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         return value;
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Transposition table store                                           */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------
+    // Transposition table store
+    // ------------------------------------------------------------------
     if (best_child_idx >= 0) {
         entry->zobrist_key = key;
         entry->position_evaluation = value;
@@ -367,9 +364,9 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         entry->search_depth = depth;
 
         if (value <= orig_alpha) {
-            entry->node_type = UPPER_BOUND;   /* fail-low  */
+            entry->node_type = UPPER_BOUND;   // fail-low
         } else if (value >= beta) {
-            entry->node_type = LOWER_BOUND;   /* fail-high */
+            entry->node_type = LOWER_BOUND;   // fail-high
         } else {
             entry->node_type = EXACT;
         }
@@ -379,6 +376,107 @@ static int32_t negamax(Position_t *position, uint8_t depth,
 
     free_children_memory(position);
     return value;
+}
+
+/*
+ * Quiescence search.
+ *
+ * Called at depth 0 instead of evaluate_position. Continues searching
+ * captures (and check evasions) until the position is quiet, preventing
+ * the horizon effect where a capture just beyond the search depth is missed.
+ *
+ * Stand-pat: the side to move may always choose not to capture and accept
+ * the static evaluation. This is the lower bound on the score. Not applied
+ * when in check — an escape must be found.
+ *
+ * qdepth limits how deep quiescence can go to prevent infinite loops in
+ * positions with endless capture chains. No timeout check is done here —
+ * the bounded depth makes it unnecessary, and a timeout return would be
+ * negated by the caller and misread as a valid score.
+ */
+static int32_t quiescence(Position_t *position, int32_t alpha, int32_t beta,
+                           uint8_t qdepth)
+{
+#if DEBUG
+    nodes_analysed++;
+#endif
+
+    bool in_check = is_check(position, position->white_to_move);
+
+    // ------------------------------------------------------------------
+    // Stand-pat: assume we can stop capturing here.
+    // Skip when in check — the position is not quiet
+    // ------------------------------------------------------------------
+    if (!in_check) {
+        int32_t stand_pat = evaluate_position(position);
+        if (stand_pat >= beta) { return stand_pat; } // beta cutoff
+        if (stand_pat > alpha) { alpha = stand_pat; } // raise the floor
+    }
+
+    // ------------------------------------------------------------------
+    // Depth limit.
+    // Not in check: stand-pat is a valid return.
+    // In check: generate escape moves to detect checkmate rather than
+    // returning a meaningless static eval of the in-check position
+    // ------------------------------------------------------------------
+    if (qdepth == 0) {
+        if (!in_check) { return alpha; }
+        move_finder(position);
+        if (position->num_children == 0) {
+            free_children_memory(position);
+            return -CHECKMATE_VALUE + searched_depth + MAX_QUIESCENCE_DEPTH;
+        }
+        for (uint16_t i = 0; i < position->num_children; i++) {
+            int32_t e = -evaluate_position(position->child_positions[i]);
+            if (e >= beta)  { free_children_memory(position); return e; }
+            if (e > alpha) { alpha = e; }
+        }
+        free_children_memory(position);
+        return alpha;
+    }
+
+    move_finder(position);
+
+    // ------------------------------------------------------------------
+    // Terminal node: checkmate or stalemate
+    // ------------------------------------------------------------------
+    if (position->num_children == 0) {
+        free_children_memory(position);
+        if (in_check) {
+            return -CHECKMATE_VALUE + searched_depth
+                                    + (MAX_QUIESCENCE_DEPTH - qdepth);
+        }
+        return 0; // stalemate
+    }
+
+    // ------------------------------------------------------------------
+    // Search captures (and all moves when in check)
+    // ------------------------------------------------------------------
+    for (uint16_t i = 0; i < position->num_children; i++) {
+        Position_t *child = position->child_positions[i];
+
+        // Skip non-captures when not in check.
+        // A capture changes piece_value_diff; promotions do too
+        if (!in_check &&
+            child->piece_value_diff == position->piece_value_diff) {
+            continue;
+        }
+
+        insert_past_move_entry(child);
+        int32_t score = -quiescence(child, -beta, -alpha, qdepth - 1);
+        clear_past_move_entry(child);
+
+        if (score > alpha) {
+            alpha = score;
+            if (alpha >= beta) {
+                free_children_memory(position);
+                return alpha; // beta cutoff
+            }
+        }
+    }
+
+    free_children_memory(position);
+    return alpha;
 }
 
 void print_stats(void)
