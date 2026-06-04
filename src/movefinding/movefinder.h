@@ -13,6 +13,8 @@
 
 #include "board.h"
 
+#define VICTIM_WEIGHTING 10
+
 /**
  * @brief Initialises lookup tables for move finding.
  */

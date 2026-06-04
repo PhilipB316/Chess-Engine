@@ -1,5 +1,3 @@
-
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -18,6 +16,23 @@ static uint64_t num_new_positions = 0;
 Position_t *OLD_POSTION;
 bool WHITE_TO_MOVE;
 int PIECE_COLOUR;
+
+static const int32_t attacker_values_array[14] = {
+    [PAWN]             = PAWN_VALUE,
+    [KNIGHT]           = KNIGHT_VALUE,
+    [BISHOP]           = BISHOP_VALUE,
+    [ROOK]             = ROOK_VALUE,
+    [QUEEN]            = QUEEN_VALUE,
+    [KING]             = KING_VALUE,
+    [DOUBLE_PUSH]      = PAWN_VALUE,
+    [PROMOTE_QUEEN]    = PAWN_VALUE,
+    [PROMOTE_ROOK]     = PAWN_VALUE,
+    [PROMOTE_BISHOP]   = PAWN_VALUE,
+    [PROMOTE_KNIGHT]   = PAWN_VALUE,
+    [CASTLE_KINGSIDE]  = KING_VALUE,
+    [CASTLE_QUEENSIDE] = KING_VALUE,
+    [EN_PASSANT_CAPTURE] = PAWN_VALUE,
+};
 
 void populate_position(MoveType_t piece,
                        Position_t *new_position,
@@ -505,12 +520,27 @@ void generate_new_positions(MoveType_t piece,
                             ULL from_square_bitboard, 
                             ULL special_flags)
 {
+    // used for MVV-LVA
+    int32_t attacker_value = attacker_values_array[piece];
+
     while (possible_moves_bitboard)
     {
         // --- useful bitboards and squares ---
         uint8_t to_square = __builtin_ctzll(possible_moves_bitboard);
         register ULL to_square_bitboard = 1ULL << to_square;
         register ULL move_bitboard = from_square_bitboard | to_square_bitboard;
+
+        // victim value - must be read before populate_position removes piece
+        int32_t victim_value = 0;
+        PiecesOneColour_t* opp = &OLD_POSTION->pieces[!WHITE_TO_MOVE];
+        if (opp->queens & to_square_bitboard) victim_value = QUEEN_VALUE;
+        else if (opp->rooks & to_square_bitboard) victim_value = ROOK_VALUE;
+        else if (opp->bishops & to_square_bitboard) victim_value = BISHOP_VALUE;
+        else if (opp->knights & to_square_bitboard) victim_value = KNIGHT_VALUE;
+        else if (opp->pawns & to_square_bitboard) victim_value = PAWN_VALUE;
+
+        // enpassant doesn't have overlap of capture square and opponents piece
+        if (piece == EN_PASSANT_CAPTURE) victim_value = PAWN_VALUE;
 
         Position_t *new_position = custom_alloc();
 
@@ -529,6 +559,12 @@ void generate_new_positions(MoveType_t piece,
 
         if (!is_check(new_position, WHITE_TO_MOVE)) {
             OLD_POSTION->child_positions[OLD_POSTION->num_children++] = new_position;
+
+            // MVV-LVA score - captures are high, quiet moves are 0
+            int32_t mvv_lva = victim_value * VICTIM_WEIGHTING - attacker_value;
+            if (piece == PROMOTE_QUEEN) { mvv_lva += QUEEN_VALUE * 10; }
+            new_position->evaluation = mvv_lva;
+
         } else {
             custom_free();
         }
