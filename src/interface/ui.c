@@ -13,7 +13,7 @@
 #include "../movefinding/movefinder.h"
 #include "../gui/log.h"
 
-#define MILLISECONDS_IN_SECOND 1000
+#define MILLISECONDS_IN_SECOND 100
 
 static bool white_perspective = true; // Default perspective for printing the board
 

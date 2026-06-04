@@ -28,6 +28,9 @@ static double time_spent = 0.0;
 static uint32_t aspiration_attempts = 0;
 static uint32_t aspiration_failures = 0;
 static uint8_t completed_depth = 0;
+static uint32_t beta_count = 0;
+static uint32_t beta_first_move_count = 0;
+static uint64_t total_moves_before_cutoff = 0;
 
 
 
@@ -93,6 +96,9 @@ int32_t find_best_move(Position_t *position,
     aspiration_attempts = 0;
     aspiration_failures  = 0;
     completed_depth = 0;
+    beta_count = 0;
+    beta_first_move_count = 0;
+    total_moves_before_cutoff = 0;
     move_finder(position);
 
     Position_t saved_best_move = *position;
@@ -252,6 +258,9 @@ static int32_t negamax(Position_t *position, uint8_t depth,
                         break;
                 }
                 if (alpha >= beta) {
+                    beta_count++;
+                    total_moves_before_cutoff++;
+
                     return entry_eval;
                 }
             }
@@ -347,7 +356,12 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         }
         if (value > alpha) {
             alpha = value;
-            if (alpha >= beta) { break; /* Beta cutoff */ }
+            if (alpha >= beta) {
+                beta_count++;
+                total_moves_before_cutoff += (i + 1);  // i is 0-indexed
+                if (i == 0) { beta_first_move_count++; }
+                break; /* Beta cutoff */
+            }
         }
     }
 
@@ -485,8 +499,19 @@ static int32_t quiescence(Position_t *position, int32_t alpha, int32_t beta,
 
 void print_stats(void)
 {
-    printf("Depth: %u | Time: %.4fs | Positions: %lu | Nodes: %llu | Eval: %d | A. atmps: %d | A. fails: %d\n",
-           completed_depth, time_spent, get_num_new_positions(),
-           nodes_analysed, best_eval, aspiration_attempts, aspiration_failures);
+    float beta_rate = nodes_analysed > 0
+                    ? (float)beta_count * 100.0f / (float)nodes_analysed
+                    : 0.0f;
+    float first_move_rate = beta_count > 0
+                           ? (float)beta_first_move_count * 100.0f / (float)beta_count
+                           : 0.0f;
+    float avg = beta_count > 0 ? (float)total_moves_before_cutoff / beta_count : 0.0f;
+    printf("Depth: %u | Time: %.3fs | Nodes: %llu | Eval: %d | "
+           "A. fail rate: %.1f%% "
+           "Beta: %.1f%% | 1st move: %.1f%% "
+           "Avg bef. cut: %.2f\n",
+           completed_depth, time_spent, nodes_analysed, best_eval,
+           (float)aspiration_failures * 100.0 / aspiration_attempts,
+           beta_rate, first_move_rate, avg);
 }
 

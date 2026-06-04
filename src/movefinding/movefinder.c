@@ -240,6 +240,7 @@ ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white)
 
 void move_finder(Position_t *position)
 {
+    num_new_positions = 0;
     position->num_children = 0; // claer children count from any previous calls - ensures not-stacked 
     OLD_POSTION = position;
     WHITE_TO_MOVE = position->white_to_move;
@@ -533,7 +534,8 @@ void generate_new_positions(MoveType_t piece,
         // victim value - must be read before populate_position removes piece
         int32_t victim_value = 0;
         PiecesOneColour_t* opp = &OLD_POSTION->pieces[!WHITE_TO_MOVE];
-        if (opp->queens & to_square_bitboard) victim_value = QUEEN_VALUE;
+        if (!(to_square_bitboard & opp->all_pieces)) {/* do nothing */ }
+        else if (opp->queens & to_square_bitboard) victim_value = QUEEN_VALUE;
         else if (opp->rooks & to_square_bitboard) victim_value = ROOK_VALUE;
         else if (opp->bishops & to_square_bitboard) victim_value = BISHOP_VALUE;
         else if (opp->knights & to_square_bitboard) victim_value = KNIGHT_VALUE;

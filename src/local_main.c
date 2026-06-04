@@ -98,12 +98,12 @@ bool play_game(Position_t* position)
         first_move = false;
     }
 
-    // user move
-    make_move_from_cli(position, &move_position);
-    if (!update_game()) { return 0; /* Exit if the game is over */ }
+    // // user move
+    // make_move_from_cli(position, &move_position);
+    // if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     // engine move
-    find_best_move(position, &move_position, 20, get_next_move_search_time());
+    find_best_move(position, &move_position, 30, get_next_move_search_time());
     // printf("Engine evaluation: %d\n", score);
     print_stats();
     if (!update_game()) { return 0; /* Exit if the game is over */ }
