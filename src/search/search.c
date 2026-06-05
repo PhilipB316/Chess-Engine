@@ -15,23 +15,23 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX_QUIESCENCE_DEPTH 5
 
-static ULL nodes_analysed = 0;
 static int32_t best_eval = 0;
 static int32_t prev_eval = 0;
 static uint8_t searched_depth = 0;
+static uint8_t completed_depth = 0;
 
 static clock_t start_time = 0;
 static clock_t global_max_time = 0;
 static bool time_up = false;
 static double time_spent = 0.0;
 
+static ULL nodes_analysed = 0;
 static uint32_t aspiration_attempts = 0;
 static uint32_t aspiration_failures = 0;
-static uint8_t completed_depth = 0;
 static uint32_t beta_count = 0;
 static uint32_t beta_first_move_count = 0;
 static uint64_t total_moves_before_cutoff = 0;
-
+static ULL interior_nodes = 0;
 
 
 /*
@@ -89,16 +89,19 @@ int32_t find_best_move(Position_t *position,
 {
     start_time = clock();
     global_max_time = max_time * CLOCKS_PER_SEC / 1000;
-    nodes_analysed = 0;
-    searched_depth = 1;
     best_eval = 0;
     prev_eval = 0;
+    completed_depth = 0;
+    searched_depth = 1;
+
+    nodes_analysed = 0;
+    interior_nodes = 0;
     aspiration_attempts = 0;
     aspiration_failures  = 0;
-    completed_depth = 0;
     beta_count = 0;
     beta_first_move_count = 0;
     total_moves_before_cutoff = 0;
+
     move_finder(position);
 
     Position_t saved_best_move = *position;
@@ -206,6 +209,8 @@ static int32_t negamax(Position_t *position, uint8_t depth,
                        Position_t *return_best_move)
 {
     const bool is_root = (return_best_move != NULL);
+
+    if (depth > 0 && !is_root) { interior_nodes++; }
 
     /* ------------------------------------------------------------------ */
     /* Base case — hand off to quiescence search instead of evaluating    */
@@ -499,16 +504,16 @@ static int32_t quiescence(Position_t *position, int32_t alpha, int32_t beta,
 
 void print_stats(void)
 {
-    float beta_rate = nodes_analysed > 0
-                    ? (float)beta_count * 100.0f / (float)nodes_analysed
+    float beta_rate = interior_nodes > 0
+                    ? (float)beta_count * 100.0f / (float)interior_nodes
                     : 0.0f;
     float first_move_rate = beta_count > 0
                            ? (float)beta_first_move_count * 100.0f / (float)beta_count
                            : 0.0f;
     float avg = beta_count > 0 ? (float)total_moves_before_cutoff / beta_count : 0.0f;
     printf("Depth: %u | Time: %.3fs | Nodes: %llu | Eval: %d | "
-           "A. fail rate: %.1f%% "
-           "Beta: %.1f%% | 1st move: %.1f%% "
+           "A. fail rate: %.1f%% | "
+           "Beta: %.1f%% | 1st move: %.1f%% | "
            "Avg bef. cut: %.2f\n",
            completed_depth, time_spent, nodes_analysed, best_eval,
            (float)aspiration_failures * 100.0 / aspiration_attempts,
