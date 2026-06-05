@@ -790,8 +790,10 @@ void king_attack_generator(void)
 
     // these masks include the king square as the king cannot be in check and castle at the same time
     castling_blocker_masks[!WHITE_INDEX][!QUEENSIDE] = 1ULL << 4 | 1ULL << 5 | 1ULL << 6;
-    castling_blocker_masks[!WHITE_INDEX][QUEENSIDE] = 1ULL << 1 | 1ULL << 2 | 1ULL << 3 | 1ULL << 4;
+    castling_blocker_masks[!WHITE_INDEX][QUEENSIDE_EMPTY] = 1ULL << 1 | 1ULL << 2 | 1ULL << 3;
     castling_blocker_masks[WHITE_INDEX][!QUEENSIDE] = 1ULL << 60 | 1ULL << 61 | 1ULL << 62;
-    castling_blocker_masks[WHITE_INDEX][QUEENSIDE] = 1ULL << 57 | 1ULL << 58 | 1ULL << 59 | 1ULL << 60;
+    castling_blocker_masks[WHITE_INDEX][QUEENSIDE_EMPTY] = 1ULL << 57 | 1ULL << 58 | 1ULL << 59;
+    castling_blocker_masks[WHITE_INDEX][QUEENSIDE_ATTACKED] = 1ULL << 58 | 1ULL << 59 | 1ULL << 60;
+    castling_blocker_masks[!WHITE_INDEX][QUEENSIDE_ATTACKED] = 1ULL << 2 | 1ULL << 3 | 1ULL << 4;
 }
 

@@ -17,6 +17,11 @@
 #define FULL_ASPIRATION_WINDOW_DEPTH 4
 #define ASPIRATION_WINDOW 50
 
+#define MAX_SEARCH_DEPTH 64
+#define MAX_QUIESCENCE_DEPTH 5
+
+#define KILLER_EVALUATION 90
+
 /**
  * @brief Negamax search algorithm for a given position and depth.
  * 

@@ -13,7 +13,13 @@
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX_QUIESCENCE_DEPTH 5
+
+typedef struct {
+    uint8_t from_sq;
+    uint8_t to_sq;
+} Killer_t;
+
+static Killer_t killer_moves[MAX_SEARCH_DEPTH][2];
 
 static int32_t best_eval = 0;
 static int32_t prev_eval = 0;
@@ -23,7 +29,6 @@ static uint8_t completed_depth = 0;
 static clock_t start_time = 0;
 static clock_t global_max_time = 0;
 static bool time_up = false;
-static double time_spent = 0.0;
 
 static ULL nodes_analysed = 0;
 static uint32_t aspiration_attempts = 0;
@@ -78,9 +83,11 @@ static inline void sort_children(Position_t *position)
 
 static inline bool time_is_up(void)
 {
+    if ((nodes_analysed & 4095) != 0) { return false; }  // check every 4096 nodes
     time_up = (clock() - start_time) >= global_max_time;
     return time_up;
 }
+
 
 int32_t find_best_move(Position_t *position,
                        Position_t *return_best_move,
@@ -101,6 +108,8 @@ int32_t find_best_move(Position_t *position,
     beta_count = 0;
     beta_first_move_count = 0;
     total_moves_before_cutoff = 0;
+
+    memset(killer_moves, 0, sizeof(killer_moves));
 
     move_finder(position);
 
@@ -199,8 +208,6 @@ int32_t find_best_move(Position_t *position,
 
     free_children_memory(position);
 
-    clock_t end_time = clock();
-    time_spent = (double)(end_time - start_time) / CLOCKS_PER_SEC;
     return best_eval;
 }
 
@@ -257,7 +264,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
                         if (entry_eval > alpha) alpha = entry_eval;
                         break;
                     case UPPER_BOUND:
-                        if (entry_eval < beta)  beta  = entry_eval;
+                        if (entry_eval < beta) beta = entry_eval;
                         break;
                     default:
                         break;
@@ -277,10 +284,11 @@ static int32_t negamax(Position_t *position, uint8_t depth,
     // ------------------------------------------------------------------
     if (__builtin_expect(!is_root, 1)) { move_finder(position); }
 
+    const uint16_t pos_num_chldrn = position->num_children;
     // ------------------------------------------------------------------
     // Terminal node: no legal moves
     // ------------------------------------------------------------------
-    if (position->num_children == 0) {
+    if (pos_num_chldrn == 0) {
         nodes_analysed++;
         // We already know num_children == 0; is_check is sufficient.
         if (__builtin_expect(!is_root, 1)) { free_children_memory(position); }
@@ -293,7 +301,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
     // TT move ordering: move the TT best-move to the front
     // ------------------------------------------------------------------
     if (tt_move_found) {
-        for (uint16_t i = 0; i < position->num_children; i++) {
+        for (uint16_t i = 0; i < pos_num_chldrn; i++) {
             if (position->child_positions[i]->zobrist_key
                     == entry->best_move_zobrist_key) {
                 if (i != 0) {
@@ -306,15 +314,31 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         }
     }
 
+    uint16_t sort_start = (tt_move_found) ? 1 : 0;
+
+    // ------------------------------------------------------------------
+    // Killer move ordering:
+    // ------------------------------------------------------------------
+    for (uint16_t i = sort_start; i < pos_num_chldrn; i++) {
+        Position_t* child = position->child_positions[i];
+        if (child->evaluation > KILLER_EVALUATION) { continue; } // skip captures
+        if (child->from_sq == killer_moves[depth][0].from_sq &&
+            child->to_sq == killer_moves[depth][0].to_sq) {
+            child->evaluation = KILLER_EVALUATION;
+        } else if (child->from_sq == killer_moves[depth][1].from_sq &&
+            child->to_sq == killer_moves[depth][1].to_sq) {
+            child->evaluation = KILLER_EVALUATION - 10;
+        }
+    }
+
     // ------------------------------------------------------------------
     // Main negamax loop
     // ------------------------------------------------------------------
     int32_t value = -INT32_MAX + 1;
     int best_child_idx = -1;
-    uint16_t sort_start = (tt_move_found) ? 1 : 0;
 
 
-    for (uint16_t i = 0; i < position->num_children; i++)
+    for (uint16_t i = 0; i < pos_num_chldrn; i++)
     {
         // Check clock periodically — every child is cheap enough
         if (time_is_up()) {
@@ -325,7 +349,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
         if (i >= sort_start) {
             uint16_t best = i;
 
-            for (uint16_t j = i + 1; j < position->num_children; j++) {
+            for (uint16_t j = i + 1; j < pos_num_chldrn; j++) {
                 if (position->child_positions[j]->evaluation >
                     position->child_positions[best]->evaluation) {
                     best = j;
@@ -342,7 +366,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
 
         insert_past_move_entry(child);
         int32_t score = negamax(child, depth - 1, -beta, -alpha, NULL);
-        clear_past_move_entry(child);
+        clear_past_move_entry();
 
         // check for timeout BEFORE negating. negating it gives +9997799 which
         // looks like a brilliant move and would corrupt the result.
@@ -365,6 +389,15 @@ static int32_t negamax(Position_t *position, uint8_t depth,
                 beta_count++;
                 total_moves_before_cutoff += (i + 1);  // i is 0-indexed
                 if (i == 0) { beta_first_move_count++; }
+
+                // Killer move herusitc - if not a capture move and a cutoff move
+                // then store the move to try at the next sibling node
+                bool is_capture = (child->piece_value_diff != position->piece_value_diff);
+                if (!is_capture) {
+                    killer_moves[depth][1] = killer_moves[depth][0];
+                    killer_moves[depth][0] = (Killer_t){child->from_sq, child->to_sq};
+                }
+
                 break; /* Beta cutoff */
             }
         }
@@ -485,7 +518,7 @@ static int32_t quiescence(Position_t *position, int32_t alpha, int32_t beta,
         // otherwise compute children recursively:
         insert_past_move_entry(child);
         int32_t score = -quiescence(child, -beta, -alpha, qdepth - 1);
-        clear_past_move_entry(child);
+        clear_past_move_entry();
 
         // alpha-beta cutoff:
         if (score > alpha) {
@@ -511,11 +544,11 @@ void print_stats(void)
                            ? (float)beta_first_move_count * 100.0f / (float)beta_count
                            : 0.0f;
     float avg = beta_count > 0 ? (float)total_moves_before_cutoff / beta_count : 0.0f;
-    printf("Depth: %u | Time: %.3fs | Nodes: %llu | Eval: %d | "
+    printf("Depth: %u | Nodes: %llu | Eval: %d | "
            "A. fail rate: %.1f%% | "
            "Beta: %.1f%% | 1st move: %.1f%% | "
            "Avg bef. cut: %.2f\n",
-           completed_depth, time_spent, nodes_analysed, best_eval,
+           completed_depth, nodes_analysed, best_eval,
            (float)aspiration_failures * 100.0 / aspiration_attempts,
            beta_rate, first_move_rate, avg);
 }

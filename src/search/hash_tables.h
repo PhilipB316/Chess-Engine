@@ -11,6 +11,11 @@
 #include <stdint.h>
 
 #include "../movefinding/board.h"
+#include "search.h"
+
+#define TT_SIZE_BITS 28
+#define TT_SIZE (1ULL << TT_SIZE_BITS)
+#define TT_MASK (TT_SIZE - 1)
 
 extern ULL zobrist_key_table[2][6][64];
 extern ULL zobrist_black_to_move;
@@ -32,23 +37,18 @@ typedef struct {
     NodeType_t node_type;
 } TranspositionEntry_t;
 
+extern TranspositionEntry_t *transposition_table;
+
+extern ULL past_move_stack[
+    MAXIMUM_GAME_LENGTH + MAX_SEARCH_DEPTH + MAX_QUIESCENCE_DEPTH];
+extern int past_move_stack_top;
+
 typedef struct
 {
     ULL zobrist_key;
     uint8_t occurences;
     bool is_taken;
 } PastMoveEntry_t;
-
-#define TT_SIZE_BITS 28
-#define TT_SIZE (1ULL << TT_SIZE_BITS)
-#define TT_MASK (TT_SIZE - 1)
-
-#define PAST_MOVE_LIST_SIZE_BITS 20
-#define PAST_MOVE_LIST_SIZE (1ULL << PAST_MOVE_LIST_SIZE_BITS)
-#define PAST_MOVE_LIST_MASK (PAST_MOVE_LIST_SIZE - 1)
-
-extern TranspositionEntry_t *transposition_table;
-extern PastMoveEntry_t* past_move_list;
 
 /**
  * @brief Initialises the Zobrist key table with random values.
@@ -77,27 +77,11 @@ void hash_table_free(void);
  */
 ULL generate_zobrist_hash(Position_t *position);
 
-/**
- * @brief Inserts a position into the past move table.
- * 
- * @param child The position to insert.
-*/
-void insert_past_move_entry(Position_t* child);
+static inline void insert_past_move_entry(Position_t* child)
+{ past_move_stack[past_move_stack_top++] = child->zobrist_key; }
 
-/**
- * @brief Clears a position from the past move table.
- * 
- * @param child The position to clear.
-*/
-void clear_past_move_entry(Position_t* child);
-
-/**
- * @brief Checks if the given position has occurred before.
- * 
- * @param position The position to check.
- * @return true if the position has occurred before, false otherwise.
-*/
-bool is_past_move_entry_repetition(Position_t* position);
+static inline void clear_past_move_entry(void)
+{ past_move_stack_top--; }
 
 /**
  * @brief Checks if the given position has occurred at least three times.

@@ -3,8 +3,17 @@ project(chess-engine C)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD 17)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -O3 -std=c17 -flto -pthread -fomit-frame-pointer")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -flto -pthread -lm")
+option(PROFILE "Enable profiling" OFF)
+
+if(PROFILE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -O2 -std=c17 \
+    -pthread -g -fno-omit-frame-pointer -mpopcnt")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread -lm")
+else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -O3 -std=c17 \
+    -flto -pthread -fomit-frame-pointer -mpopcnt")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -flto -pthread -lm")
+endif()
 
 option(BUILD_WEB "Build for web (use web_main.c)" OFF)
 

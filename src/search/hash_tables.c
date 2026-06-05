@@ -14,7 +14,10 @@ ULL zobrist_en_passant[65];
 ULL zobrist_castling[2][2];
 
 TranspositionEntry_t *transposition_table = NULL;
-PastMoveEntry_t* past_move_list = NULL;
+
+ULL past_move_stack[
+    MAXIMUM_GAME_LENGTH + MAX_SEARCH_DEPTH + MAX_QUIESCENCE_DEPTH];
+int past_move_stack_top = 0;
 
 ULL random_64_bit(void)
 {
@@ -24,7 +27,7 @@ ULL random_64_bit(void)
         srand((unsigned int)time(NULL));
         seeded = true;
     }
-    return ((ULL)rand() << 32) | rand();
+    return ((ULL)rand() << 33) | ((ULL)rand() << 2) | (rand() & 3);
 }
 
 void zobrist_key_init(void)
@@ -90,105 +93,27 @@ ULL generate_zobrist_hash(Position_t *position)
         }
     }
 
-    if (position->pieces[white_to_move].castle_kingside) {
-        hash ^= zobrist_castling[white_to_move][KINGSIDE];
-    }
-    if (position->pieces[white_to_move].castle_queenside) {
-        hash ^= zobrist_castling[white_to_move][QUEENSIDE];
-    }
-    if (position->pieces[!white_to_move].castle_kingside) {
-        hash ^= zobrist_castling[!white_to_move][KINGSIDE];
-    }
-    if (position->pieces[!white_to_move].castle_queenside) {
-        hash ^= zobrist_castling[!white_to_move][QUEENSIDE];
-    }
+    if (position->pieces[white_to_move].castle_kingside) 
+    { hash ^= zobrist_castling[white_to_move][KINGSIDE]; }
+    if (position->pieces[white_to_move].castle_queenside) 
+    { hash ^= zobrist_castling[white_to_move][QUEENSIDE]; }
+    if (position->pieces[!white_to_move].castle_kingside)
+    { hash ^= zobrist_castling[!white_to_move][KINGSIDE]; }
+    if (position->pieces[!white_to_move].castle_queenside)
+    { hash ^= zobrist_castling[!white_to_move][QUEENSIDE]; }
 
     return hash;
 }
 
-void insert_past_move_entry(Position_t* child)
-{
-    // populate past move list using linear probing
-    ULL turn_agnositic_key = child->zobrist_key;
-    if (!child->white_to_move) {
-        turn_agnositic_key ^= zobrist_black_to_move;
-    }
-    int32_t index = turn_agnositic_key & PAST_MOVE_LIST_MASK;
-    bool is_taken = past_move_list[index].is_taken;
-    while (is_taken) {
-        if (past_move_list[index].zobrist_key == child->zobrist_key) {
-            past_move_list[index].occurences++; // increment counter if already exists
-            return;
-        } else {
-            index = (index + 1) & PAST_MOVE_LIST_MASK;
-        }
-        is_taken = past_move_list[index].is_taken;
-    }
-    past_move_list[index].is_taken = true;
-    past_move_list[index].zobrist_key = child->zobrist_key;
-    past_move_list[index].occurences = 1; // first occurrence
-}
-
-void clear_past_move_entry(Position_t* child)
-{
-    ULL turn_agnositic_key = child->zobrist_key;
-    if (!child->white_to_move) {
-        turn_agnositic_key ^= zobrist_black_to_move;
-    }
-    int32_t index = turn_agnositic_key & PAST_MOVE_LIST_MASK;
-    bool is_taken = past_move_list[index].is_taken;
-    while (is_taken) {
-        if (past_move_list[index].zobrist_key == child->zobrist_key) {
-            if (past_move_list[index].occurences > 1) {
-                past_move_list[index].occurences--; // decrement counter
-            } else {
-                past_move_list[index].is_taken = false;
-                past_move_list[index].occurences = 0;
-            }
-            return;
-        } else {
-            index = (index + 1) & PAST_MOVE_LIST_MASK;
-        }
-        is_taken = past_move_list[index].is_taken;
-    }
-}
-
-bool is_past_move_entry_repetition(Position_t* position)
-{
-    ULL turn_agnositic_key = position->zobrist_key;
-    if (!position->white_to_move) {
-        turn_agnositic_key ^= zobrist_black_to_move;
-    }
-    int32_t index = turn_agnositic_key & PAST_MOVE_LIST_MASK;
-    bool is_taken = past_move_list[index].is_taken;
-    while (is_taken) {
-        if (past_move_list[index].zobrist_key == position->zobrist_key) {
-            return true; // found repetition
-        } else {
-            index = (index + 1) & PAST_MOVE_LIST_MASK;
-        }
-        is_taken = past_move_list[index].is_taken;
-    }
-    return false; // no repetition found
-}
-
 bool is_threefold_repetition(Position_t* position)
 {
-    ULL turn_agnositic_key = position->zobrist_key;
-    if (!position->white_to_move) {
-        turn_agnositic_key ^= zobrist_black_to_move;
+    int needed = 2;
+    ULL key = position->zobrist_key;
+    for (int i = past_move_stack_top - 1; i >= 0; i--) {
+        if (past_move_stack[i] == key && --needed == 0) return true;
+        if ((i+1) < needed) break;
     }
-    int32_t index = turn_agnositic_key & PAST_MOVE_LIST_MASK;
-
-    for (;;) {
-        PastMoveEntry_t *entry = &past_move_list[index];
-
-        if (!entry->is_taken) { return false; }
-        if (entry->zobrist_key == position->zobrist_key) {
-            return (entry->occurences >= 3);
-        }
-        index = (index + 1) & PAST_MOVE_LIST_MASK;
-    }
+    return false;
 }
 
 void hash_table_init(void) 
@@ -198,17 +123,8 @@ void hash_table_init(void)
         fprintf(stderr, "Failed to allocate transposition table\n");
         exit(1);
     }
-
-    past_move_list = calloc(1, sizeof(PastMoveEntry_t) * PAST_MOVE_LIST_SIZE);
-    if (!past_move_list) {
-        fprintf(stderr, "Failed to allocate past move list\n");
-        exit(1);
-    }
-
 }
 
 void hash_table_free(void)
-{
-    free(transposition_table);
-    free(past_move_list);
-}
+{ free(transposition_table); }
+

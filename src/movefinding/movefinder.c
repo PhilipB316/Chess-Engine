@@ -456,8 +456,10 @@ void move_finder(Position_t *position)
 
     // castling queenside
     if (active_pieces_set->castle_queenside) {
-        ULL must_be_empty = (threatened_squares | all_pieces_bitboard) & 
-            castling_blocker_masks[WHITE_TO_MOVE][QUEENSIDE];
+        ULL empty_mask = castling_blocker_masks[WHITE_TO_MOVE][QUEENSIDE_EMPTY];
+        ULL safe_mask = castling_blocker_masks[WHITE_TO_MOVE][QUEENSIDE_ATTACKED];
+        ULL must_be_empty = (threatened_squares | safe_mask) & 
+            (all_pieces_bitboard & empty_mask);
         if (!must_be_empty) {
             generate_new_positions(CASTLE_QUEENSIDE, king_from_square,
                                    king_castling_array[WHITE_TO_MOVE][QUEENSIDE], king_bitboard, 0);
@@ -562,6 +564,9 @@ void generate_new_positions(MoveType_t piece,
         if (!is_check(new_position, WHITE_TO_MOVE)) {
             OLD_POSTION->child_positions[OLD_POSTION->num_children++] = new_position;
 
+            new_position->from_sq = from_square;
+            new_position->to_sq = to_square;
+
             // MVV-LVA score - captures are high, quiet moves are 0
             int32_t mvv_lva = victim_value * VICTIM_WEIGHTING - attacker_value;
             if (piece == PROMOTE_QUEEN) { mvv_lva += QUEEN_VALUE * 10; }
@@ -603,7 +608,9 @@ void populate_position(MoveType_t piece,
     active_pieces_set->all_pieces ^= move_bitboard;
 
     ULL zobrist_key = new_position->zobrist_key;
-    zobrist_key ^= zobrist_en_passant[__builtin_ctzll(OLD_POSTION->en_passant_bitboard)];
+    if (OLD_POSTION->en_passant_bitboard) {
+        zobrist_key ^= zobrist_en_passant[__builtin_ctzll(OLD_POSTION->en_passant_bitboard)];
+    }
     zobrist_key ^= zobrist_black_to_move;
 
     switch (piece)

@@ -26,12 +26,14 @@ extern const bool web_build;
 
 #define MAX_CHILDREN 100
 #define FEN_LENGTH 100
-#define MAXIMUM_GAME_LENGTH 500
+#define MAXIMUM_GAME_LENGTH 512
 
 #define WHITE_INDEX 1
 
 #define KINGSIDE 0
 #define QUEENSIDE 1
+#define QUEENSIDE_EMPTY 1
+#define QUEENSIDE_ATTACKED 2
 
 #define DEBUG 1
 #define SAFE 0 // safe alerts if custom memory pool has been exhausted
@@ -72,6 +74,8 @@ typedef struct Position_t
 {
     // --- game state --
     bool white_to_move;
+    uint8_t from_sq;
+    uint8_t to_sq;
     uint16_t half_move_count;
     int32_t piece_value_diff;
     int32_t evaluation;

@@ -322,7 +322,7 @@ MoveType_t find_move_type(Position_t *from_position, Position_t *to_position)
         else if (to_bitboard & to_active_pieces_set.bishops) { return PROMOTE_BISHOP; }
         else if (to_bitboard & to_active_pieces_set.rooks) { return PROMOTE_ROOK; }
         else if (to_bitboard & to_active_pieces_set.queens) { return PROMOTE_QUEEN; }
-        else if (to_bitboard & to_active_pieces_set.kings) { return PROMOTE_KNIGHT; }
+        else if (to_bitboard & to_active_pieces_set.knights) { return PROMOTE_KNIGHT; }
     }
     else if (from_bitboard & from_active_pieces_set.knights) { return KNIGHT; }
     else if (from_bitboard & from_active_pieces_set.bishops) { return BISHOP; }

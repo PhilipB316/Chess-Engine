@@ -93,7 +93,7 @@ bool play_game(Position_t* position)
     if (first_move && !playing_as_white) {
     // if (1) {
         // If the user is playing as black, the engine makes the first move
-        find_best_move(position, &move_position, 3, get_next_move_search_time());
+        find_best_move(position, &move_position, MAX_SEARCH_DEPTH, get_next_move_search_time());
         if (!update_game()) { return 0; /* Exit if the game is over */ }
         first_move = false;
     }
@@ -103,7 +103,7 @@ bool play_game(Position_t* position)
     // if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     // engine move
-    find_best_move(position, &move_position, 30, get_next_move_search_time());
+    find_best_move(position, &move_position, MAX_SEARCH_DEPTH, get_next_move_search_time());
     // printf("Engine evaluation: %d\n", score);
     print_stats();
     if (!update_game()) { return 0; /* Exit if the game is over */ }
