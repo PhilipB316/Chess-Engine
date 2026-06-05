@@ -89,7 +89,7 @@ static inline void clear_past_move_entry(void)
  * @param position The position to check.
  * @return true if the position has occurred at least three times, false otherwise.
 */
-bool is_threefold_repetition(Position_t* position);
+bool is_repetition(Position_t* position, uint8_t rept);
 
 #endif // TRANSPOSITION_TABLE_H
 

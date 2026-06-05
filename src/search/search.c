@@ -231,7 +231,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
     // Threefold-repetition draw (skip at root — root position is already
     // in the past-move list; we don't want an instant draw evaluation)
     // ------------------------------------------------------------------
-    if (!is_root && is_threefold_repetition(position)) {
+    if (!is_root && is_repetition(position, 2)) {
         nodes_analysed++;
         return 0;
     }

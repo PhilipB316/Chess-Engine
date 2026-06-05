@@ -42,7 +42,7 @@ bool is_check(Position_t* position, bool for_white)
 
 KingStatus_t determine_king_status(Position_t* position, bool for_white)
 {
-    if (is_threefold_repetition(position)) { return THREEFOLD_REPETITION; }
+    if (is_repetition(position, 3)) { return THREEFOLD_REPETITION; }
 
     move_finder(position);
 

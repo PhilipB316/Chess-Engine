@@ -105,13 +105,12 @@ ULL generate_zobrist_hash(Position_t *position)
     return hash;
 }
 
-bool is_threefold_repetition(Position_t* position)
+bool is_repetition(Position_t* position, uint8_t rept)
 {
-    int needed = 2;
     ULL key = position->zobrist_key;
     for (int i = past_move_stack_top - 1; i >= 0; i--) {
-        if (past_move_stack[i] == key && --needed == 0) return true;
-        if ((i+1) < needed) break;
+        if (past_move_stack[i] == key && --rept == 0) return true;
+        if ((i+1) < rept) break;
     }
     return false;
 }
