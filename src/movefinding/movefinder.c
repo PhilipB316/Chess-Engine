@@ -119,8 +119,8 @@ inline ULL find_pawn_moves(Position_t* position, uint8_t pawn_square)
 
     // single pushes (normal)
     ULL single_push_bitboard = 1ULL << (from_square + direction * 8);
-    if (single_push_bitboard & ~all_pieces_bitboard)
-    { possible_move_squares |= single_push_bitboard;
+    if (single_push_bitboard & ~all_pieces_bitboard) { 
+        possible_move_squares |= single_push_bitboard;
  
         // double push
         ULL double_push_bitboard = 1ULL << (from_square + direction * 16);
@@ -205,7 +205,7 @@ ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white)
         knight_bitboard &= ~(1ULL << from_square);
     }
 
-    // ============================== BISHOPS ==============================
+    // ============================== ROOKS ==============================
     ULL rook_bitboard = active_pieces_set->rooks;
     while (rook_bitboard)
     {
@@ -214,7 +214,7 @@ ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white)
         rook_bitboard &= ~(1ULL << from_square);
     }
 
-    // ============================== ROOKS ==============================
+    // ============================== BISHOPS ============================
     ULL bishop_bitboard = active_pieces_set->bishops;
     while (bishop_bitboard)
     {
