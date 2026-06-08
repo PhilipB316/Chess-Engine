@@ -97,7 +97,7 @@ bool make_notation_move(Position_t *old_position,
                         MoveType_t piece,
                         ULL to_square_bitboard, 
                         ULL from_square_bitboard, 
-                        ULL special_flags);
+                        ULL en_passant_bb);
 
 ULL calculate_attack_squares(Position_t* position, bool squares_belong_to_white);
 

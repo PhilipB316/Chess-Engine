@@ -28,6 +28,7 @@ static bool playing_as_white = false; // Default perspective for printing the bo
 // #define new "r2q1rk1/1pp1nppp/8/p1b1p3/2PpP1n1/PP1P2N1/2Q2PPP/RNB2RK1 w - - 0 13"
 // #define new "6k1/1K6/4q3/3B4/2P5/5b2/8/8 w - - 0 1"
 // #define new "r1b1kbn1/pp1ppppp/8/6Nr/2p5/5PP1/1P1PPRRP/1N2BBKR w - - 0 1"
+// #define new "1k6/4N3/8/8/8/5rr1/2K5/8 w - - 0 1"
 
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
