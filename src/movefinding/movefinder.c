@@ -356,10 +356,10 @@ void move_finder(Position_t *position)
             // double push
             ULL double_push_bitboard = 1ULL << (from_square + direction * 16);
             if ((rank == start_rank) && (double_push_bitboard & ~all_pieces_bitboard)) {
-                generate_new_positions(DOUBLE_PUSH, from_square,
-                                       double_push_bitboard,
-                                       from_square_bitboard,
-                                       single_push_bitboard);
+            //     generate_new_positions(DOUBLE_PUSH, from_square,
+            //                            double_push_bitboard,
+            //                            from_square_bitboard,
+            //                            single_push_bitboard);
             }
         }
 
@@ -458,12 +458,10 @@ void move_finder(Position_t *position)
     if (active_pieces_set->castle_queenside) {
         ULL empty_mask = castling_blocker_masks[WHITE_TO_MOVE][QUEENSIDE_EMPTY];
         ULL safe_mask = castling_blocker_masks[WHITE_TO_MOVE][QUEENSIDE_ATTACKED];
-        ULL must_be_empty = (threatened_squares | safe_mask) & 
-            (all_pieces_bitboard & empty_mask);
-        if (!must_be_empty) {
-            generate_new_positions(CASTLE_QUEENSIDE, king_from_square,
-                                   king_castling_array[WHITE_TO_MOVE][QUEENSIDE], king_bitboard, 0);
-        }
+        if (!(all_pieces_bitboard & empty_mask) && !(threatened_squares & safe_mask)) {
+                generate_new_positions(CASTLE_QUEENSIDE, king_from_square,
+                                       king_castling_array[WHITE_TO_MOVE][QUEENSIDE], king_bitboard, 0);
+            }
     }
 }
 
@@ -694,10 +692,15 @@ void populate_position(MoveType_t piece,
             zobrist_key ^= zobrist_key_table[WHITE_TO_MOVE][PIECE_ROOK]
                 [__builtin_ctzll(castled_rook_locations[WHITE_TO_MOVE][KINGSIDE])];
             new_position->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][KINGSIDE];
-            active_pieces_set->castle_kingside = false;
-            active_pieces_set->castle_queenside = false;
-            zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][KINGSIDE];
-            zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][QUEENSIDE];
+
+            if (new_position->pieces[WHITE_TO_MOVE].castle_kingside) {
+                active_pieces_set->castle_kingside = false;
+                zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][KINGSIDE];
+            }
+            if (new_position->pieces[WHITE_TO_MOVE].castle_queenside) {
+                active_pieces_set->castle_queenside = false;
+                zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][QUEENSIDE];
+            }
             break;
 
         case CASTLE_QUEENSIDE:
@@ -712,10 +715,14 @@ void populate_position(MoveType_t piece,
             zobrist_key ^= zobrist_key_table[WHITE_TO_MOVE][PIECE_ROOK]
                 [__builtin_ctzll(castled_rook_locations[WHITE_TO_MOVE][QUEENSIDE])];
             new_position->all_pieces ^= rook_castling_array[WHITE_TO_MOVE][QUEENSIDE];
-            active_pieces_set->castle_kingside = false;
-            active_pieces_set->castle_queenside = false;
-            zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][KINGSIDE];
-            zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][QUEENSIDE];
+            if (new_position->pieces[WHITE_TO_MOVE].castle_kingside) {
+                active_pieces_set->castle_kingside = false;
+                zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][KINGSIDE];
+            }
+            if (new_position->pieces[WHITE_TO_MOVE].castle_queenside) {
+                active_pieces_set->castle_queenside = false;
+                zobrist_key ^= zobrist_castling[WHITE_TO_MOVE][QUEENSIDE];
+            }
             break;
 
         case EN_PASSANT_CAPTURE:
@@ -783,6 +790,22 @@ void populate_position(MoveType_t piece,
             opponent_pieces_set->rooks ^= to_square_bitboard;
             zobrist_key ^= zobrist_key_table[!WHITE_TO_MOVE][PIECE_ROOK][to_square];
             new_position->piece_value_diff += PIECE_COLOUR * ROOK_VALUE;
+
+            // if captured rook was on original kingside square remove castling right
+            if (to_square_bitboard & original_rook_locations[!WHITE_TO_MOVE][KINGSIDE]) {
+                if (opponent_pieces_set->castle_kingside) {
+                    opponent_pieces_set->castle_kingside = false;
+                    zobrist_key ^= zobrist_castling[!WHITE_TO_MOVE][KINGSIDE];
+                }
+            }
+            // ditto
+            if (to_square_bitboard & original_rook_locations[!WHITE_TO_MOVE][QUEENSIDE]) {
+                if (opponent_pieces_set->castle_queenside) {
+                    opponent_pieces_set->castle_queenside = false;
+                    zobrist_key ^= zobrist_castling[!WHITE_TO_MOVE][QUEENSIDE];
+                }
+            }
+
         } else if (opponent_pieces_set->queens & to_square_bitboard) {
             opponent_pieces_set->queens ^= to_square_bitboard;
             zobrist_key ^= zobrist_key_table[!WHITE_TO_MOVE][PIECE_QUEEN][to_square];

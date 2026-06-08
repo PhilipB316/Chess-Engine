@@ -27,6 +27,7 @@ static bool playing_as_white = false; // Default perspective for printing the bo
 // #define new "3krr2/8/8/8/8/8/3K4/8 w - - 20 21"
 // #define new "r2q1rk1/1pp1nppp/8/p1b1p3/2PpP1n1/PP1P2N1/2Q2PPP/RNB2RK1 w - - 0 13"
 // #define new "6k1/1K6/4q3/3B4/2P5/5b2/8/8 w - - 0 1"
+// #define new "r1b1kbn1/pp1ppppp/8/6Nr/2p5/5PP1/1P1PPRRP/1N2BBKR w - - 0 1"
 
 static Position_t position; // Current position of the game
 static Position_t move_position; // Position after the last move
@@ -91,21 +92,20 @@ bool play_game(Position_t* position)
     static bool first_move = true;
 
     if (first_move && !playing_as_white) {
-    // if (1) {
         // If the user is playing as black, the engine makes the first move
         find_best_move(position, &move_position, MAX_SEARCH_DEPTH, get_next_move_search_time());
         if (!update_game()) { return 0; /* Exit if the game is over */ }
         first_move = false;
     }
 
-    // // user move
-    // make_move_from_cli(position, &move_position);
-    // if (!update_game()) { return 0; /* Exit if the game is over */ }
+    // user move
+    make_move_from_cli(position, &move_position);
+    if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     // engine move
     find_best_move(position, &move_position, MAX_SEARCH_DEPTH, get_next_move_search_time());
-    // printf("Engine evaluation: %d\n", score);
     print_stats();
+
     if (!update_game()) { return 0; /* Exit if the game is over */ }
 
     return 1;

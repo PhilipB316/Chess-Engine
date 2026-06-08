@@ -178,11 +178,11 @@ int parse_move_notation(const char *move_notation,
     }
 
     char piece_type = move_notation[0];
-    if (piece_type == 'K') {*move_type = KING; return 1;} // King move
-    else if (piece_type == 'Q') {*move_type = QUEEN; return 1;} // Queen move
-    else if (piece_type == 'R') {*move_type = ROOK; return 1;} // Rook move
-    else if (piece_type == 'B') {*move_type = BISHOP; return 1;} // Bishop move
-    else if (piece_type == 'N') {*move_type = KNIGHT; return 1;} // Knight move
+    if (piece_type == 'K') {*move_type = KING; return 1;}
+    else if (piece_type == 'Q') {*move_type = QUEEN; return 1;}
+    else if (piece_type == 'R') {*move_type = ROOK; return 1;}
+    else if (piece_type == 'B') {*move_type = BISHOP; return 1;}
+    else if (piece_type == 'N') {*move_type = KNIGHT; return 1;}
     // Pawn move
     if (is_lower(piece_type)) {
         if (length == 4) {
@@ -191,19 +191,26 @@ int parse_move_notation(const char *move_notation,
             if (!(opponent_pieces_bitboard & to_square_bitboard)) {
                 // length 4 means a capture, and if there was no opponent piece on the to square
                 // it must be an en passant capture
-                *move_type = EN_PASSANT_CAPTURE; // En passant capture
-                uint8_t rank_offset = (white_to_move) ? 8 : -8; // direction of pawn movement
+                *move_type = EN_PASSANT_CAPTURE;
+                uint8_t rank_offset = (white_to_move) ? 8 : -8;
                 *special_flags = 1ULL << (*to_square + rank_offset);
                 return 1;
             }
         } else if (length == 2) {
             uint8_t rank = square_index(move_notation[0], move_notation[1]) / 8;
             uint8_t double_push_rank = (white_to_move) ? 4 : 3;
-            int rank_offset = (white_to_move) ? 8 : -8; // direction of pawn movement
+            uint8_t start_rank       = (white_to_move) ? 6 : 1;
+            int rank_offset = (white_to_move) ? 8 : -8;
             if (rank == double_push_rank) {
-                *move_type = DOUBLE_PUSH;
-                *special_flags = 1ULL << (*to_square + rank_offset);
-                return 1;
+                // Only a true double push if the pawn is still on the start rank.
+                // A single push to rank 4 (e.g. b3->b4) must not set en_passant_bitboard.
+                uint8_t file = *to_square % 8;
+                ULL start_square = 1ULL << (start_rank * 8 + file);
+                if (position->pieces[white_to_move].pawns & start_square) {
+                    *move_type = DOUBLE_PUSH;
+                    *special_flags = 1ULL << (*to_square + rank_offset);
+                    return 1;
+                }
             }
         }
         *move_type = PAWN;
