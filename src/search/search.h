@@ -31,7 +31,7 @@
  * @param position The current position to evaluate.
  * @param best_move The position to store the best move found.
  * @param max_depth The maximum depth to search.
- * @param max_time The maximum time allowed for the search.
+ * @param max_time maximum search time - ms
  */
 int32_t find_best_move(Position_t* position, 
                        Position_t* return_best_move, 

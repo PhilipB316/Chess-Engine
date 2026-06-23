@@ -13,7 +13,7 @@
 #include "../movefinding/board.h"
 #include "search.h"
 
-#define TT_SIZE_BITS 28
+#define TT_SIZE_BITS 25
 #define TT_SIZE (1ULL << TT_SIZE_BITS)
 #define TT_MASK (TT_SIZE - 1)
 

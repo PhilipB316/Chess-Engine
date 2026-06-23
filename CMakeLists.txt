@@ -37,6 +37,7 @@ file(GLOB SOURCES
     "./src/search/hash_tables.c"
     "./src/interface/movedisplay.c"
     "./src/interface/ui.c"
+    "./src/interface/uci.c"
     "./src/gui/gui.c"
     "./src/gui/log.c"
 )
