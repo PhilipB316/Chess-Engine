@@ -43,4 +43,6 @@ int32_t find_best_move(Position_t* position,
  */
 void print_stats(void);
 
+void set_quiescence_depth(uint8_t depth);
+
 #endif // SEARCH_H
