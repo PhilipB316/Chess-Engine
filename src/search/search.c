@@ -21,6 +21,8 @@ typedef struct {
 
 static Killer_t killer_moves[MAX_SEARCH_DEPTH][2];
 
+static uint8_t max_quiescence_depth = 5;
+
 static int32_t best_eval = 0;
 static int32_t prev_eval = 0;
 static uint8_t searched_depth = 0;
@@ -57,6 +59,9 @@ static ULL interior_nodes = 0;
  *   - Full TT behaviour (lookup + store).
  *   - free_children_memory() is called before every return path.
  */
+
+void set_quiescence_depth(uint8_t depth) {max_quiescence_depth = depth;}
+
 static int32_t negamax(Position_t *position, uint8_t depth,
                        int32_t alpha, int32_t beta,
                        Position_t *return_best_move);
@@ -226,7 +231,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
     /* statically, so captures beyond the horizon are not missed.         */
     /* ------------------------------------------------------------------ */
     if (depth == 0) {
-        return quiescence(position, alpha, beta, MAX_QUIESCENCE_DEPTH);
+        return quiescence(position, alpha, beta, max_quiescence_depth);
     }
 
     // ------------------------------------------------------------------
@@ -474,7 +479,7 @@ static int32_t quiescence(Position_t *position, int32_t alpha, int32_t beta,
         uint16_t num_children = position->num_children;
         if (num_children == 0) { // checkmate
             free_children_memory(position);
-            return -CHECKMATE_VALUE + searched_depth + MAX_QUIESCENCE_DEPTH;
+            return -CHECKMATE_VALUE + searched_depth + max_quiescence_depth;
         }
         for (uint16_t i = 0; i < num_children; i++) {
             Position_t *child = position->child_positions[i];
@@ -500,7 +505,7 @@ static int32_t quiescence(Position_t *position, int32_t alpha, int32_t beta,
     if (num_children == 0) {
         free_children_memory(position);
         if (in_check) { //checkmate
-            return -CHECKMATE_VALUE + searched_depth + (MAX_QUIESCENCE_DEPTH - qdepth);
+            return -CHECKMATE_VALUE + searched_depth + (max_quiescence_depth - qdepth);
         } else { return 0; } // stalemate
     }
 

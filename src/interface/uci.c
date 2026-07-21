@@ -313,6 +313,8 @@ void difficulty_to_search_params(int difficulty, int* time_ms, uint8_t* max_dept
     const double growth = 1.9;
     *time_ms = (int)(base * pow(growth, difficulty - 1));
     static const uint8_t depth_caps[11] = {0, 1, 2, 3, 4, 6, 9, 13, 17, 25, 60 };
+    static const uint8_t qdepth_caps[11] = {0, 0, 1, 2, 2, 3, 3, 4, 5, 5, 5 };
+    set_quiescence_depth(qdepth_caps[difficulty]);
     *max_depth = depth_caps[difficulty];
 }
 

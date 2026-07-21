@@ -15,7 +15,7 @@ else()
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -flto -pthread -lm")
 endif()
 
-option(BUILD_WEB "Build for web (use web_main.c)" OFF)
+option(BUILD_WEB "Build for web (use web_main.c)" ON)
 
 include_directories(HEADER_FILES)
 
