@@ -353,7 +353,7 @@ static int32_t negamax(Position_t *position, uint8_t depth,
             if (__builtin_expect(!is_root, 1)) { free_children_memory(position); }
             return RAN_OUT_OF_TIME;
         }
-   
+ 
         // ------------------------------------------------------------------
         // MVV - LVA move ordering
         // ------------------------------------------------------------------

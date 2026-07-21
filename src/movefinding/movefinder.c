@@ -395,7 +395,7 @@ void move_finder(Position_t *position)
             }
         }
 
-        // check for possible en passant captures
+        // check for possible en peasant captures
         if ((rank == en_passant_rank) && 
             (possible_attacks_bitboard & OLD_POSTION->en_passant_bitboard)) {
             ULL en_passant_bitboard = OLD_POSTION->en_passant_bitboard;
